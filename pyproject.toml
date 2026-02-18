@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "did-webplus"
+version = "0.1.0"
+description = "Python Full DID Resolver for did:webplus"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "LedgerDomain"}]
+keywords = ["did", "webplus", "resolver", "decentralized-identity"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security :: Cryptography",
+]
+dependencies = [
+    "blake3>=1.0.0",
+    "httpx>=0.25.0",
+    "jwcrypto>=1.5.0",
+    "pydantic>=2.0.0",
+    "rfc8785>=0.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "respx>=0.20.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/LedgerDomain/did-webplus-py"
+Repository = "https://github.com/LedgerDomain/did-webplus-py"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["did_webplus*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
