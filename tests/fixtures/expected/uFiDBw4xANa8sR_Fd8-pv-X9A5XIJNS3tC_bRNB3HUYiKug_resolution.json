@@ -1,0 +1,16 @@
+{
+  "didDocument": "{\"assertionMethod\":[],\"authentication\":[],\"capabilityDelegation\":[],\"capabilityInvocation\":[],\"id\":\"did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiDBw4xANa8sR_Fd8-pv-X9A5XIJNS3tC_bRNB3HUYiKug\",\"keyAgreement\":[],\"prevDIDDocumentSelfHash\":\"uFiCCY8US1SG4VLelUh4IXDZ8V8We1djyolblOJ675tQotg\",\"proofs\":[\"eyJhbGciOiJFZDI1NTE5Iiwia2lkIjoidTdRRnRtNnFzUnNrNDdDYlhJWUhoLWttMmVncmJneWxLbWV5cTFuakVPS0tlWkEiLCJjcml0IjpbImI2NCJdLCJiNjQiOmZhbHNlfQ..HpjXgqWQj70j0VA8-godJfIdop4RsSqEQBUJieJi_MhFxgM_sIlX8Yj1Wf_kRHCWQC0Ps2HlZaKe2H5SuBGzAA\"],\"selfHash\":\"uFiB22brlXeP5TPc7qqOxeOJsxuixRv2jE9rmFCRLVBizHw\",\"updateRules\":{},\"validFrom\":\"2026-02-11T06:49:42.596Z\",\"verificationMethod\":[],\"versionId\":2}",
+  "didDocumentMetadata": {
+    "created": null,
+    "updated": "2026-02-11T06:49:42.596Z",
+    "versionId": 2,
+    "nextUpdate": null,
+    "deactivated": true
+  },
+  "didResolutionMetadata": {
+    "contentType": "application/did+json",
+    "fetchedUpdatesFromVdr": false,
+    "didDocumentResolvedLocally": true,
+    "didDocumentMetadataResolvedLocally": true
+  }
+}

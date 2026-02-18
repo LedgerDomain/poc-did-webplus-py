@@ -7,11 +7,15 @@ import copy
 import json
 from typing import Any
 
-import blake3
 import rfc8785
 from jwcrypto import jwk, jws
+from multiformats import multibase
 
-from did_webplus.selfhash import BLAKE3_PLACEHOLDER, _replace_self_hash_slots_in_place
+from did_webplus.selfhash import (
+    _parse_hash,
+    _replace_self_hash_slots_in_place,
+    hash_bytes_for_hashed_key,
+)
 
 
 class VerificationError(Exception):
@@ -26,11 +30,14 @@ def _bytes_to_sign(doc: dict[str, Any]) -> bytes:
     """
     Bytes that must be signed for a proof.
 
-    JCS of document with proofs cleared and self-hash slots = placeholder.
+    JCS of document with proofs removed (not empty array) and self-hash slots = placeholder.
+    Placeholder format must match the document's selfHash algorithm (BLAKE3, SHA3-256, etc.).
+    Per Rust did-webplus: proofs is skip_serializing_if empty, so omit the key entirely.
     """
     doc_copy = copy.deepcopy(doc)
-    doc_copy["proofs"] = []
-    _replace_self_hash_slots_in_place(doc_copy, BLAKE3_PLACEHOLDER)
+    doc_copy.pop("proofs", None)  # Remove proofs key entirely; Rust omits it when empty
+    _, _, placeholder = _parse_hash(doc["selfHash"])
+    _replace_self_hash_slots_in_place(doc_copy, placeholder)
     return _jcs_serialize(doc_copy)
 
 
@@ -72,19 +79,41 @@ def _multicodec_to_jwk(key_bytes: bytes) -> jwk.JWK:
     raise VerificationError(f"Unsupported multicodec prefix: 0x{prefix:04x}")
 
 
+def _decode_multibase_key(key_str: str) -> bytes:
+    """
+    Decode a multibase-encoded multicodec public key (e.g. kid or updateRules key).
+
+    Supports 'u' (base64url) and 'z' (base58btc) prefixes.
+    """
+    return multibase.decode(key_str)
+
+
 def _verify_proof(proof_jws: str, payload_bytes: bytes) -> jwk.JWK | None:
     """
     Verify a JWS proof over the detached payload.
 
     Returns the public key (as JWK) if verification succeeds, else None.
+    kid is multibase-encoded multicodec public key (e.g. u7Q... for Ed25519).
+    Registers "Ed25519" as alias for "EdDSA" so we keep the original header
+    (changing it would alter the signing input and break verification).
     """
     try:
+        # jwcrypto only has "EdDSA" in its registry; some JWS use "Ed25519".
+        # Register Ed25519 as alias so we can verify without modifying the header
+        # (header modification would change the signing input).
+        import jwcrypto.jwa as jwa_module
+
+        if "Ed25519" not in jwa_module.JWA.algorithms_registry:
+            jwa_module.JWA.algorithms_registry["Ed25519"] = (
+                jwa_module.JWA.algorithms_registry["EdDSA"]
+            )
         token = jws.JWS()
+        token.allowed_algs = list(jws.default_allowed_algs) + ["Ed25519"]
         token.deserialize(proof_jws)
         kid = token.jose_header.get("kid")
         if not kid:
             return None
-        key_bytes = base64.urlsafe_b64decode(kid + "==")
+        key_bytes = _decode_multibase_key(kid)
         key = _multicodec_to_jwk(key_bytes)
         token.verify(key, detached_payload=payload_bytes)
         return key
@@ -110,7 +139,7 @@ def verify_proofs(
 
     valid_pub_keys_b64: list[str] = []
     for k in valid_keys:
-        export = k.export_public()
+        export = k.export_public(as_dict=True)
         if "x" in export:
             valid_pub_keys_b64.append(export["x"])
         else:
@@ -142,9 +171,8 @@ def _verify_update_rules_inner(
 ) -> None:
     """Recursively verify update rules. Raises if not satisfied."""
     if "key" in rules:
-        key_b64 = rules["key"]
-        key_bytes = base64.urlsafe_b64decode(key_b64 + "==")
-        target_bytes = key_bytes
+        key_str = rules["key"]
+        target_bytes = _decode_multibase_key(key_str)
         for k in valid_keys:
             try:
                 our_bytes = _pub_key_to_multicodec_bytes(k)
@@ -158,8 +186,8 @@ def _verify_update_rules_inner(
         hashed = rules["hashedKey"]
         for k in valid_keys:
             raw = _pub_key_to_multicodec_bytes(k)
-            h = blake3.blake3(raw).digest()
-            enc = "E" + base64.urlsafe_b64encode(h).rstrip(b"=").decode("ascii")
+            kid_str = multibase.encode(raw, "base64url")
+            enc = hash_bytes_for_hashed_key(kid_str.encode("utf-8"), hashed)
             if enc == hashed:
                 return
         raise VerificationError("HashedKey rule not satisfied")
@@ -203,7 +231,7 @@ def _verify_update_rules_inner(
 
 def _pub_key_to_multicodec_bytes(key: jwk.JWK) -> bytes:
     """Export JWK to multicodec bytes for hashing."""
-    export = key.export_public()
+    export = key.export_public(as_dict=True)
     if export.get("kty") == "OKP" and export.get("crv") == "Ed25519":
         raw = base64.urlsafe_b64decode(export["x"] + "==")
         return bytes([0xED, 0x01]) + raw

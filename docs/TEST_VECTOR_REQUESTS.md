@@ -2,6 +2,17 @@
 
 This document describes the test vectors requested from the did:webplus reference implementors (LedgerDomain) to support comprehensive testing of the Python Full DID Resolver implementation. These requests can be filed as an issue at [LedgerDomain/did-webplus](https://github.com/LedgerDomain/did-webplus) or shared directly with the maintainers.
 
+## Interim Fixtures
+
+While awaiting official test vectors, we use two existing DIDs from the did:webplus spec authors' public VDR as interim test data:
+
+| DID | Resolution URL |
+|-----|----------------|
+| `did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiDBw4xANa8sR_Fd8-pv-X9A5XIJNS3tC_bRNB3HUYiKug` | https://ledgerdomain.github.io/did-webplus-spec/uFiDBw4xANa8sR_Fd8-pv-X9A5XIJNS3tC_bRNB3HUYiKug/did-documents.jsonl |
+| `did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow` | https://ledgerdomain.github.io/did-webplus-spec/uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow/did-documents.jsonl |
+
+These are fetched and stored in `tests/fixtures/microledgers/ledgerdomain/` via `uv run python scripts/fetch_ledgerdomain_fixtures.py`. Official test vectors, when received, will supersede or supplement these interim fixtures.
+
 ## Purpose
 
 The Python implementation needs canonical, spec-compliant test vectors to validate:

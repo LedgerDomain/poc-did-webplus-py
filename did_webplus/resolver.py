@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 from dataclasses import dataclass
 
@@ -47,6 +48,48 @@ class ResolutionResult:
     did_document_metadata: DIDDocumentMetadata
     did_resolution_metadata: DIDResolutionMetadata
 
+    @classmethod
+    def failed(cls, did: str, error: str) -> ResolutionResult:
+        """
+        Create a failed resolution result per W3C DID Resolution.
+
+        Use when resolution fails; didDocument is empty and error is in metadata.
+        """
+        return cls(
+            did_document="",
+            did_document_metadata=DIDDocumentMetadata(),
+            did_resolution_metadata=DIDResolutionMetadata(error=error),
+        )
+
+    def to_dict(self) -> dict:
+        """
+        Return W3C-style resolution result with camelCase keys.
+
+        Returns dict with didResolutionMetadata, didDocument, didDocumentMetadata
+        for interoperability (e.g., HTTP binding, Universal Resolver).
+        """
+        return {
+            "didResolutionMetadata": {
+                "contentType": self.did_resolution_metadata.content_type,
+                "error": self.did_resolution_metadata.error,
+                "fetchedUpdatesFromVdr": self.did_resolution_metadata.fetched_updates_from_vdr,
+                "didDocumentResolvedLocally": self.did_resolution_metadata.did_document_resolved_locally,
+                "didDocumentMetadataResolvedLocally": self.did_resolution_metadata.did_document_metadata_resolved_locally,
+            },
+            "didDocument": self.did_document if self.did_document else None,
+            "didDocumentMetadata": {
+                k: v
+                for k, v in {
+                    "created": self.did_document_metadata.created,
+                    "updated": self.did_document_metadata.updated,
+                    "versionId": self.did_document_metadata.version_id,
+                    "nextUpdate": self.did_document_metadata.next_update,
+                    "deactivated": self.did_document_metadata.deactivated,
+                }.items()
+                if v is not None
+            },
+        }
+
 
 class FullDIDResolver:
     """
@@ -63,11 +106,20 @@ class FullDIDResolver:
         self._store = store
         self._vdg_base_url = vdg_base_url
 
-    async def resolve(self, did_query: str) -> ResolutionResult:
+    async def resolve(
+        self,
+        did_query: str,
+        *,
+        no_fetch: bool = False,
+    ) -> ResolutionResult:
         """
         Resolve a DID (with optional ?selfHash=...&versionId=...).
 
         Returns the DID document and metadata.
+
+        Args:
+            did_query: DID URL, optionally with ?selfHash=...&versionId=...
+            no_fetch: If True, resolve only from local store; fail if not cached.
         """
         parsed = parse_did_with_query(did_query)
         did = parsed.did
@@ -90,6 +142,10 @@ class FullDIDResolver:
         if record is not None:
             resolved_locally = True
             metadata_resolved_locally = True
+        elif no_fetch:
+            raise ResolutionError(
+                f"DID not found in local store (offline mode): {did}"
+            )
         else:
             await self._fetch_and_store(did)
             fetched_from_vdr = True
@@ -125,6 +181,48 @@ class FullDIDResolver:
             did_resolution_metadata=resolution_metadata,
         )
 
+    def resolve_sync(
+        self,
+        did_query: str,
+        *,
+        no_fetch: bool = False,
+    ) -> ResolutionResult:
+        """
+        Synchronous wrapper for resolve().
+
+        Runs the async resolve in a new event loop. Use this when calling
+        from synchronous code (scripts, non-async apps).
+        """
+        return asyncio.run(self.resolve(did_query, no_fetch=no_fetch))
+
+    async def resolve_or_result(
+        self,
+        did_query: str,
+        *,
+        no_fetch: bool = False,
+    ) -> ResolutionResult:
+        """
+        Resolve a DID, returning a failed result instead of raising.
+
+        On success, returns ResolutionResult with did_document.
+        On failure, returns ResolutionResult.failed() with error in metadata.
+        Use for W3C-aligned output where callers expect a result object.
+        """
+        try:
+            return await self.resolve(did_query, no_fetch=no_fetch)
+        except ResolutionError as e:
+            parsed = parse_did_with_query(did_query)
+            return ResolutionResult.failed(parsed.did, str(e))
+
+    def resolve_or_result_sync(
+        self,
+        did_query: str,
+        *,
+        no_fetch: bool = False,
+    ) -> ResolutionResult:
+        """Synchronous wrapper for resolve_or_result()."""
+        return asyncio.run(self.resolve_or_result(did_query, no_fetch=no_fetch))
+
     async def _fetch_and_store(self, did: str) -> None:
         """Fetch microledger from VDR/VDG, validate, and store."""
         latest = await self._store.get_latest(did)
@@ -156,6 +254,16 @@ class FullDIDResolver:
                 continue
             doc_dict = json.loads(line)
             _validate_document(line, doc_dict, prev_doc)
+            # DID fork detection: same (did, version_id) but different selfHash
+            existing = await self._store.get_by_version_id(
+                doc_dict["id"], doc_dict["versionId"]
+            )
+            if existing and existing.self_hash != doc_dict["selfHash"]:
+                raise ResolutionError(
+                    f"DID fork detected: versionId {doc_dict['versionId']} has "
+                    f"conflicting selfHash (stored: {existing.self_hash!r}, "
+                    f"fetched: {doc_dict['selfHash']!r})"
+                )
             prev_doc = doc_dict
 
         await self._store.add_did_documents(lines, known_length)

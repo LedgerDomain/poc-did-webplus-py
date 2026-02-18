@@ -29,6 +29,8 @@ uv sync --extra dev
 
 ## Usage
 
+### Python SDK
+
 ```python
 from did_webplus import FullDIDResolver, SQLiteDIDDocStore
 
@@ -39,17 +41,37 @@ resolver = FullDIDResolver(store)
 # Optional: use VDG for fetching
 # resolver = FullDIDResolver(store, vdg_base_url="https://vdg.example.com")
 
-# Resolve a DID (latest)
+# Async resolve (latest)
 result = await resolver.resolve("did:webplus:example.com:EjXivDidxAi2kETdFw1o36-jZUkYkxg0ayMhSBjODAgQ")
 
-# Resolve by versionId
-result = await resolver.resolve("did:webplus:example.com:EjXivDidxAi2kETdFw1o36-jZUkYkxg0ayMhSBjODAgQ?versionId=1")
+# Sync resolve (for scripts and non-async apps)
+result = resolver.resolve_sync("did:webplus:example.com:EjXivDidxAi2kETdFw1o36-jZUkYkxg0ayMhSBjODAgQ")
 
-# Resolve by selfHash
-result = await resolver.resolve("did:webplus:example.com:EjXivDidxAi2kETdFw1o36-jZUkYkxg0ayMhSBjODAgQ?selfHash=EgqvDOcj4HItWDVij-yHj0GtBPnEofatHT2xuoVD7tMY")
+# Resolve by versionId or selfHash
+result = await resolver.resolve("did:webplus:example.com:...?versionId=1")
+result = await resolver.resolve("did:webplus:example.com:...?selfHash=...")
 
-# Result contains: did_document, did_document_metadata, did_resolution_metadata
+# Result: did_document (JCS string), did_document_metadata, did_resolution_metadata
+# W3C-style output: result.to_dict() → {didResolutionMetadata, didDocument, didDocumentMetadata}
 ```
+
+### CLI
+
+```bash
+# Resolve a DID (fetches from VDR if not cached)
+uv run did-webplus "did:webplus:example.com:EjXivDidxAi2kETdFw1o36-jZUkYkxg0ayMhSBjODAgQ"
+
+# JSON output
+uv run did-webplus "did:webplus:example.com:..." -o json
+
+# Offline mode (fail if not in local store)
+uv run did-webplus "did:webplus:example.com:..." --no-fetch
+
+# Options (can also be set via environment variables)
+uv run did-webplus "did:webplus:..." --store ./mydb.db --vdg-url https://vdg.example.com
+```
+
+**Environment variables:** `DID_WEBPLUS_STORE`, `DID_WEBPLUS_VDG_URL`, `DID_WEBPLUS_OUTPUT`, `DID_WEBPLUS_NO_FETCH`
 
 ## Development
 

@@ -1,0 +1,19 @@
+{
+  "fetch_date": "2026-02-18T07:55:38.835511+00:00",
+  "entries": [
+    {
+      "did": "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiDBw4xANa8sR_Fd8-pv-X9A5XIJNS3tC_bRNB3HUYiKug",
+      "resolution_url": "https://ledgerdomain.github.io/did-webplus-spec/uFiDBw4xANa8sR_Fd8-pv-X9A5XIJNS3tC_bRNB3HUYiKug/did-documents.jsonl",
+      "root_self_hash": "uFiDBw4xANa8sR_Fd8-pv-X9A5XIJNS3tC_bRNB3HUYiKug",
+      "fetch_date": "2026-02-18T07:55:38.387256+00:00",
+      "document_count": 3
+    },
+    {
+      "did": "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow",
+      "resolution_url": "https://ledgerdomain.github.io/did-webplus-spec/uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow/did-documents.jsonl",
+      "root_self_hash": "uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow",
+      "fetch_date": "2026-02-18T07:55:38.835477+00:00",
+      "document_count": 3
+    }
+  ]
+}

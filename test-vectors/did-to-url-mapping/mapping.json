@@ -1,0 +1,18 @@
+[
+  {
+    "did": "did:webplus:example.com:uFiC9wGOLc7j0fWE3D-0rH5hQooYOWpDdmBBcCI_aKEvlnw",
+    "expectedResolutionUrl": "https://example.com/uFiC9wGOLc7j0fWE3D-0rH5hQooYOWpDdmBBcCI_aKEvlnw/did-documents.jsonl"
+  },
+  {
+    "did": "did:webplus:localhost:uHiBKHZUE3HHlYcyVIF-vPm0Xg71vqJla2L1OGXHMSK4NEA",
+    "expectedResolutionUrl": "http://localhost/uHiBKHZUE3HHlYcyVIF-vPm0Xg71vqJla2L1OGXHMSK4NEA/did-documents.jsonl"
+  },
+  {
+    "did": "did:webplus:example.com:path:uHiBKHZUE3HHlYcyVIF-vPm0Xg71vqJla2L1OGXHMSK4NEA",
+    "expectedResolutionUrl": "https://example.com/path/uHiBKHZUE3HHlYcyVIF-vPm0Xg71vqJla2L1OGXHMSK4NEA/did-documents.jsonl"
+  },
+  {
+    "did": "did:webplus:example.com%3A3000:uHiBKHZUE3HHlYcyVIF-vPm0Xg71vqJla2L1OGXHMSK4NEA",
+    "expectedResolutionUrl": "https://example.com:3000/uHiBKHZUE3HHlYcyVIF-vPm0Xg71vqJla2L1OGXHMSK4NEA/did-documents.jsonl"
+  }
+]
