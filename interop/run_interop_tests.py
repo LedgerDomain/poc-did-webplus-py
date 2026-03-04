@@ -20,9 +20,11 @@ import os
 import subprocess
 import sys
 import time
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 import httpx
+
+RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.1.0"
 
 logger = logging.getLogger("interop")
 
@@ -137,17 +139,54 @@ def _resolution_path(did: str) -> str:
     return parsed.path.lstrip("/") if parsed.path else ""
 
 
-def _run_resolve(did: str, vdg_url: str | None = None) -> subprocess.CompletedProcess:
+def _run_python_resolve(did: str, vdg_url: str | None = None) -> subprocess.CompletedProcess:
     """Run Python resolver. vdg_url: if set, resolve via VDG instead of VDR."""
     cmd = ["uv", "run", "did-webplus", "resolve", did, "-o", "json"]
     if vdg_url:
         cmd.extend(["--vdg-url", vdg_url.rstrip("/")])
+    via = f" via VDG {vdg_url}" if vdg_url else " (direct from VDR)"
+    logger.info("Running Python DID resolver%s", via)
+    logger.info("Command: %s", " ".join(cmd))
     return subprocess.run(
         cmd,
         stdout=subprocess.PIPE,
         stderr=None,  # Let resolver logs (stderr) print to terminal
         text=True,
         cwd=os.path.join(os.path.dirname(__file__), ".."),
+        timeout=15,
+    )
+
+
+def _run_rust_resolve(did: str, vdg_url: str | None = None) -> subprocess.CompletedProcess:
+    """Run Rust resolver via Docker. vdg_url: if set, resolve via VDG instead of VDR."""
+    cmd = [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "host",
+        "-e",
+        "DID_WEBPLUS_HTTP_SCHEME_OVERRIDE=python-vdr=http,rust-vdg=http",
+        "-e",
+        "RUST_LOG=debug",
+        RUST_CLI_IMAGE,
+        "did",
+        "resolve",
+        did,
+        "--json",
+    ]
+    if vdg_url:
+        parsed = urlparse(vdg_url.rstrip("/"))
+        vdg_host = parsed.netloc or parsed.path
+        cmd.extend(["--vdg", vdg_host])
+    via = f" via VDG {vdg_url}" if vdg_url else " (direct from VDR)"
+    logger.info("Running Rust DID resolver%s", via)
+    logger.info("Command: %s", " ".join(cmd))
+    return subprocess.run(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=None,  # Let resolver logs (stderr) print to terminal
+        text=True,
         timeout=15,
     )
 
@@ -254,7 +293,7 @@ def python_resolver_vs_rust_vdr(vdr_url: str, vdg_url: str | None = None) -> boo
 
     resolve_via = "VDG" if vdg_url else "VDR directly"
     logger.info("Action: Python resolver — resolve DID via %s", resolve_via)
-    result = _run_resolve(did, vdg_url=vdg_url)
+    result = _run_python_resolve(did, vdg_url=vdg_url)
     if result.returncode != 0:
         err = result.stderr or "(see stderr above)"
         logger.error("Result: FAIL — Python resolve failed: %s", err)
@@ -328,11 +367,11 @@ def rust_resolver_vs_python_vdr(vdr_url: str, vdg_url: str | None = None) -> boo
         time.sleep(0.5)
 
     resolve_via = "VDG" if vdg_url else "VDR directly"
-    logger.info("Action: Resolver (Python stand-in for Rust) — resolve DID via %s", resolve_via)
-    result = _run_resolve(did, vdg_url=vdg_url)
+    logger.info("Action: Rust resolver — resolve DID via %s", resolve_via)
+    result = _run_rust_resolve(did, vdg_url=vdg_url)
     if result.returncode != 0:
         err = result.stderr or "(see stderr above)"
-        logger.error("Result: FAIL — resolve failed: %s", err)
+        logger.error("Result: FAIL — Rust resolve failed: %s", err)
         return False
     out = json.loads(result.stdout)
     if not out.get("didDocument"):
@@ -342,7 +381,7 @@ def rust_resolver_vs_python_vdr(vdr_url: str, vdg_url: str | None = None) -> boo
     if resolved.get("versionId") != 1:
         logger.error("Result: FAIL — expected versionId 1, got %s", resolved.get("versionId"))
         return False
-    logger.info("Result: PASS — resolver returned versionId=1")
+    logger.info("Result: PASS — Rust resolver returned versionId=1")
 
     if vdg_url:
         # Case 1: Plain DID (no versionId) -> X-DID-Webplus-VDG-Cache-Hit expected false
@@ -387,11 +426,11 @@ def main() -> int:
         ok = python_resolver_vs_rust_vdr("http://rust-vdr:8085", vdg_url="http://rust-vdg:8086")
     elif scenario == "3":
         logger.info("=== Scenario 3: Rust resolver vs Python VDR (no VDG) ===")
-        logger.info("Testing: Resolver (Python stand-in for Rust) fetches from Python VDR directly")
+        logger.info("Testing: Rust resolver fetches from Python VDR directly")
         ok = rust_resolver_vs_python_vdr("http://python-vdr:8087")
     elif scenario == "4":
         logger.info("=== Scenario 4: Rust resolver vs Python VDR + Rust VDG ===")
-        logger.info("Testing: Resolver fetches via Rust VDG; VDG proxies to Python VDR")
+        logger.info("Testing: Rust resolver fetches via Rust VDG; Rust VDG proxies to Python VDR")
         ok = rust_resolver_vs_python_vdr("http://python-vdr:8087", vdg_url="http://rust-vdg:8086")
 
     if ok:
@@ -455,7 +494,7 @@ def main() -> int:
                 "Expected: response contains latest (versionId=1). Result: PASS."
             )
             logger.info(
-                "  Action: Resolver — Python resolver (stand-in for Rust) resolved DID via Python VDR directly. "
+                "  Action: Rust resolver — Rust resolver resolved DID via Python VDR directly. "
                 "Expected: versionId=1. Result: versionId=1."
             )
         elif scenario == "4":
@@ -473,7 +512,7 @@ def main() -> int:
                 "Expected: response contains latest (versionId=1). Result: PASS."
             )
             logger.info(
-                "  Action: Resolver — Python resolver (stand-in for Rust) resolved DID via Rust VDG (Rust VDG proxies to Python VDR). "
+                "  Action: Rust resolver — Rust resolver resolved DID via Rust VDG (Rust VDG proxies to Python VDR). "
                 "Expected: versionId=1. Result: versionId=1."
             )
             logger.info(
