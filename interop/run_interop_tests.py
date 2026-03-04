@@ -154,17 +154,31 @@ def _run_resolve(did: str, vdg_url: str | None = None) -> subprocess.CompletedPr
 
 def _assert_vdg_headers(
     vdg_url: str,
-    did: str,
+    did_query: str,
     expected_self_hash: str,
     expected_cache_hit: bool,
+    use_version_id_param: bool,
 ) -> bool:
     """GET VDG resolve endpoint and assert expected HTTP headers.
 
-    expected_cache_hit: Expected value of X-DID-Webplus-VDG-Cache-Hit. Should be True
-        when VDRs are configured to notify VDG of updates (VDG pulls updates).
+    did_query: DID URL, with or without ?versionId=N query param.
+    expected_cache_hit: Expected X-DID-Webplus-VDG-Cache-Hit. Plain DID (no versionId)
+        -> false (VDG must fetch latest from VDR). DID with versionId=N -> true
+        (VDG has version from VDR notifications).
+    use_version_id_param: True if did_query includes versionId param; for logging.
     """
-    encoded_did = quote(did, safe="")
+    encoded_did = quote(did_query, safe="")
     url = f"{vdg_url.rstrip('/')}/webplus/v1/resolve/{encoded_did}"
+    if use_version_id_param:
+        logger.info(
+            "Action: Rust VDG headers (versionId param) — GET resolve with ?versionId=1. "
+            "VDG has version from VDR notifications; X-DID-Webplus-VDG-Cache-Hit expected true."
+        )
+    else:
+        logger.info(
+            "Action: Rust VDG headers (plain DID) — GET resolve without versionId query param. "
+            "VDG must fetch latest from VDR; X-DID-Webplus-VDG-Cache-Hit expected false."
+        )
     r = httpx.get(url, timeout=10.0)
     if r.status_code != 200:
         logger.error("Result: FAIL — VDG resolve returned %s: %s", r.status_code, r.text)
@@ -193,8 +207,9 @@ def _assert_vdg_headers(
         )
         return False
     logger.info(
-        "Result: PASS — VDG headers valid (Cache-Control, ETag, Last-Modified, X-DID-Webplus-VDG-Cache-Hit=%s)",
+        "Result: PASS — VDG headers valid (Cache-Control, ETag, Last-Modified, X-DID-Webplus-VDG-Cache-Hit=%s)%s",
         expected_str,
+        " (versionId param used)" if use_version_id_param else " (plain DID, no versionId param)",
     )
     return True
 
@@ -255,8 +270,20 @@ def python_resolver_vs_rust_vdr(vdr_url: str, vdg_url: str | None = None) -> boo
     logger.info("Result: PASS — Python resolver returned versionId=1")
 
     if vdg_url:
-        logger.info("Action: VDG headers — verify Cache-Control, ETag, X-DID-Webplus-VDG-Cache-Hit")
-        if not _assert_vdg_headers(vdg_url, did, resolved["selfHash"], expected_cache_hit=True):
+        # Case 1: Plain DID (no versionId) -> X-DID-Webplus-VDG-Cache-Hit expected false
+        if not _assert_vdg_headers(
+            vdg_url, did, resolved["selfHash"],
+            expected_cache_hit=False,
+            use_version_id_param=False,
+        ):
+            return False
+        # Case 2: DID with versionId=1 -> X-DID-Webplus-VDG-Cache-Hit expected true
+        did_with_version = f"{did}?versionId=1"
+        if not _assert_vdg_headers(
+            vdg_url, did_with_version, resolved["selfHash"],
+            expected_cache_hit=True,
+            use_version_id_param=True,
+        ):
             return False
 
     return True
@@ -318,8 +345,20 @@ def rust_resolver_vs_python_vdr(vdr_url: str, vdg_url: str | None = None) -> boo
     logger.info("Result: PASS — resolver returned versionId=1")
 
     if vdg_url:
-        logger.info("Action: VDG headers — verify Cache-Control, ETag, X-DID-Webplus-VDG-Cache-Hit")
-        if not _assert_vdg_headers(vdg_url, did, resolved["selfHash"], expected_cache_hit=True):
+        # Case 1: Plain DID (no versionId) -> X-DID-Webplus-VDG-Cache-Hit expected false
+        if not _assert_vdg_headers(
+            vdg_url, did, resolved["selfHash"],
+            expected_cache_hit=False,
+            use_version_id_param=False,
+        ):
+            return False
+        # Case 2: DID with versionId=1 -> X-DID-Webplus-VDG-Cache-Hit expected true
+        did_with_version = f"{did}?versionId=1"
+        if not _assert_vdg_headers(
+            vdg_url, did_with_version, resolved["selfHash"],
+            expected_cache_hit=True,
+            use_version_id_param=True,
+        ):
             return False
 
     return True
@@ -394,8 +433,12 @@ def main() -> int:
                 "Expected: versionId=1. Result: versionId=1."
             )
             logger.info(
-                "  Action: Rust VDG headers — Verified GET to Rust VDG resolve endpoint returns Cache-Control, "
-                "ETag, Last-Modified, X-DID-Webplus-VDG-Cache-Hit=true (Rust VDR notified Rust VDG of updates). Expected: all present and valid. Result: PASS."
+                "  Action: Rust VDG headers (plain DID) — GET resolve without versionId. "
+                "VDG must fetch latest from Rust VDR; X-DID-Webplus-VDG-Cache-Hit expected false. Result: PASS."
+            )
+            logger.info(
+                "  Action: Rust VDG headers (versionId param) — GET resolve with ?versionId=1. "
+                "Rust VDR notified Rust VDG of updates; VDG has version; X-DID-Webplus-VDG-Cache-Hit expected true. Result: PASS."
             )
         elif scenario == "3":
             logger.info("Summary — Scenario 3: Rust resolver vs Python VDR (no VDG)")
@@ -434,8 +477,12 @@ def main() -> int:
                 "Expected: versionId=1. Result: versionId=1."
             )
             logger.info(
-                "  Action: Rust VDG headers — Verified GET to Rust VDG resolve endpoint returns Cache-Control, "
-                "ETag, Last-Modified, X-DID-Webplus-VDG-Cache-Hit=true (Python VDR notified Rust VDG of updates). Expected: all present and valid. Result: PASS."
+                "  Action: Rust VDG headers (plain DID) — GET resolve without versionId. "
+                "VDG must fetch latest from Python VDR; X-DID-Webplus-VDG-Cache-Hit expected false. Result: PASS."
+            )
+            logger.info(
+                "  Action: Rust VDG headers (versionId param) — GET resolve with ?versionId=1. "
+                "Python VDR notified Rust VDG of updates; VDG has version; X-DID-Webplus-VDG-Cache-Hit expected true. Result: PASS."
             )
     else:
         logger.error("=== Tests FAILED ===")
