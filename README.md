@@ -61,25 +61,26 @@ result = await resolver.resolve("did:webplus:ledgerdomain.github.io:did-webplus-
 
 ```bash
 # Resolve a DID (fetches from VDR if not cached)
-uv run did-webplus "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow"
+uv run did-webplus resolve "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow"
 
 # Resolve a DID at a specific versionId (fetches from VDR if not cached)
-uv run did-webplus "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow?versionId=1"
+uv run did-webplus resolve "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow?versionId=1"
 
 # Resolve a DID at a specific selfHash (fetches from VDR if not cached)
-uv run did-webplus "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow?selfHash=uFiAsMCOasGw6SDizP1hIvfCtwGKKNBpjU-SmTfIMi5Lc6A"
+uv run did-webplus resolve "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow?selfHash=uFiAsMCOasGw6SDizP1hIvfCtwGKKNBpjU-SmTfIMi5Lc6A"
 
 # JSON output
-uv run did-webplus "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow" -o json
+uv run did-webplus resolve "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow" -o json
 
 # Offline mode (fail if not in local store)
-uv run did-webplus "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow" --no-fetch
+uv run did-webplus resolve "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow" --no-fetch
 
 # Options (can also be set via environment variables)
-uv run did-webplus "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow" --store ./mydb.db --vdg-url https://vdg.example.com
-```
+uv run did-webplus resolve "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow" --store ./mydb.db --vdg-url https://vdg.example.com
 
-**Environment variables:** `DID_WEBPLUS_STORE`, `DID_WEBPLUS_VDG_URL`, `DID_WEBPLUS_OUTPUT`, `DID_WEBPLUS_NO_FETCH`
+# Run VDR service in listen mode.
+uv run did-webplus listen --did-hostname localhost --port 8085
+```
 
 ## Development
 

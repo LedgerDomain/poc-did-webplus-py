@@ -9,8 +9,10 @@ from typing import Any
 import rfc8785
 from multiformats import multibase, multihash
 
-# Legacy BLAKE3: "u" + base64url(32 bytes) with NO multihash prefix
-BLAKE3_PLACEHOLDER = multibase.encode(b"\x00" * 32, "base64url")
+# Placeholder for BLAKE3 self-hash slots (multihash format, same as other algorithms)
+BLAKE3_PLACEHOLDER = multibase.encode(
+    multihash.get("blake3").wrap(b"\x00" * 32), "base64url"
+)
 
 
 class SelfHashError(Exception):
@@ -25,7 +27,7 @@ def _jcs_serialize(obj: Any) -> bytes:
 def _parse_hash(hash_str: str) -> tuple[str, bytes, str]:
     """
     Parse hash string. Returns (codec_name, digest, placeholder).
-    Supports legacy BLAKE3 (32 raw bytes) and multihash format (code + length + digest).
+    All hashes use multihash format (code + length + digest).
     """
     if not hash_str or hash_str[0] != "u":
         raise SelfHashError("Hash must start with 'u' (base64url)")
@@ -34,11 +36,7 @@ def _parse_hash(hash_str: str) -> tuple[str, bytes, str]:
     except Exception as e:
         raise SelfHashError(f"Invalid multibase in hash: {e}") from e
 
-    if len(raw) == 32:
-        # Legacy BLAKE3: 32 raw bytes, no multihash prefix
-        return "blake3", raw, BLAKE3_PLACEHOLDER
-
-    # Multihash format: use multiformats to parse
+    # Multihash format
     try:
         mh = multihash.from_digest(raw)
     except KeyError as e:
@@ -51,9 +49,7 @@ def _parse_hash(hash_str: str) -> tuple[str, bytes, str]:
 
 
 def _encode_hash(codec_name: str, digest: bytes) -> str:
-    """Encode digest as u + base64url. Legacy BLAKE3: raw 32 bytes; else multihash wrap."""
-    if codec_name == "blake3" and len(digest) == 32:
-        return multibase.encode(digest, "base64url")
+    """Encode digest as multihash (u + base64url)."""
     mh = multihash.get(codec_name)
     wrapped = mh.wrap(digest)
     return multibase.encode(wrapped, "base64url")
@@ -203,16 +199,16 @@ def verify_self_hash(jcs_str: str) -> str:
     return claimed
 
 
-def compute_self_hash(doc: dict[str, Any], *, algorithm: str = "blake3") -> str:
+def compute_self_hash(
+    doc: dict[str, Any],
+    *,
+    algorithm: str = "blake3",
+) -> str:
     """
     Compute and return the self-hash for a document (with placeholder in slots).
 
     Mutates doc in place to fill in the hash. Use for creating test fixtures.
-
-    Args:
-        doc: Document dict with placeholder in self-hash slots.
-        algorithm: One of blake3, sha2-224, sha2-256, sha2-384, sha2-512,
-            sha3-224, sha3-256, sha3-384, sha3-512.
+    All algorithms use multihash format (code + length + digest).
     """
     supported = {
         "blake3",
@@ -231,8 +227,6 @@ def compute_self_hash(doc: dict[str, Any], *, algorithm: str = "blake3") -> str:
     placeholder = multibase.encode(
         mh.wrap(b"\x00" * (mh.max_digest_size or 32)), "base64url"
     )
-    if algorithm == "blake3":
-        placeholder = BLAKE3_PLACEHOLDER  # legacy: raw 32 bytes
     _replace_self_hash_slots_in_place(doc, placeholder)
     msg = _jcs_serialize(doc)
     size = 32 if algorithm == "blake3" else None  # BLAKE3 requires explicit size

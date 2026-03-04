@@ -15,7 +15,7 @@ from did_webplus.selfhash import (
 
 def test_placeholder_format() -> None:
     assert BLAKE3_PLACEHOLDER.startswith("u")
-    assert len(BLAKE3_PLACEHOLDER) == 44
+    assert len(BLAKE3_PLACEHOLDER) == 47  # multihash format (34 bytes base64url)
 
 
 def test_verify_rejects_placeholder() -> None:

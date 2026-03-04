@@ -8,6 +8,29 @@ from urllib.parse import parse_qs, unquote
 PREFIX = "did:webplus:"
 
 
+def parse_http_scheme_overrides(val: str | None) -> dict[str, str]:
+    """
+    Parse comma-separated hostname=scheme pairs into a dict.
+
+    E.g. "rust-vdr=http,python-vdr=http" -> {"rust-vdr": "http", "python-vdr": "http"}
+    Scheme must be "http" or "https". Hostnames are normalized to lowercase.
+    """
+    if not val or not val.strip():
+        return {}
+    result: dict[str, str] = {}
+    for pair in val.split(","):
+        pair = pair.strip()
+        if not pair or "=" not in pair:
+            continue
+        hostname, scheme = pair.split("=", 1)
+        hostname = hostname.strip().lower()
+        scheme = scheme.strip().lower()
+        if scheme not in ("http", "https"):
+            continue
+        result[hostname] = scheme
+    return result
+
+
 class DIDError(Exception):
     """Base exception for DID parsing errors."""
 
@@ -29,17 +52,31 @@ class DIDComponents:
         """Host part for scheme determination (localhost vs other)."""
         return self.host.lower()
 
-    def resolution_url(self, *, use_https: bool | None = None) -> str:
+    def resolution_url(
+        self,
+        *,
+        use_https: bool | None = None,
+        http_scheme_overrides: dict[str, str] | None = None,
+    ) -> str:
         """
         Produce the resolution URL for this DID's did-documents.jsonl.
 
         Args:
             use_https: If True, force https. If False, force http. If None, use
-                https for non-localhost and http for localhost.
+                http_scheme_overrides if hostname matches, else https for
+                non-localhost and http for localhost.
+            http_scheme_overrides: Optional dict of hostname -> scheme ("http" or
+                "https") to override default per-host rules. Default: localhost
+                uses http, everything else uses https.
         """
-        if use_https is None:
-            use_https = self.hostname() != "localhost"
-        scheme = "https" if use_https else "http"
+        scheme: str | None = None
+        if http_scheme_overrides:
+            host_lower = self.hostname()
+            scheme = http_scheme_overrides.get(host_lower)
+        if scheme is None:
+            if use_https is None:
+                use_https = self.hostname() != "localhost"
+            scheme = "https" if use_https else "http"
         host_part = self.host
         if self.port is not None:
             host_part = f"{self.host}:{self.port}"
@@ -106,13 +143,6 @@ def parse_did(did_str: str) -> DIDComponents:
     return DIDComponents(host=host, port=port, path=path, root_self_hash=root_self_hash)
 
 
-def did_to_resolution_url(did_str: str, *, use_https: bool | None = None) -> str:
-    """Convert a did:webplus DID to its resolution URL per spec."""
-    parsed = parse_did_with_query(did_str)
-    components = parse_did(parsed.did)
-    return components.resolution_url(use_https=use_https)
-
-
 def parse_did_with_query(did_query: str) -> DIDWithQuery:
     """
     Parse a DID URL that may include query parameters (?selfHash=...&versionId=...).
@@ -143,7 +173,12 @@ def parse_did_with_query(did_query: str) -> DIDWithQuery:
     )
 
 
-def did_to_resolution_url(did_str: str, *, use_https: bool | None = None) -> str:
+def did_to_resolution_url(
+    did_str: str,
+    *,
+    use_https: bool | None = None,
+    http_scheme_overrides: dict[str, str] | None = None,
+) -> str:
     """
     Convert a did:webplus DID to its resolution URL per spec.
 
@@ -152,8 +187,11 @@ def did_to_resolution_url(did_str: str, *, use_https: bool | None = None) -> str
     2. Replace all : with /
     3. Percent-decode
     4. Append /did-documents.jsonl
-    5. Prepend http:// for localhost, https:// otherwise
+    5. Prepend http:// for localhost, https:// otherwise (or use override).
     """
     parsed = parse_did_with_query(did_str)
     components = parse_did(parsed.did)
-    return components.resolution_url(use_https=use_https)
+    return components.resolution_url(
+        use_https=use_https,
+        http_scheme_overrides=http_scheme_overrides,
+    )

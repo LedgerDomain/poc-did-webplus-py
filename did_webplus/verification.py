@@ -5,9 +5,12 @@ from __future__ import annotations
 import base64
 import copy
 import json
+import logging
 from typing import Any
 
 import rfc8785
+
+logger = logging.getLogger(__name__)
 from jwcrypto import jwk, jws
 from multiformats import multibase
 
@@ -39,6 +42,44 @@ def _bytes_to_sign(doc: dict[str, Any]) -> bytes:
     _, _, placeholder = _parse_hash(doc["selfHash"])
     _replace_self_hash_slots_in_place(doc_copy, placeholder)
     return _jcs_serialize(doc_copy)
+
+
+def jwk_to_multibase_key(key: jwk.JWK) -> str:
+    """Export Ed25519 JWK public key as multibase-encoded multicodec (u...)."""
+    pub = key.export_public(as_dict=True)
+    if pub.get("kty") != "OKP" or pub.get("crv") != "Ed25519":
+        raise VerificationError("Only Ed25519 OKP keys supported")
+    x = base64.urlsafe_b64decode(pub["x"] + "==")
+    multicodec = bytes([0xED, 0x01]) + x
+    return multibase.encode(multicodec, "base64url")
+
+
+def create_proof(doc: dict[str, Any], key: jwk.JWK) -> str:
+    """
+    Create a detached JWS proof for a DID document update.
+
+    The doc must have selfHash set (placeholder or final). The proof signs over
+    the bytes-to-sign (JCS with proofs removed and self-hash slots replaced).
+    Returns compact detached JWS (header..signature, no payload).
+    """
+    import jwcrypto.jwa as jwa_module
+
+    if "Ed25519" not in jwa_module.JWA.algorithms_registry:
+        jwa_module.JWA.algorithms_registry["Ed25519"] = (
+            jwa_module.JWA.algorithms_registry["EdDSA"]
+        )
+    payload_bytes = _bytes_to_sign(doc)
+    kid = jwk_to_multibase_key(key)
+    protected = json.dumps(
+        {"alg": "Ed25519", "kid": kid, "crit": ["b64"], "b64": False},
+        separators=(",", ":"),
+    )
+    token = jws.JWS(payload_bytes)
+    token.allowed_algs = list(jws.default_allowed_algs) + ["Ed25519"]
+    token.add_signature(key, protected=protected)
+    compact = token.serialize(compact=True)
+    parts = compact.split(".")
+    return parts[0] + ".." + parts[2]
 
 
 def _multicodec_to_jwk(key_bytes: bytes) -> jwk.JWK:
@@ -130,12 +171,22 @@ def verify_proofs(
 
     For non-root, the valid proof keys must satisfy prev_doc's updateRules.
     """
+    logger.debug(
+        "verification: verify_proofs did=%s versionId=%s num_proofs=%d prev_doc=%s",
+        doc.get("id"),
+        doc.get("versionId"),
+        len(doc.get("proofs", [])),
+        "yes" if prev_doc else "no",
+    )
     payload_bytes = _bytes_to_sign(doc)
     valid_keys: list[jwk.JWK] = []
-    for proof in doc.get("proofs", []):
+    for i, proof in enumerate(doc.get("proofs", [])):
         key = _verify_proof(proof, payload_bytes)
         if key is not None:
             valid_keys.append(key)
+            logger.debug("verification: proof[%d] valid", i)
+        else:
+            logger.debug("verification: proof[%d] invalid or failed", i)
 
     valid_pub_keys_b64: list[str] = []
     for k in valid_keys:
@@ -148,8 +199,16 @@ def verify_proofs(
     if prev_doc is not None:
         update_rules = prev_doc.get("updateRules", {})
         if update_rules == {}:
+            logger.warning("verification: prev_doc has UpdatesDisallowed")
             raise VerificationError("Previous document has UpdatesDisallowed")
         if not _verify_update_rules(update_rules, valid_keys):
+            logger.warning(
+                "verification: valid proofs do not satisfy updateRules "
+                "did=%s updateRules=%s num_valid_keys=%d",
+                doc.get("id"),
+                update_rules,
+                len(valid_keys),
+            )
             raise VerificationError(
                 "Valid proofs do not satisfy previous document's updateRules"
             )

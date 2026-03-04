@@ -7,6 +7,7 @@ from did_webplus.did import (
     MalformedDIDError,
     parse_did,
     parse_did_with_query,
+    parse_http_scheme_overrides,
     did_to_resolution_url,
 )
 
@@ -100,3 +101,29 @@ def test_resolution_url_localhost_uses_http() -> None:
     url = did_to_resolution_url(did)
     assert url.startswith("http://")
     assert "localhost" in url
+
+
+def test_parse_http_scheme_overrides() -> None:
+    assert parse_http_scheme_overrides(None) == {}
+    assert parse_http_scheme_overrides("") == {}
+    assert parse_http_scheme_overrides("rust-vdr=http,python-vdr=http") == {
+        "rust-vdr": "http",
+        "python-vdr": "http",
+    }
+    assert parse_http_scheme_overrides("example.com=https") == {"example.com": "https"}
+    # Invalid schemes are skipped
+    assert parse_http_scheme_overrides("a=ftp,b=http") == {"b": "http"}
+    # Hostnames normalized to lowercase
+    assert parse_http_scheme_overrides("Rust-VDR=HTTP") == {"rust-vdr": "http"}
+
+
+def test_resolution_url_http_scheme_override() -> None:
+    did = "did:webplus:rust-vdr%3A8085:uHiBKHZUE3HHlYcyVIF-vPm0Xg71vqJla2L1OGXHMSK4NEA"
+    # Default: rust-vdr is not localhost, so https
+    url = did_to_resolution_url(did)
+    assert url.startswith("https://")
+    # Override: rust-vdr=http
+    overrides = {"rust-vdr": "http"}
+    url = did_to_resolution_url(did, http_scheme_overrides=overrides)
+    assert url.startswith("http://")
+    assert "rust-vdr:8085" in url

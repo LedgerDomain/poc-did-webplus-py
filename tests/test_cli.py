@@ -45,7 +45,7 @@ def test_cli_resolve_success(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) ->
     from typer.testing import CliRunner
     runner = CliRunner()
     from did_webplus.cli import app
-    result = runner.invoke(app, [did, "--store", str(store_path), "-o", "json"])
+    result = runner.invoke(app, ["resolve", did, "--store", str(store_path), "-o", "json"])
     assert result.exit_code == 0
     out = json.loads(result.output)
     assert out["didDocument"]
@@ -63,7 +63,7 @@ def test_cli_resolve_error_json(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
     from did_webplus.cli import app
     result = runner.invoke(
         app,
-        ["did:webplus:example.com:nonexistent", "--store", str(store_path), "--no-fetch", "-o", "json"],
+        ["resolve", "did:webplus:example.com:nonexistent", "--store", str(store_path), "--no-fetch", "-o", "json"],
     )
     assert result.exit_code == 1
     out = json.loads(result.output)

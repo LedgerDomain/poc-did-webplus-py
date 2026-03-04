@@ -1,0 +1,27 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Build deps for pyskein (multiformats dependency)
+RUN apt-get update && apt-get install -y --no-install-recommends gcc libc6-dev && rm -rf /var/lib/apt/lists/*
+
+# Install uv for fast installs
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Copy project files
+COPY pyproject.toml ./
+COPY did_webplus/ ./did_webplus/
+
+# Install the package (no dev deps)
+RUN uv sync --no-dev
+
+# Default: run VDR listen mode
+ENV DID_WEBPLUS_VDR_DID_HOSTNAME=python-vdr
+ENV DID_WEBPLUS_VDR_LISTEN_PORT=8085
+
+EXPOSE 8085
+
+# Store path for SQLite (persisted via volume)
+ENV DID_WEBPLUS_STORE=/data/did_documents.db
+
+ENTRYPOINT ["uv", "run", "did-webplus", "listen"]

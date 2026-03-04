@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 from dataclasses import dataclass
 
 from did_webplus.did import parse_did, parse_did_with_query
+
+logger = logging.getLogger(__name__)
 from did_webplus.document import DIDDocument, parse_did_document
 from did_webplus.http_client import fetch_did_documents_jsonl
 from did_webplus.selfhash import verify_self_hash
@@ -102,9 +105,11 @@ class FullDIDResolver:
         self,
         store: DIDDocStore,
         vdg_base_url: str | None = None,
+        http_scheme_overrides: dict[str, str] | None = None,
     ) -> None:
         self._store = store
         self._vdg_base_url = vdg_base_url
+        self._http_scheme_overrides = http_scheme_overrides or {}
 
     async def resolve(
         self,
@@ -126,6 +131,13 @@ class FullDIDResolver:
         query_self_hash = parsed.query_self_hash
         query_version_id = parsed.query_version_id
 
+        logger.debug(
+            "resolver: resolve did=%s query_self_hash=%s query_version_id=%s",
+            did,
+            query_self_hash,
+            query_version_id,
+        )
+
         fetched_from_vdr = False
         resolved_locally = False
         metadata_resolved_locally = False
@@ -140,6 +152,12 @@ class FullDIDResolver:
             record = await self._store.get_latest(did)
 
         if record is not None:
+            logger.debug(
+                "resolver: found in store did=%s versionId=%s selfHash=%s",
+                did,
+                record.version_id,
+                record.self_hash,
+            )
             resolved_locally = True
             metadata_resolved_locally = True
         elif no_fetch:
@@ -147,6 +165,7 @@ class FullDIDResolver:
                 f"DID not found in local store (offline mode): {did}"
             )
         else:
+            logger.debug("resolver: fetching did=%s vdg=%s", did, self._vdg_base_url)
             await self._fetch_and_store(did)
             fetched_from_vdr = True
             if query_self_hash:
@@ -156,8 +175,14 @@ class FullDIDResolver:
             else:
                 record = await self._store.get_latest(did)
             if record is None:
+                logger.error("resolver: resolution failed did=%s (no record after fetch)", did)
                 raise ResolutionError(f"DID resolution failed for {did}")
 
+        logger.debug(
+            "resolver: resolved did=%s versionId=%s",
+            did,
+            record.version_id,
+        )
         doc = parse_did_document(record.did_document_jcs)
         next_record = await self._store.get_by_version_id(did, doc.version_id + 1)
 
@@ -231,19 +256,31 @@ class FullDIDResolver:
             if latest else 0
         )
 
+        logger.debug(
+            "resolver: _fetch_and_store did=%s known_length=%d",
+            did,
+            known_length,
+        )
         content = await fetch_did_documents_jsonl(
             did,
             known_octet_length=known_length,
             vdg_base_url=self._vdg_base_url,
+            http_scheme_overrides=self._http_scheme_overrides or None,
         )
         content = content.strip()
         if not content:
+            logger.debug("resolver: _fetch_and_store did=%s no new content", did)
             return
 
         lines = [ln for ln in content.split("\n") if ln.strip()]
         if not lines:
             return
 
+        logger.debug(
+            "resolver: _fetch_and_store did=%s received %d lines",
+            did,
+            len(lines),
+        )
         prev_doc = None
         if latest:
             prev_doc = json.loads(latest.did_document_jcs)
@@ -253,6 +290,12 @@ class FullDIDResolver:
             if not line:
                 continue
             doc_dict = json.loads(line)
+            logger.debug(
+                "resolver: validating doc did=%s versionId=%s selfHash=%s",
+                doc_dict.get("id"),
+                doc_dict.get("versionId"),
+                doc_dict.get("selfHash"),
+            )
             _validate_document(line, doc_dict, prev_doc)
             # DID fork detection: same (did, version_id) but different selfHash
             existing = await self._store.get_by_version_id(
@@ -266,6 +309,11 @@ class FullDIDResolver:
                 )
             prev_doc = doc_dict
 
+        logger.info(
+            "resolver: storing %d docs for did=%s",
+            len(lines),
+            did,
+        )
         await self._store.add_did_documents(lines, known_length)
 
 
