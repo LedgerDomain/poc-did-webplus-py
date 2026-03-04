@@ -1,14 +1,12 @@
-# did-webplus Python Full DID Resolver
+# !!! PROOF OF CONCEPT ONLY -- DO NOT USE !!!
 
-A Python implementation of the **Full DID Resolver** for the [did:webplus](https://ledgerdomain.github.io/did-webplus-spec) method, backed by SQLite for DID document storage.
+This is a PROOF OF CONCEPT ONLY Python implementation of the **Full DID Resolver** and **Verifiable Data Registry (VDR)** components the [did:webplus](https://ledgerdomain.github.io/did-webplus-spec) method, each backed by SQLite for DID document storage.
 
-## Features
+## !!! WARNING !!!
 
-- Full verification: self-hash, chain integrity, JWS proofs, and update rules evaluation
-- Offline resolution when documents are cached
-- Historical resolution by `selfHash` or `versionId` query parameters
-- Optional VDG (Verifiable Data Gateway) support for fetching via VDG instead of VDR
-- SQLite-backed DID document store
+This codebase is meant to demonstrate that it is possible to have a second, interoperable implementation of (some components of) the did:webplus DID method.  It is meant ONLY AS A PROOF OF CONCEPT and should NOT BE USED in any real scenario, as the code has not been completely reviewed or fully security audited.  This codebase will not be maintained or kept up to date.  Pull requests will not be accepted.
+
+This codebase was produced by a coding AI by pointing it at the [did:webplus spec](https://ledgerdomain.github.io/did-webplus-spec) and having it implement the DID resolver and VDR.  The AI was guided through this process by the author of the [Rust reference implementation of did:webplus](https://github.com/LedgerDomain/did-webplus) in order to produce a minimal viable demonstration of interoperability between this implementation and the Rust reference implementation.  See [interop](interop/README.md) for more on interoperability testing, including how to run it.
 
 ## Requirements
 
@@ -28,34 +26,6 @@ uv sync --extra dev
 ```
 
 ## Usage
-
-### Python SDK
-
-`did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow` is a real DID, so this 
-
-```python
-from did_webplus import FullDIDResolver, SQLiteDIDDocStore
-
-# Create store and resolver
-store = SQLiteDIDDocStore("did_documents.db")
-resolver = FullDIDResolver(store)
-
-# Optional: use VDG for fetching
-# resolver = FullDIDResolver(store, vdg_base_url="https://vdg.example.com")
-
-# Async resolve (latest)
-result = await resolver.resolve("did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow")
-
-# Sync resolve (for scripts and non-async apps)
-result = resolver.resolve_sync("did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow")
-
-# Resolve by versionId or selfHash
-result = await resolver.resolve("did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow?versionId=1")
-result = await resolver.resolve("did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow?selfHash=uFiAsMCOasGw6SDizP1hIvfCtwGKKNBpjU-SmTfIMi5Lc6A")
-
-# Result: did_document (JCS string), did_document_metadata, did_resolution_metadata
-# W3C-style output: result.to_dict() → {didResolutionMetadata, didDocument, didDocumentMetadata}
-```
 
 ### CLI
 
@@ -90,4 +60,4 @@ uv run pytest
 
 ## License
 
-MIT
+[MIT](LICENSE)
