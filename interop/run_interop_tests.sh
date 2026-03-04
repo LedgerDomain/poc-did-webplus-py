@@ -54,7 +54,7 @@ case "$SCENARIO" in
         ;;
     2)
         echo "Starting Rust VDR + VDG..."
-        RUST_VDR_VDG_HOSTS=http://rust-vdg:8086 $COMPOSE up -d rust-vdr-db rust-vdg-db rust-vdg rust-vdr
+        RUST_VDR_VDG_HOSTS=rust-vdg:8086 $COMPOSE up -d rust-vdr-db rust-vdg-db rust-vdg rust-vdr
         ;;
     3)
         echo "Starting Python VDR..."
@@ -62,9 +62,13 @@ case "$SCENARIO" in
         ;;
     4)
         echo "Starting Python VDR + Rust VDG..."
-        PYTHON_VDR_VDG_HOSTS=http://rust-vdg:8086 $COMPOSE up -d --build rust-vdg-db rust-vdg python-vdr
+        PYTHON_VDR_VDG_HOSTS=rust-vdg:8086 $COMPOSE up -d --build rust-vdg-db rust-vdg python-vdr
         ;;
 esac
+
+echo "Streaming Docker service logs (background)..."
+$COMPOSE logs -f &
+LOG_PID=$!
 
 echo "Waiting for services to be healthy..."
 sleep 10
@@ -72,6 +76,7 @@ sleep 10
 # Stop containers on exit (volumes left intact for inspection on failure)
 EXIT_CODE=1
 cleanup() {
+    kill "$LOG_PID" 2>/dev/null || true
     cd "$SCRIPT_DIR"
     $COMPOSE down
     exit "$EXIT_CODE"

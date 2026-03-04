@@ -45,6 +45,7 @@ services:
       DID_WEBPLUS_VDR_HTTP_SCHEME_OVERRIDE: 'rust-vdg=http'
       DID_WEBPLUS_VDR_LISTEN_PORT: "8085"
       DID_WEBPLUS_VDR_VDG_HOSTS: ${RUST_VDR_VDG_HOSTS:-}
+      RUST_LOG: debug
     ports:
       - "8085:8085"
     depends_on:
@@ -58,6 +59,7 @@ services:
       DID_WEBPLUS_VDG_DATABASE_URL: postgres://postgres:postgres@rust-vdg-db:5432/postgres?sslmode=disable
       DID_WEBPLUS_VDG_HTTP_SCHEME_OVERRIDE: 'python-vdr=http,rust-vdr=http'
       DID_WEBPLUS_VDG_LISTEN_PORT: "8086"
+      RUST_LOG: debug
     ports:
       - "8086:8086"
     depends_on:
@@ -77,6 +79,7 @@ services:
     environment:
       DID_WEBPLUS_VDR_DID_HOSTNAME: python-vdr
       DID_WEBPLUS_VDR_DID_PORT: "8087"
+      DID_WEBPLUS_VDR_HTTP_SCHEME_OVERRIDE: 'rust-vdg=http'
       DID_WEBPLUS_VDR_LISTEN_PORT: "8087"
       DID_WEBPLUS_VDR_VDG_HOSTS: ${PYTHON_VDR_VDG_HOSTS:-}
       DID_WEBPLUS_STORE: /data/did_documents.db

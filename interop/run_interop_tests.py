@@ -15,6 +15,7 @@ Or: docker compose up -d (with appropriate env) then ./run_interop_tests.py <1|2
 from __future__ import annotations
 
 import json
+import logging
 import os
 import subprocess
 import sys
@@ -22,6 +23,8 @@ import time
 from urllib.parse import quote
 
 import httpx
+
+logger = logging.getLogger("interop")
 
 # Enable DEBUG logging for interop tests (main process and resolver subprocess)
 os.environ.setdefault("DID_WEBPLUS_LOG_LEVEL", "DEBUG")
@@ -40,6 +43,7 @@ from did_webplus.selfhash import BLAKE3_PLACEHOLDER, compute_self_hash, hash_byt
 from did_webplus.verification import create_proof, jwk_to_multibase_key
 
 configure_logging()
+logger.setLevel(logging.INFO)  # Ensure scenario/action/result messages always show
 
 
 def _make_root_doc_with_key(
@@ -148,88 +152,111 @@ def _run_resolve(did: str, vdg_url: str | None = None) -> subprocess.CompletedPr
     )
 
 
-def _assert_vdg_headers(vdg_url: str, did: str, expected_self_hash: str) -> bool:
-    """GET VDG resolve endpoint and assert expected HTTP headers."""
+def _assert_vdg_headers(
+    vdg_url: str,
+    did: str,
+    expected_self_hash: str,
+    expected_cache_hit: bool,
+) -> bool:
+    """GET VDG resolve endpoint and assert expected HTTP headers.
+
+    expected_cache_hit: Expected value of X-DID-Webplus-VDG-Cache-Hit. Should be True
+        when VDRs are configured to notify VDG of updates (VDG pulls updates).
+    """
     encoded_did = quote(did, safe="")
     url = f"{vdg_url.rstrip('/')}/webplus/v1/resolve/{encoded_did}"
     r = httpx.get(url, timeout=10.0)
     if r.status_code != 200:
-        print(f"  FAIL: VDG resolve {url} -> {r.status_code}\n{r.text}")
+        logger.error("Result: FAIL — VDG resolve returned %s: %s", r.status_code, r.text)
         return False
     cc = r.headers.get("Cache-Control", "")
     if "no-cache" not in cc or "no-transform" not in cc:
-        print(f"  FAIL: Cache-Control missing no-cache/no-transform: {cc!r}")
+        logger.error("Result: FAIL — Cache-Control missing no-cache/no-transform: %r", cc)
         return False
     if not r.headers.get("Last-Modified"):
-        print(f"  FAIL: Last-Modified header missing")
+        logger.error("Result: FAIL — Last-Modified header missing")
         return False
     etag = r.headers.get("ETag", "").strip('"')
     if etag != expected_self_hash:
-        print(f"  FAIL: ETag {etag!r} != expected selfHash {expected_self_hash!r}")
+        logger.error("Result: FAIL — ETag %r != expected selfHash %r", etag, expected_self_hash)
         return False
     cache_hit = r.headers.get("X-DID-Webplus-VDG-Cache-Hit")
     if cache_hit not in ("true", "false"):
-        print(f"  FAIL: X-DID-Webplus-VDG-Cache-Hit missing or invalid: {cache_hit!r}")
+        logger.error("Result: FAIL — X-DID-Webplus-VDG-Cache-Hit missing or invalid: %r", cache_hit)
         return False
-    print("  VDG headers: OK")
+    expected_str = "true" if expected_cache_hit else "false"
+    if cache_hit != expected_str:
+        logger.error(
+            "Result: FAIL — X-DID-Webplus-VDG-Cache-Hit %r != expected %r",
+            cache_hit,
+            expected_str,
+        )
+        return False
+    logger.info(
+        "Result: PASS — VDG headers valid (Cache-Control, ETag, Last-Modified, X-DID-Webplus-VDG-Cache-Hit=%s)",
+        expected_str,
+    )
     return True
 
 
 def python_resolver_vs_rust_vdr(vdr_url: str, vdg_url: str | None = None) -> bool:
     """Python resolver vs Rust VDR. vdg_url: if set, resolve via VDG."""
+    logger.info("Creating root DID document for rust-vdr:8085")
     root_jcs, key = _make_root_doc_with_key(host="rust-vdr", port=8085)
     doc = json.loads(root_jcs)
     did = doc["id"]
     path = _resolution_path(did)
     url = f"{vdr_url.rstrip('/')}/{path}"
 
-    # POST create
+    logger.info("Action: POST create — submit root DID document to Rust VDR")
     r = httpx.post(url, content=root_jcs, timeout=10.0)
     if r.status_code != 200:
-        print(f"  FAIL: POST {url} -> {r.status_code}\n{r.text}")
+        logger.error("Result: FAIL — POST returned %s: %s", r.status_code, r.text)
         return False
-    print("  POST create: OK")
+    logger.info("Result: PASS — root document created (200)")
 
-    # PUT update (key rotation)
+    logger.info("Action: PUT update — submit signed update with key rotation to Rust VDR")
     update_jcs, _ = _make_update_doc_with_key(doc, key)
     r = httpx.put(url, content=update_jcs, timeout=10.0)
     if r.status_code != 200:
-        print(f"  FAIL: PUT {url} -> {r.status_code}\n{r.text}")
+        logger.error("Result: FAIL — PUT returned %s: %s", r.status_code, r.text)
         return False
-    print("  PUT update: OK")
+    logger.info("Result: PASS — update applied (200)")
 
-    # GET resolve (direct from VDR) - expect latest (update)
+    logger.info("Action: GET from VDR — fetch did-documents.jsonl directly from Rust VDR")
     r = httpx.get(url, timeout=10.0)
     if r.status_code != 200:
-        print(f"  FAIL: GET {url} -> {r.status_code}")
+        logger.error("Result: FAIL — GET returned %s", r.status_code)
         return False
     update_doc = json.loads(update_jcs)
     if update_doc["selfHash"] not in r.text:
-        print(f"  FAIL: GET response does not contain update document")
+        logger.error("Result: FAIL — response does not contain update document")
         return False
-    print("  GET resolve: OK")
+    logger.info("Result: PASS — VDR returns latest (versionId=1)")
 
     if vdg_url:
         time.sleep(0.5)
 
-    # Python resolver (from VDR directly or via VDG)
+    resolve_via = "VDG" if vdg_url else "VDR directly"
+    logger.info("Action: Python resolver — resolve DID via %s", resolve_via)
     result = _run_resolve(did, vdg_url=vdg_url)
     if result.returncode != 0:
         err = result.stderr or "(see stderr above)"
-        print(f"  FAIL: Python resolve: {err}")
+        logger.error("Result: FAIL — Python resolve failed: %s", err)
         return False
     out = json.loads(result.stdout)
     if not out.get("didDocument"):
-        print(f"  FAIL: No didDocument in result")
+        logger.error("Result: FAIL — no didDocument in result")
         return False
     resolved = json.loads(out["didDocument"])
     if resolved.get("versionId") != 1:
-        print(f"  FAIL: Expected versionId 1, got {resolved.get('versionId')}")
+        logger.error("Result: FAIL — expected versionId 1, got %s", resolved.get("versionId"))
         return False
-    print("  Python resolve: OK")
+    logger.info("Result: PASS — Python resolver returned versionId=1")
 
     if vdg_url:
-        if not _assert_vdg_headers(vdg_url, did, resolved["selfHash"]):
+        logger.info("Action: VDG headers — verify Cache-Control, ETag, X-DID-Webplus-VDG-Cache-Hit")
+        if not _assert_vdg_headers(vdg_url, did, resolved["selfHash"], expected_cache_hit=True):
             return False
 
     return True
@@ -237,59 +264,62 @@ def python_resolver_vs_rust_vdr(vdr_url: str, vdg_url: str | None = None) -> boo
 
 def rust_resolver_vs_python_vdr(vdr_url: str, vdg_url: str | None = None) -> bool:
     """Rust resolver vs Python VDR. vdg_url: if set, resolve via VDG."""
+    logger.info("Creating root DID document for python-vdr:8087")
     root_jcs, key = _make_root_doc_with_key(host="python-vdr", port=8087)
     doc = json.loads(root_jcs)
     did = doc["id"]
     path = _resolution_path(did)
     url = f"{vdr_url.rstrip('/')}/{path}"
 
-    # POST create
+    logger.info("Action: POST create — submit root DID document to Python VDR")
     r = httpx.post(url, content=root_jcs, timeout=10.0)
     if r.status_code != 200:
-        print(f"  FAIL: POST {url} -> {r.status_code}\n{r.text}")
+        logger.error("Result: FAIL — POST returned %s: %s", r.status_code, r.text)
         return False
-    print("  POST create: OK")
+    logger.info("Result: PASS — root document created (200)")
 
-    # PUT update (key rotation)
+    logger.info("Action: PUT update — submit signed update with key rotation to Python VDR")
     update_jcs, _ = _make_update_doc_with_key(doc, key)
     r = httpx.put(url, content=update_jcs, timeout=10.0)
     if r.status_code != 200:
-        print(f"  FAIL: PUT {url} -> {r.status_code}\n{r.text}")
+        logger.error("Result: FAIL — PUT returned %s: %s", r.status_code, r.text)
         return False
-    print("  PUT update: OK")
+    logger.info("Result: PASS — update applied (200)")
 
-    # GET resolve (direct from VDR)
+    logger.info("Action: GET from VDR — fetch did-documents.jsonl directly from Python VDR")
     r = httpx.get(url, timeout=10.0)
     if r.status_code != 200:
-        print(f"  FAIL: GET {url} -> {r.status_code}")
+        logger.error("Result: FAIL — GET returned %s", r.status_code)
         return False
     update_doc = json.loads(update_jcs)
     if update_doc["selfHash"] not in r.text:
-        print(f"  FAIL: GET response does not contain update document")
+        logger.error("Result: FAIL — response does not contain update document")
         return False
-    print("  GET resolve: OK")
+    logger.info("Result: PASS — VDR returns latest (versionId=1)")
 
     if vdg_url:
         time.sleep(0.5)
 
-    # Python resolver (stand-in for Rust - from VDR directly or via VDG)
+    resolve_via = "VDG" if vdg_url else "VDR directly"
+    logger.info("Action: Resolver (Python stand-in for Rust) — resolve DID via %s", resolve_via)
     result = _run_resolve(did, vdg_url=vdg_url)
     if result.returncode != 0:
         err = result.stderr or "(see stderr above)"
-        print(f"  FAIL: Resolve: {err}")
+        logger.error("Result: FAIL — resolve failed: %s", err)
         return False
     out = json.loads(result.stdout)
     if not out.get("didDocument"):
-        print(f"  FAIL: No didDocument")
+        logger.error("Result: FAIL — no didDocument in result")
         return False
     resolved = json.loads(out["didDocument"])
     if resolved.get("versionId") != 1:
-        print(f"  FAIL: Expected versionId 1, got {resolved.get('versionId')}")
+        logger.error("Result: FAIL — expected versionId 1, got %s", resolved.get("versionId"))
         return False
-    print("  Resolve: OK")
+    logger.info("Result: PASS — resolver returned versionId=1")
 
     if vdg_url:
-        if not _assert_vdg_headers(vdg_url, did, resolved["selfHash"]):
+        logger.info("Action: VDG headers — verify Cache-Control, ETag, X-DID-Webplus-VDG-Cache-Hit")
+        if not _assert_vdg_headers(vdg_url, did, resolved["selfHash"], expected_cache_hit=True):
             return False
 
     return True
@@ -304,24 +334,111 @@ def main() -> int:
         print("Scenario must be 1, 2, 3, or 4")
         return 1
 
-    # Wait for services
-    print("Waiting for services...")
+    logger.info("Waiting for services...")
     time.sleep(3)
 
     ok = False
     if scenario == "1":
-        print("Scenario 1: Python resolver vs Rust VDR (no VDG)")
+        logger.info("=== Scenario 1: Python resolver vs Rust VDR (no VDG) ===")
+        logger.info("Testing: Python resolver fetches from Rust VDR directly")
         ok = python_resolver_vs_rust_vdr("http://rust-vdr:8085")
     elif scenario == "2":
-        print("Scenario 2: Python resolver vs Rust VDR + Rust VDG")
+        logger.info("=== Scenario 2: Python resolver vs Rust VDR + Rust VDG ===")
+        logger.info("Testing: Python resolver fetches via Rust VDG; VDG proxies to Rust VDR")
         ok = python_resolver_vs_rust_vdr("http://rust-vdr:8085", vdg_url="http://rust-vdg:8086")
     elif scenario == "3":
-        print("Scenario 3: Rust resolver vs Python VDR (no VDG)")
+        logger.info("=== Scenario 3: Rust resolver vs Python VDR (no VDG) ===")
+        logger.info("Testing: Resolver (Python stand-in for Rust) fetches from Python VDR directly")
         ok = rust_resolver_vs_python_vdr("http://python-vdr:8087")
     elif scenario == "4":
-        print("Scenario 4: Rust resolver vs Python VDR + Rust VDG")
+        logger.info("=== Scenario 4: Rust resolver vs Python VDR + Rust VDG ===")
+        logger.info("Testing: Resolver fetches via Rust VDG; VDG proxies to Python VDR")
         ok = rust_resolver_vs_python_vdr("http://python-vdr:8087", vdg_url="http://rust-vdg:8086")
 
+    if ok:
+        logger.info("=== All tests PASSED ===")
+        if scenario == "1":
+            logger.info("Summary — Scenario 1: Python resolver vs Rust VDR (no VDG)")
+            logger.info(
+                "  Action: POST create — Test script submitted root DID document to Rust VDR. "
+                "Expected: 200. Result: 200."
+            )
+            logger.info(
+                "  Action: PUT update — Test script submitted signed update with key rotation to Rust VDR. "
+                "Expected: 200. Result: 200."
+            )
+            logger.info(
+                "  Action: GET from Rust VDR — Test script fetched did-documents.jsonl from Rust VDR. "
+                "Expected: response contains latest (versionId=1). Result: PASS."
+            )
+            logger.info(
+                "  Action: Python resolver — Python resolver resolved DID via Rust VDR directly. "
+                "Expected: versionId=1. Result: versionId=1."
+            )
+        elif scenario == "2":
+            logger.info("Summary — Scenario 2: Python resolver vs Rust VDR + Rust VDG")
+            logger.info(
+                "  Action: POST create — Test script submitted root DID document to Rust VDR. "
+                "Expected: 200. Result: 200."
+            )
+            logger.info(
+                "  Action: PUT update — Test script submitted signed update with key rotation to Rust VDR. "
+                "Expected: 200. Result: 200."
+            )
+            logger.info(
+                "  Action: GET from Rust VDR — Test script fetched did-documents.jsonl from Rust VDR. "
+                "Expected: response contains latest (versionId=1). Result: PASS."
+            )
+            logger.info(
+                "  Action: Python resolver — Python resolver resolved DID via Rust VDG (Rust VDG proxies to Rust VDR). "
+                "Expected: versionId=1. Result: versionId=1."
+            )
+            logger.info(
+                "  Action: Rust VDG headers — Verified GET to Rust VDG resolve endpoint returns Cache-Control, "
+                "ETag, Last-Modified, X-DID-Webplus-VDG-Cache-Hit=true (Rust VDR notified Rust VDG of updates). Expected: all present and valid. Result: PASS."
+            )
+        elif scenario == "3":
+            logger.info("Summary — Scenario 3: Rust resolver vs Python VDR (no VDG)")
+            logger.info(
+                "  Action: POST create — Test script submitted root DID document to Python VDR. "
+                "Expected: 200. Result: 200."
+            )
+            logger.info(
+                "  Action: PUT update — Test script submitted signed update with key rotation to Python VDR. "
+                "Expected: 200. Result: 200."
+            )
+            logger.info(
+                "  Action: GET from Python VDR — Test script fetched did-documents.jsonl from Python VDR. "
+                "Expected: response contains latest (versionId=1). Result: PASS."
+            )
+            logger.info(
+                "  Action: Resolver — Python resolver (stand-in for Rust) resolved DID via Python VDR directly. "
+                "Expected: versionId=1. Result: versionId=1."
+            )
+        elif scenario == "4":
+            logger.info("Summary — Scenario 4: Rust resolver vs Python VDR + Rust VDG")
+            logger.info(
+                "  Action: POST create — Test script submitted root DID document to Python VDR. "
+                "Expected: 200. Result: 200."
+            )
+            logger.info(
+                "  Action: PUT update — Test script submitted signed update with key rotation to Python VDR. "
+                "Expected: 200. Result: 200."
+            )
+            logger.info(
+                "  Action: GET from Python VDR — Test script fetched did-documents.jsonl from Python VDR. "
+                "Expected: response contains latest (versionId=1). Result: PASS."
+            )
+            logger.info(
+                "  Action: Resolver — Python resolver (stand-in for Rust) resolved DID via Rust VDG (Rust VDG proxies to Python VDR). "
+                "Expected: versionId=1. Result: versionId=1."
+            )
+            logger.info(
+                "  Action: Rust VDG headers — Verified GET to Rust VDG resolve endpoint returns Cache-Control, "
+                "ETag, Last-Modified, X-DID-Webplus-VDG-Cache-Hit=true (Python VDR notified Rust VDG of updates). Expected: all present and valid. Result: PASS."
+            )
+    else:
+        logger.error("=== Tests FAILED ===")
     return 0 if ok else 1
 
 

@@ -33,6 +33,9 @@ On Linux/macOS, edit `/etc/hosts` with sudo (e.g. `sudo nano /etc/hosts`) and ad
 
 ```bash
 # From the interop directory
+./run_all_interop_tests.sh   # Run all 4 scenarios (convenience)
+
+# Or run a single scenario:
 ./run_interop_tests.sh 1   # Scenario 1: Python resolver vs Rust VDR
 ./run_interop_tests.sh 2   # Scenario 2: Python resolver vs Rust VDR + VDG
 ./run_interop_tests.sh 3   # Scenario 3: Rust resolver vs Python VDR
