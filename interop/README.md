@@ -1,6 +1,6 @@
 # did:webplus Interoperability Testing
 
-Docker-based interoperability tests between the Python implementation and the Rust reference implementation.
+Docker-based interoperability tests between the Python implementation and the Rust reference implementation. Each scenario combines a **DID controller** (Python or Rust), a **VDR** (Python or Rust), a **DID resolver** (Python or Rust), and whether the **Rust VDG** sits in front of the VDR.
 
 ## Prerequisites
 
@@ -22,83 +22,48 @@ On Linux/macOS, edit `/etc/hosts` with sudo (e.g. `sudo nano /etc/hosts`) and ad
 
 ## Test Matrix
 
-| Scenario | Resolver | VDR | VDG |
-|----------|----------|-----|-----|
-| 1 | Python | Rust | None |
-| 2 | Python | Rust | Rust |
-| 3 | Rust | Python | None |
-| 4 | Rust | Python | Rust |
+16 scenarios from 4 binary axes: **Controller** (Python/Rust), **VDR** (Python/Rust), **Resolver** (Python/Rust), **VDG** (no/yes).
+
+| # | Controller | VDR | Resolver | VDG |
+|---|------------|-----|----------|-----|
+| 1 | Python | Python | Python | no |
+| 2 | Python | Python | Python | yes |
+| 3 | Python | Python | Rust | no |
+| 4 | Python | Python | Rust | yes |
+| 5 | Python | Rust | Python | no |
+| 6 | Python | Rust | Python | yes |
+| 7 | Python | Rust | Rust | no |
+| 8 | Python | Rust | Rust | yes |
+| 9 | Rust | Python | Python | no |
+| 10 | Rust | Python | Python | yes |
+| 11 | Rust | Python | Rust | no |
+| 12 | Rust | Python | Rust | yes |
+| 13 | Rust | Rust | Python | no |
+| 14 | Rust | Rust | Python | yes |
+| 15 | Rust | Rust | Rust | no |
+| 16 | Rust | Rust | Rust | yes |
 
 ### Test Details
 
-Upon successful completion, each interop test scenario should print the following at the end of its output.
+Each scenario uses a **clean wallet directory** for the duration of the run. The chosen **controller** (Python or Rust CLI) performs DID create and DID update against the chosen VDR. The chosen **resolver** runs after create (asserts versionId=0) and after update (asserts versionId=1). When VDG is used, the resolver talks via the Rust VDG and the test asserts VDG headers (e.g. X-DID-Webplus-VDG-Cache-Hit). Create and update are performed only via the controller CLI, not by hand.
 
-#### Scenario 1
-
-```
-00:23:08 interop INFO === All tests PASSED ===
-00:23:08 interop INFO Summary — Scenario 1: Python resolver vs Rust VDR (no VDG)
-00:23:08 interop INFO   Action: POST create — Test script submitted root DID document to Rust VDR. Expected: 200. Result: 200.
-00:23:08 interop INFO   Action: PUT update — Test script submitted signed update with key rotation to Rust VDR. Expected: 200. Result: 200.
-00:23:08 interop INFO   Action: GET from Rust VDR — Test script fetched did-documents.jsonl from Rust VDR. Expected: response contains latest (versionId=1). Result: PASS.
-00:23:08 interop INFO   Action: Python resolver — Python resolver resolved DID via Rust VDR directly. Expected: versionId=1. Result: versionId=1.
-```
-
-#### Scenario 2
+On success, output ends with a parameterized summary, for example:
 
 ```
-00:23:37 interop INFO === All tests PASSED ===
-00:23:37 interop INFO Summary — Scenario 2: Python resolver vs Rust VDR + Rust VDG
-00:23:37 interop INFO   Action: POST create — Test script submitted root DID document to Rust VDR. Expected: 200. Result: 200.
-00:23:37 interop INFO   Action: PUT update — Test script submitted signed update with key rotation to Rust VDR. Expected: 200. Result: 200.
-00:23:37 interop INFO   Action: GET from Rust VDR — Test script fetched did-documents.jsonl from Rust VDR. Expected: response contains latest (versionId=1). Result: PASS.
-00:23:37 interop INFO   Action: Python resolver — Python resolver resolved DID via Rust VDG (Rust VDG proxies to Rust VDR). Expected: versionId=1. Result: versionId=1.
-00:23:37 interop INFO   Action: Rust VDG headers (plain DID) — GET resolve without versionId. VDG must fetch latest from Rust VDR; X-DID-Webplus-VDG-Cache-Hit expected false. Result: PASS.
-00:23:37 interop INFO   Action: Rust VDG headers (versionId param) — GET resolve with ?versionId=1. Rust VDR notified Rust VDG of updates; VDG has version; X-DID-Webplus-VDG-Cache-Hit expected true. Result: PASS.
-```
-
-#### Scenario 3
-
-```
-00:24:04 interop INFO === All tests PASSED ===
-00:24:04 interop INFO Summary — Scenario 3: Rust resolver vs Python VDR (no VDG)
-00:24:04 interop INFO   Action: POST create — Test script submitted root DID document to Python VDR. Expected: 200. Result: 200.
-00:24:04 interop INFO   Action: PUT update — Test script submitted signed update with key rotation to Python VDR. Expected: 200. Result: 200.
-00:24:04 interop INFO   Action: GET from Python VDR — Test script fetched did-documents.jsonl from Python VDR. Expected: response contains latest (versionId=1). Result: PASS.
-00:24:04 interop INFO   Action: Rust resolver — Rust resolver resolved DID via Python VDR directly. Expected: versionId=1. Result: versionId=1.
-```
-
-#### Scenario 4
-
-```
-00:24:23 interop INFO === All tests PASSED ===
-00:24:23 interop INFO Summary — Scenario 4: Rust resolver vs Python VDR + Rust VDG
-00:24:23 interop INFO   Action: POST create — Test script submitted root DID document to Python VDR. Expected: 200. Result: 200.
-00:24:23 interop INFO   Action: PUT update — Test script submitted signed update with key rotation to Python VDR. Expected: 200. Result: 200.
-00:24:23 interop INFO   Action: GET from Python VDR — Test script fetched did-documents.jsonl from Python VDR. Expected: response contains latest (versionId=1). Result: PASS.
-00:24:23 interop INFO   Action: Rust resolver — Rust resolver resolved DID via Rust VDG (Rust VDG proxies to Python VDR). Expected: versionId=1. Result: versionId=1.
-00:24:23 interop INFO   Action: Rust VDG headers (plain DID) — GET resolve without versionId. VDG must fetch latest from Python VDR; X-DID-Webplus-VDG-Cache-Hit expected false. Result: PASS.
-00:24:23 interop INFO   Action: Rust VDG headers (versionId param) — GET resolve with ?versionId=1. Python VDR notified Rust VDG of updates; VDG has version; X-DID-Webplus-VDG-Cache-Hit expected true. Result: PASS.
+interop INFO === All tests PASSED ===
+interop INFO Summary — Scenario 7: Python controller, Rust VDR, Rust resolver, no VDG
+interop INFO   Controller created and updated DID; resolver ran after create (versionId=0) and after update (versionId=1).
 ```
 
 ## Running Tests
 
 ```bash
 # From the interop directory
-./run_all_interop_tests.sh   # Run all 4 scenarios (convenience)
+./run_all_interop_tests.sh   # Run all 16 scenarios
 
-# Or run a single scenario:
-./run_interop_tests.sh 1   # Scenario 1: Python resolver vs Rust VDR
-./run_interop_tests.sh 2   # Scenario 2: Python resolver vs Rust VDR + VDG
-./run_interop_tests.sh 3   # Scenario 3: Rust resolver vs Python VDR
-./run_interop_tests.sh 4   # Scenario 4: Rust resolver vs Python VDR + VDG
-```
-
-Or run the Python script directly (with services already up):
-
-```bash
-cd ..
-uv run python interop/run_interop_tests.py 1
+# Or run a single scenario (1-16):
+./run_interop_tests.sh 1
+./run_interop_tests.sh 10
 ```
 
 ## Cleanup
@@ -113,8 +78,9 @@ To stop all containers and remove volumes (guaranteed clean slate):
 
 - **Rust VDR**: `ghcr.io/ledgerdomain/did-webplus-vdr:v0.1.0`
 - **Rust VDG**: `ghcr.io/ledgerdomain/did-webplus-vdg:v0.1.0`
-- **Rust CLI** (resolver for scenarios 3 and 4): `ghcr.io/ledgerdomain/did-webplus-cli:v0.1.0`
+- **Rust CLI** (`ghcr.io/ledgerdomain/did-webplus-cli:v0.1.0`): used as **DID resolver** when Resolver=Rust and as **DID controller** when Controller=Rust (wallet in Docker volume).
 - **Python VDR**: Built from this repo (`interop/Dockerfile.python-vdr`)
+- **Python controller**: This repo’s `did-webplus did create` / `did update`; uses a local wallet directory (created per run).
 
 ## Ports
 

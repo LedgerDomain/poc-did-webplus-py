@@ -2,14 +2,12 @@
 """
 Run interoperability tests for did:webplus.
 
-Scenarios:
-  1: Python resolver vs Rust VDR (no VDG)
-  2: Python resolver vs Rust VDR + Rust VDG
-  3: Rust resolver vs Python VDR (no VDG)
-  4: Rust resolver vs Python VDR + Rust VDG
+16 scenarios from 4 binary axes: Controller (Python/Rust), VDR (Python/Rust),
+Resolver (Python/Rust), VDG (no/yes). Create and update are performed by the
+chosen controller CLI; resolution is performed by the chosen resolver.
 
-Usage: ./run_interop_tests.py <1|2|3|4>
-Or: docker compose up -d (with appropriate env) then ./run_interop_tests.py <1|2|3|4>
+Usage: ./run_interop_tests.py <1-16>
+Or: docker compose up -d (with appropriate env) then ./run_interop_tests.py <1-16>
 """
 
 from __future__ import annotations
@@ -17,119 +15,145 @@ from __future__ import annotations
 import json
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import time
+from pathlib import Path
+
+INTEROP_DIR = Path(__file__).resolve().parent
 from urllib.parse import quote, urlparse
 
 import httpx
 
 RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.1.0"
 
+# VDR base URLs and create endpoints
+RUST_VDR_URL = "http://rust-vdr:8085"
+PYTHON_VDR_URL = "http://python-vdr:8087"
+VDG_URL = "http://rust-vdg:8086"
+
 logger = logging.getLogger("interop")
 
 # Enable DEBUG logging for interop tests (main process and resolver subprocess)
 os.environ.setdefault("DID_WEBPLUS_LOG_LEVEL", "DEBUG")
 # Use http for test hostnames (rust-vdr, rust-vdg, python-vdr)
-os.environ.setdefault(
-    "DID_WEBPLUS_HTTP_SCHEME_OVERRIDE",
-    "rust-vdr=http,rust-vdg=http,python-vdr=http",
-)
-import rfc8785
-from jwcrypto import jwk
+HTTP_SCHEME_OVERRIDE = "rust-vdr=http,rust-vdg=http,python-vdr=http"
+os.environ.setdefault("DID_WEBPLUS_HTTP_SCHEME_OVERRIDE", HTTP_SCHEME_OVERRIDE)
 
 # Add parent for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+_REPO_ROOT = os.path.join(os.path.dirname(__file__), "..")
+sys.path.insert(0, _REPO_ROOT)
 from did_webplus.logging_config import configure_logging
-from did_webplus.selfhash import BLAKE3_PLACEHOLDER, compute_self_hash, hash_bytes_for_hashed_key
-from did_webplus.verification import create_proof, jwk_to_multibase_key
+from did_webplus.did import parse_did, parse_http_scheme_overrides
 
 configure_logging()
 logger.setLevel(logging.INFO)  # Ensure scenario/action/result messages always show
 
 
-def _make_root_doc_with_key(
-    host: str = "localhost",
-    port: int | None = 8085,
-) -> tuple[str, jwk.JWK]:
-    """Create a root DID document with a generated key for updates. Returns (jcs, private_key)."""
-    key = jwk.JWK.generate(kty="OKP", crv="Ed25519")
-    key_str = jwk_to_multibase_key(key)
-    host_part = f"{host}%3A{port}" if port else host
-    doc = {
-        "assertionMethod": ["#0"],
-        "authentication": ["#0"],
-        "capabilityDelegation": ["#0"],
-        "capabilityInvocation": ["#0"],
-        "id": f"did:webplus:{host_part}:{BLAKE3_PLACEHOLDER}",
-        "keyAgreement": ["#0"],
-        "selfHash": BLAKE3_PLACEHOLDER,
-        "updateRules": {"key": key_str},
-        "validFrom": "2024-01-01T00:00:00Z",
-        "verificationMethod": [
-            {
-                "controller": f"did:webplus:{host_part}:{BLAKE3_PLACEHOLDER}",
-                "id": f"did:webplus:{host_part}:{BLAKE3_PLACEHOLDER}?selfHash={BLAKE3_PLACEHOLDER}&versionId=0#0",
-                "publicKeyJwk": key.export_public(as_dict=True)
-                | {"kid": f"did:webplus:{host_part}:{BLAKE3_PLACEHOLDER}?selfHash={BLAKE3_PLACEHOLDER}&versionId=0#0"},
-                "type": "JsonWebKey2020",
-            }
-        ],
-        "versionId": 0,
-    }
-    compute_self_hash(doc)
-    return rfc8785.dumps(doc).decode("utf-8"), key
+def _run_python_controller_create(vdr_create_endpoint: str, wallet_dir: Path) -> str:
+    """Run Python controller create; return created DID from stdout."""
+    cmd = [
+        "uv", "run", "did-webplus", "did", "create", vdr_create_endpoint,
+        "--base-dir", str(wallet_dir),
+        "--http-scheme-override", HTTP_SCHEME_OVERRIDE,
+    ]
+    logger.info("Action: Python controller create — %s", " ".join(cmd))
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        cwd=_REPO_ROOT,
+        timeout=30,
+    )
+    if result.returncode != 0:
+        logger.error("Result: FAIL — Python create: %s", result.stderr or result.stdout)
+        raise RuntimeError(f"Python controller create failed: {result.stderr or result.stdout}")
+    did = result.stdout.strip()
+    if not did.startswith("did:webplus:"):
+        logger.error("Result: FAIL — unexpected stdout: %r", result.stdout)
+        raise RuntimeError(f"Python controller create did not output a DID: {result.stdout!r}")
+    logger.info("Result: PASS — created %s", did)
+    return did
 
 
-def _make_update_doc_with_key(
-    prev_doc: dict,
-    signing_key: jwk.JWK,
-) -> tuple[str, jwk.JWK]:
-    """Create a signed update document (versionId=1) with key rotation.
+def _run_python_controller_update(did: str, wallet_dir: Path) -> None:
+    """Run Python controller update."""
+    cmd = [
+        "uv", "run", "did-webplus", "did", "update", did,
+        "--base-dir", str(wallet_dir),
+        "--http-scheme-override", HTTP_SCHEME_OVERRIDE,
+    ]
+    logger.info("Action: Python controller update — did update %s", did)
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        cwd=_REPO_ROOT,
+        timeout=30,
+    )
+    if result.returncode != 0:
+        logger.error("Result: FAIL — Python update: %s", result.stderr or result.stdout)
+        raise RuntimeError(f"Python controller update failed: {result.stderr or result.stdout}")
+    logger.info("Result: PASS — update applied")
 
-    The proof is signed by signing_key (must satisfy prev_doc's updateRules).
-    A new key is generated for verificationMethod and updateRules.hashedKey.
-    Returns (jcs, new_key) for potential further updates.
-    """
-    root_hash = prev_doc["selfHash"]
-    did = prev_doc["id"]
-    new_key = jwk.JWK.generate(kty="OKP", crv="Ed25519")
-    new_key_str = jwk_to_multibase_key(new_key)
-    hashed_key = hash_bytes_for_hashed_key(new_key_str.encode("utf-8"), root_hash)
-    doc = {
-        "assertionMethod": ["#0"],
-        "authentication": ["#0"],
-        "capabilityDelegation": ["#0"],
-        "capabilityInvocation": ["#0"],
-        "id": did,
-        "keyAgreement": ["#0"],
-        "prevDIDDocumentSelfHash": root_hash,
-        "selfHash": BLAKE3_PLACEHOLDER,
-        "updateRules": {"hashedKey": hashed_key},
-        "validFrom": "2024-01-01T00:00:01Z",
-        "verificationMethod": [
-            {
-                "controller": did,
-                "id": f"{did}?selfHash={BLAKE3_PLACEHOLDER}&versionId=1#0",
-                "publicKeyJwk": new_key.export_public(as_dict=True)
-                | {"kid": f"{did}?selfHash={BLAKE3_PLACEHOLDER}&versionId=1#0"},
-                "type": "JsonWebKey2020",
-            }
-        ],
-        "versionId": 1,
-    }
-    proof = create_proof(doc, signing_key)
-    doc["proofs"] = [proof]
-    compute_self_hash(doc)
-    return rfc8785.dumps(doc).decode("utf-8"), new_key
+
+def _run_rust_controller_create(vdr_create_endpoint: str, wallet_dir: Path) -> str:
+    """Run Rust controller create via Docker; return created DID from stdout."""
+    cmd = [
+        "docker", "run", "--rm",
+        "--network", "host",
+        "-e", f"DID_WEBPLUS_HTTP_SCHEME_OVERRIDE={HTTP_SCHEME_OVERRIDE}",
+        "-v", f"{wallet_dir.resolve()}:/root/.did-webplus",
+        RUST_CLI_IMAGE,
+        "wallet", "did", "create", "--vdr", vdr_create_endpoint,
+    ]
+    logger.info("Action: Rust controller create — wallet did create --vdr %s", vdr_create_endpoint)
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if result.returncode != 0:
+        logger.error("Result: FAIL — Rust create: %s", result.stderr or result.stdout)
+        raise RuntimeError(f"Rust controller create failed: {result.stderr or result.stdout}")
+    # Parse DID from stdout (e.g. last line or line containing did:webplus:)
+    for line in reversed(result.stdout.strip().splitlines()):
+        line = line.strip()
+        if line.startswith("did:webplus:"):
+            logger.info("Result: PASS — created %s", line)
+            return line
+    logger.error("Result: FAIL — no DID in stdout: %r", result.stdout)
+    raise RuntimeError(f"Rust controller create did not output a DID: {result.stdout!r}")
+
+
+def _run_rust_controller_update(wallet_dir: Path, did: str) -> None:
+    """Run Rust controller update via Docker; pass --did <base DID> (no query or fragment)."""
+    base_did = did.split("?")[0]
+    cmd = [
+        "docker", "run", "--rm",
+        "--network", "host",
+        "-e", f"DID_WEBPLUS_HTTP_SCHEME_OVERRIDE={HTTP_SCHEME_OVERRIDE}",
+        "-v", f"{wallet_dir.resolve()}:/root/.did-webplus",
+        RUST_CLI_IMAGE,
+        "wallet", "did", "update", "--did", base_did,
+    ]
+    logger.info("Action: Rust controller update — wallet did update --did %s", base_did)
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if result.returncode != 0:
+        logger.error("Result: FAIL — Rust update: %s", result.stderr or result.stdout)
+        raise RuntimeError(f"Rust controller update failed: {result.stderr or result.stdout}")
+    logger.info("Result: PASS — update applied")
 
 
 def _resolution_path(did: str) -> str:
     """Extract path for resolution URL from DID (path only; host/port are in the URL authority)."""
-    from urllib.parse import urlparse
-
-    from did_webplus.did import parse_did, parse_http_scheme_overrides
-
     components = parse_did(did)
     overrides = parse_http_scheme_overrides(
         os.environ.get("DID_WEBPLUS_HTTP_SCHEME_OVERRIDE")
@@ -166,7 +190,7 @@ def _run_rust_resolve(did: str, vdg_url: str | None = None) -> subprocess.Comple
         "--network",
         "host",
         "-e",
-        "DID_WEBPLUS_HTTP_SCHEME_OVERRIDE=python-vdr=http,rust-vdg=http",
+        f"DID_WEBPLUS_HTTP_SCHEME_OVERRIDE={HTTP_SCHEME_OVERRIDE}",
         "-e",
         "RUST_LOG=debug",
         RUST_CLI_IMAGE,
@@ -253,276 +277,173 @@ def _assert_vdg_headers(
     return True
 
 
-def python_resolver_vs_rust_vdr(vdr_url: str, vdg_url: str | None = None) -> bool:
-    """Python resolver vs Rust VDR. vdg_url: if set, resolve via VDG."""
-    logger.info("Creating root DID document for rust-vdr:8085")
-    root_jcs, key = _make_root_doc_with_key(host="rust-vdr", port=8085)
-    doc = json.loads(root_jcs)
-    did = doc["id"]
-    path = _resolution_path(did)
-    url = f"{vdr_url.rstrip('/')}/{path}"
+def _scenario_params(n: int) -> tuple[str, str, str, bool]:
+    """Map scenario number 1-16 to (controller_kind, vdr_kind, resolver_kind, use_vdg)."""
+    n0 = n - 1
+    controller = "rust" if (n0 & 8) else "python"
+    vdr = "rust" if (n0 & 4) else "python"
+    resolver = "rust" if (n0 & 2) else "python"
+    use_vdg = bool(n0 & 1)
+    return controller, vdr, resolver, use_vdg
 
-    logger.info("Action: POST create — submit root DID document to Rust VDR")
-    r = httpx.post(url, content=root_jcs, timeout=10.0)
-    if r.status_code != 200:
-        logger.error("Result: FAIL — POST returned %s: %s", r.status_code, r.text)
-        return False
-    logger.info("Result: PASS — root document created (200)")
 
-    logger.info("Action: PUT update — submit signed update with key rotation to Rust VDR")
-    update_jcs, _ = _make_update_doc_with_key(doc, key)
-    r = httpx.put(url, content=update_jcs, timeout=10.0)
-    if r.status_code != 200:
-        logger.error("Result: FAIL — PUT returned %s: %s", r.status_code, r.text)
-        return False
-    logger.info("Result: PASS — update applied (200)")
-
-    logger.info("Action: GET from VDR — fetch did-documents.jsonl directly from Rust VDR")
-    r = httpx.get(url, timeout=10.0)
-    if r.status_code != 200:
-        logger.error("Result: FAIL — GET returned %s", r.status_code)
-        return False
-    update_doc = json.loads(update_jcs)
-    if update_doc["selfHash"] not in r.text:
-        logger.error("Result: FAIL — response does not contain update document")
-        return False
-    logger.info("Result: PASS — VDR returns latest (versionId=1)")
-
-    if vdg_url:
-        time.sleep(0.5)
-
-    resolve_via = "VDG" if vdg_url else "VDR directly"
-    logger.info("Action: Python resolver — resolve DID via %s", resolve_via)
-    result = _run_python_resolve(did, vdg_url=vdg_url)
+def _run_resolve_and_assert(
+    did: str,
+    resolver_kind: str,
+    vdg_url: str | None,
+    expected_version_id: int,
+) -> tuple[bool, str | None]:
+    """Run chosen resolver, assert versionId. Returns (ok, resolved_self_hash or None)."""
+    if resolver_kind == "python":
+        result = _run_python_resolve(did, vdg_url=vdg_url)
+    else:
+        result = _run_rust_resolve(did, vdg_url=vdg_url)
+    resolver_name = "Python" if resolver_kind == "python" else "Rust"
     if result.returncode != 0:
-        err = result.stderr or "(see stderr above)"
-        logger.error("Result: FAIL — Python resolve failed: %s", err)
-        return False
+        logger.error("Result: FAIL — %s resolve failed: %s", resolver_name, result.stderr or "(see stderr)")
+        return False, None
     out = json.loads(result.stdout)
     if not out.get("didDocument"):
         logger.error("Result: FAIL — no didDocument in result")
-        return False
+        return False, None
     resolved = json.loads(out["didDocument"])
-    if resolved.get("versionId") != 1:
-        logger.error("Result: FAIL — expected versionId 1, got %s", resolved.get("versionId"))
-        return False
-    logger.info("Result: PASS — Python resolver returned versionId=1")
+    vid = resolved.get("versionId")
+    if vid != expected_version_id:
+        logger.error("Result: FAIL — expected versionId %s, got %s", expected_version_id, vid)
+        return False, None
+    logger.info("Result: PASS — %s resolver returned versionId=%s", resolver_name, expected_version_id)
+    return True, resolved.get("selfHash")
 
-    if vdg_url:
-        # Case 1: Plain DID (no versionId) -> X-DID-Webplus-VDG-Cache-Hit expected false
-        if not _assert_vdg_headers(
-            vdg_url, did, resolved["selfHash"],
-            expected_cache_hit=False,
-            use_version_id_param=False,
-        ):
+
+def run_scenario(
+    controller_kind: str,
+    vdr_kind: str,
+    resolver_kind: str,
+    use_vdg: bool,
+    wallet_dir: Path,
+) -> bool:
+    """Execute one interop scenario: controller create -> resolve (v0) -> update -> verify VDR -> resolve (v1) [+ VDG checks]."""
+    vdr_url = RUST_VDR_URL if vdr_kind == "rust" else PYTHON_VDR_URL
+    vdr_create_endpoint = vdr_url
+    vdg_url = VDG_URL if use_vdg else None
+
+    try:
+        # 1. Create
+        if controller_kind == "python":
+            did = _run_python_controller_create(vdr_create_endpoint, wallet_dir)
+        else:
+            did = _run_rust_controller_create(vdr_create_endpoint, wallet_dir)
+        base_did = did.split("?")[0] if "?" in did else did
+
+        # 2. Resolve after create (versionId=0)
+        if vdg_url:
+            time.sleep(0.3)
+        logger.info("Action: Resolve after create — expect versionId=0")
+        ok, root_self_hash = _run_resolve_and_assert(base_did, resolver_kind, vdg_url, 0)
+        if not ok:
             return False
-        # Case 2: DID with versionId=1 -> X-DID-Webplus-VDG-Cache-Hit expected true
-        did_with_version = f"{did}?versionId=1"
-        if not _assert_vdg_headers(
-            vdg_url, did_with_version, resolved["selfHash"],
-            expected_cache_hit=True,
-            use_version_id_param=True,
-        ):
+        if vdg_url and root_self_hash:
+            if not _assert_vdg_headers(vdg_url, base_did, root_self_hash, expected_cache_hit=False, use_version_id_param=False):
+                return False
+            did_v0 = f"{base_did}?versionId=0"
+            if not _assert_vdg_headers(vdg_url, did_v0, root_self_hash, expected_cache_hit=True, use_version_id_param=True):
+                return False
+
+        # 3. Update
+        if controller_kind == "python":
+            _run_python_controller_update(base_did, wallet_dir)
+        else:
+            _run_rust_controller_update(wallet_dir, base_did)
+
+        # 4. Verify VDR GET
+        path = _resolution_path(base_did)
+        url = f"{vdr_url.rstrip('/')}/{path}"
+        logger.info("Action: GET from VDR — fetch did-documents.jsonl")
+        r = httpx.get(url, timeout=10.0)
+        if r.status_code != 200:
+            logger.error("Result: FAIL — GET returned %s", r.status_code)
             return False
-
-    return True
-
-
-def rust_resolver_vs_python_vdr(vdr_url: str, vdg_url: str | None = None) -> bool:
-    """Rust resolver vs Python VDR. vdg_url: if set, resolve via VDG."""
-    logger.info("Creating root DID document for python-vdr:8087")
-    root_jcs, key = _make_root_doc_with_key(host="python-vdr", port=8087)
-    doc = json.loads(root_jcs)
-    did = doc["id"]
-    path = _resolution_path(did)
-    url = f"{vdr_url.rstrip('/')}/{path}"
-
-    logger.info("Action: POST create — submit root DID document to Python VDR")
-    r = httpx.post(url, content=root_jcs, timeout=10.0)
-    if r.status_code != 200:
-        logger.error("Result: FAIL — POST returned %s: %s", r.status_code, r.text)
-        return False
-    logger.info("Result: PASS — root document created (200)")
-
-    logger.info("Action: PUT update — submit signed update with key rotation to Python VDR")
-    update_jcs, _ = _make_update_doc_with_key(doc, key)
-    r = httpx.put(url, content=update_jcs, timeout=10.0)
-    if r.status_code != 200:
-        logger.error("Result: FAIL — PUT returned %s: %s", r.status_code, r.text)
-        return False
-    logger.info("Result: PASS — update applied (200)")
-
-    logger.info("Action: GET from VDR — fetch did-documents.jsonl directly from Python VDR")
-    r = httpx.get(url, timeout=10.0)
-    if r.status_code != 200:
-        logger.error("Result: FAIL — GET returned %s", r.status_code)
-        return False
-    update_doc = json.loads(update_jcs)
-    if update_doc["selfHash"] not in r.text:
-        logger.error("Result: FAIL — response does not contain update document")
-        return False
-    logger.info("Result: PASS — VDR returns latest (versionId=1)")
-
-    if vdg_url:
-        time.sleep(0.5)
-
-    resolve_via = "VDG" if vdg_url else "VDR directly"
-    logger.info("Action: Rust resolver — resolve DID via %s", resolve_via)
-    result = _run_rust_resolve(did, vdg_url=vdg_url)
-    if result.returncode != 0:
-        err = result.stderr or "(see stderr above)"
-        logger.error("Result: FAIL — Rust resolve failed: %s", err)
-        return False
-    out = json.loads(result.stdout)
-    if not out.get("didDocument"):
-        logger.error("Result: FAIL — no didDocument in result")
-        return False
-    resolved = json.loads(out["didDocument"])
-    if resolved.get("versionId") != 1:
-        logger.error("Result: FAIL — expected versionId 1, got %s", resolved.get("versionId"))
-        return False
-    logger.info("Result: PASS — Rust resolver returned versionId=1")
-
-    if vdg_url:
-        # Case 1: Plain DID (no versionId) -> X-DID-Webplus-VDG-Cache-Hit expected false
-        if not _assert_vdg_headers(
-            vdg_url, did, resolved["selfHash"],
-            expected_cache_hit=False,
-            use_version_id_param=False,
-        ):
+        # Response should contain at least two lines (root + update); update has versionId 1
+        lines = [ln.strip() for ln in r.text.strip().split("\n") if ln.strip()]
+        if len(lines) < 2:
+            logger.error("Result: FAIL — VDR response has %s lines, expected at least 2", len(lines))
             return False
-        # Case 2: DID with versionId=1 -> X-DID-Webplus-VDG-Cache-Hit expected true
-        did_with_version = f"{did}?versionId=1"
-        if not _assert_vdg_headers(
-            vdg_url, did_with_version, resolved["selfHash"],
-            expected_cache_hit=True,
-            use_version_id_param=True,
-        ):
+        last_doc = json.loads(lines[-1])
+        if last_doc.get("versionId") != 1:
+            logger.error("Result: FAIL — latest doc versionId=%s", last_doc.get("versionId"))
             return False
+        update_self_hash = last_doc.get("selfHash")
+        logger.info("Result: PASS — VDR returns latest (versionId=1)")
 
-    return True
+        if vdg_url:
+            time.sleep(0.5)
+
+        # 5. Resolve after update (versionId=1)
+        logger.info("Action: Resolve after update — expect versionId=1")
+        ok, _ = _run_resolve_and_assert(base_did, resolver_kind, vdg_url, 1)
+        if not ok:
+            return False
+        if vdg_url and update_self_hash:
+            if not _assert_vdg_headers(vdg_url, base_did, update_self_hash, expected_cache_hit=False, use_version_id_param=False):
+                return False
+            did_with_version = f"{base_did}?versionId=1"
+            if not _assert_vdg_headers(vdg_url, did_with_version, update_self_hash, expected_cache_hit=True, use_version_id_param=True):
+                return False
+
+        return True
+    except RuntimeError as e:
+        logger.error("Result: FAIL — %s", e)
+        return False
+
+
+def _log_summary(n: int, controller: str, vdr: str, resolver: str, use_vdg: bool) -> None:
+    """Parameterized summary for scenario n."""
+    vdg_str = "Rust VDG" if use_vdg else "no VDG"
+    logger.info(
+        "Summary — Scenario %s: %s controller, %s VDR, %s resolver, %s",
+        n, controller.capitalize(), vdr.capitalize(), resolver.capitalize(), vdg_str,
+    )
+    logger.info(
+        "  Controller created and updated DID; resolver ran after create (versionId=0) and after update (versionId=1)."
+    )
 
 
 def main() -> int:
     if len(sys.argv) < 2:
-        print("Usage: ./run_interop_tests.py <1|2|3|4>")
+        print("Usage: ./run_interop_tests.py <1-16>")
+        print("Scenarios: 4 axes — Controller (Python/Rust), VDR (Python/Rust), Resolver (Python/Rust), VDG (no/yes).")
         return 1
-    scenario = sys.argv[1]
-    if scenario not in ("1", "2", "3", "4"):
-        print("Scenario must be 1, 2, 3, or 4")
+    scenario_arg = sys.argv[1]
+    try:
+        n = int(scenario_arg)
+    except ValueError:
+        n = -1
+    if n < 1 or n > 16:
+        print("Scenario must be 1-16")
         return 1
+
+    controller_kind, vdr_kind, resolver_kind, use_vdg = _scenario_params(n)
+    logger.info(
+        "=== Scenario %s: %s controller, %s VDR, %s resolver, %s ===",
+        n,
+        controller_kind.capitalize(),
+        vdr_kind.capitalize(),
+        resolver_kind.capitalize(),
+        "Rust VDG" if use_vdg else "no VDG",
+    )
 
     logger.info("Waiting for services...")
     time.sleep(3)
 
-    ok = False
-    if scenario == "1":
-        logger.info("=== Scenario 1: Python resolver vs Rust VDR (no VDG) ===")
-        logger.info("Testing: Python resolver fetches from Rust VDR directly")
-        ok = python_resolver_vs_rust_vdr("http://rust-vdr:8085")
-    elif scenario == "2":
-        logger.info("=== Scenario 2: Python resolver vs Rust VDR + Rust VDG ===")
-        logger.info("Testing: Python resolver fetches via Rust VDG; VDG proxies to Rust VDR")
-        ok = python_resolver_vs_rust_vdr("http://rust-vdr:8085", vdg_url="http://rust-vdg:8086")
-    elif scenario == "3":
-        logger.info("=== Scenario 3: Rust resolver vs Python VDR (no VDG) ===")
-        logger.info("Testing: Rust resolver fetches from Python VDR directly")
-        ok = rust_resolver_vs_python_vdr("http://python-vdr:8087")
-    elif scenario == "4":
-        logger.info("=== Scenario 4: Rust resolver vs Python VDR + Rust VDG ===")
-        logger.info("Testing: Rust resolver fetches via Rust VDG; Rust VDG proxies to Python VDR")
-        ok = rust_resolver_vs_python_vdr("http://python-vdr:8087", vdg_url="http://rust-vdg:8086")
+    wallet_dir = INTEROP_DIR / f"wallet_dir_scenario_{n}"
+    if wallet_dir.exists():
+        shutil.rmtree(wallet_dir)
+    wallet_dir.mkdir(parents=True, exist_ok=True)
 
+    ok = run_scenario(controller_kind, vdr_kind, resolver_kind, use_vdg, wallet_dir)
     if ok:
         logger.info("=== All tests PASSED ===")
-        if scenario == "1":
-            logger.info("Summary — Scenario 1: Python resolver vs Rust VDR (no VDG)")
-            logger.info(
-                "  Action: POST create — Test script submitted root DID document to Rust VDR. "
-                "Expected: 200. Result: 200."
-            )
-            logger.info(
-                "  Action: PUT update — Test script submitted signed update with key rotation to Rust VDR. "
-                "Expected: 200. Result: 200."
-            )
-            logger.info(
-                "  Action: GET from Rust VDR — Test script fetched did-documents.jsonl from Rust VDR. "
-                "Expected: response contains latest (versionId=1). Result: PASS."
-            )
-            logger.info(
-                "  Action: Python resolver — Python resolver resolved DID via Rust VDR directly. "
-                "Expected: versionId=1. Result: versionId=1."
-            )
-        elif scenario == "2":
-            logger.info("Summary — Scenario 2: Python resolver vs Rust VDR + Rust VDG")
-            logger.info(
-                "  Action: POST create — Test script submitted root DID document to Rust VDR. "
-                "Expected: 200. Result: 200."
-            )
-            logger.info(
-                "  Action: PUT update — Test script submitted signed update with key rotation to Rust VDR. "
-                "Expected: 200. Result: 200."
-            )
-            logger.info(
-                "  Action: GET from Rust VDR — Test script fetched did-documents.jsonl from Rust VDR. "
-                "Expected: response contains latest (versionId=1). Result: PASS."
-            )
-            logger.info(
-                "  Action: Python resolver — Python resolver resolved DID via Rust VDG (Rust VDG proxies to Rust VDR). "
-                "Expected: versionId=1. Result: versionId=1."
-            )
-            logger.info(
-                "  Action: Rust VDG headers (plain DID) — GET resolve without versionId. "
-                "VDG must fetch latest from Rust VDR; X-DID-Webplus-VDG-Cache-Hit expected false. Result: PASS."
-            )
-            logger.info(
-                "  Action: Rust VDG headers (versionId param) — GET resolve with ?versionId=1. "
-                "Rust VDR notified Rust VDG of updates; VDG has version; X-DID-Webplus-VDG-Cache-Hit expected true. Result: PASS."
-            )
-        elif scenario == "3":
-            logger.info("Summary — Scenario 3: Rust resolver vs Python VDR (no VDG)")
-            logger.info(
-                "  Action: POST create — Test script submitted root DID document to Python VDR. "
-                "Expected: 200. Result: 200."
-            )
-            logger.info(
-                "  Action: PUT update — Test script submitted signed update with key rotation to Python VDR. "
-                "Expected: 200. Result: 200."
-            )
-            logger.info(
-                "  Action: GET from Python VDR — Test script fetched did-documents.jsonl from Python VDR. "
-                "Expected: response contains latest (versionId=1). Result: PASS."
-            )
-            logger.info(
-                "  Action: Rust resolver — Rust resolver resolved DID via Python VDR directly. "
-                "Expected: versionId=1. Result: versionId=1."
-            )
-        elif scenario == "4":
-            logger.info("Summary — Scenario 4: Rust resolver vs Python VDR + Rust VDG")
-            logger.info(
-                "  Action: POST create — Test script submitted root DID document to Python VDR. "
-                "Expected: 200. Result: 200."
-            )
-            logger.info(
-                "  Action: PUT update — Test script submitted signed update with key rotation to Python VDR. "
-                "Expected: 200. Result: 200."
-            )
-            logger.info(
-                "  Action: GET from Python VDR — Test script fetched did-documents.jsonl from Python VDR. "
-                "Expected: response contains latest (versionId=1). Result: PASS."
-            )
-            logger.info(
-                "  Action: Rust resolver — Rust resolver resolved DID via Rust VDG (Rust VDG proxies to Python VDR). "
-                "Expected: versionId=1. Result: versionId=1."
-            )
-            logger.info(
-                "  Action: Rust VDG headers (plain DID) — GET resolve without versionId. "
-                "VDG must fetch latest from Python VDR; X-DID-Webplus-VDG-Cache-Hit expected false. Result: PASS."
-            )
-            logger.info(
-                "  Action: Rust VDG headers (versionId param) — GET resolve with ?versionId=1. "
-                "Python VDR notified Rust VDG of updates; VDG has version; X-DID-Webplus-VDG-Cache-Hit expected true. Result: PASS."
-            )
+        _log_summary(n, controller_kind, vdr_kind, resolver_kind, use_vdg)
     else:
         logger.error("=== Tests FAILED ===")
     return 0 if ok else 1

@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
-# Run all interoperability test scenarios (1-4) for did:webplus
+# Run all interoperability test scenarios (1-16) for did:webplus
 # Usage: ./run_all_interop_tests.sh
 #
-# Scenarios:
-#   1: Python resolver vs Rust VDR (no VDG)
-#   2: Python resolver vs Rust VDR + Rust VDG
-#   3: Rust resolver vs Python VDR (no VDG)
-#   4: Rust resolver vs Python VDR + Rust VDG
+# 16 scenarios from 4 axes: Controller, VDR, Resolver (Python/Rust each), VDG (no/yes).
 
 set -e
 
@@ -37,31 +33,33 @@ run_scenario() {
 
     bash "$SCRIPT_DIR/stop_and_clean.sh"
 
-    case "$scenario" in
-        1)
-            echo "Starting Rust VDR..."
-            RUST_VDR_VDG_HOSTS= $COMPOSE up -d rust-vdr-db rust-vdr
-            ;;
-        2)
+    USE_VDG=$(( (scenario - 1) & 1 ))
+    VDR_RUST=$(( ((scenario - 1) & 4) != 0 ))
+
+    if [[ $VDR_RUST -eq 1 ]]; then
+        if [[ $USE_VDG -eq 1 ]]; then
             echo "Starting Rust VDR + VDG..."
             RUST_VDR_VDG_HOSTS=rust-vdg:8086 $COMPOSE up -d rust-vdr-db rust-vdg-db rust-vdg rust-vdr
-            ;;
-        3)
-            echo "Starting Python VDR..."
-            $COMPOSE up -d --build python-vdr
-            ;;
-        4)
+        else
+            echo "Starting Rust VDR..."
+            RUST_VDR_VDG_HOSTS= $COMPOSE up -d rust-vdr-db rust-vdr
+        fi
+    else
+        if [[ $USE_VDG -eq 1 ]]; then
             echo "Starting Python VDR + Rust VDG..."
             PYTHON_VDR_VDG_HOSTS=rust-vdg:8086 $COMPOSE up -d --build rust-vdg-db rust-vdg python-vdr
-            ;;
-    esac
+        else
+            echo "Starting Python VDR..."
+            $COMPOSE up -d --build python-vdr
+        fi
+    fi
 
     echo "Streaming Docker service logs (background)..."
     $COMPOSE logs -f &
     LOG_PID=$!
 
     echo "Waiting for services to be healthy..."
-    sleep 10
+    sleep 3
 
     cd "$SCRIPT_DIR/.."
     if uv run python interop/run_interop_tests.py "$scenario"; then
@@ -78,11 +76,12 @@ run_scenario() {
 }
 
 FAILED=0
-for s in 1 2 3 4; do
+RESULTS=()
+for s in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16; do
     if run_scenario "$s"; then
-        echo "Scenario $s: PASSED"
+        RESULTS+=("  Scenario $s: PASSED")
     else
-        echo "Scenario $s: FAILED"
+        RESULTS+=("  Scenario $s: FAILED")
         FAILED=1
     fi
 done
@@ -91,10 +90,18 @@ echo ""
 echo "=============================================="
 if [[ $FAILED -eq 0 ]]; then
     echo "  All scenarios PASSED"
-    echo "=============================================="
-    exit 0
 else
     echo "  One or more scenarios FAILED"
-    echo "=============================================="
+fi
+echo "=============================================="
+echo ""
+echo "Summary by scenario:"
+for line in "${RESULTS[@]}"; do
+    echo "$line"
+done
+echo ""
+if [[ $FAILED -eq 0 ]]; then
+    exit 0
+else
     exit 1
 fi

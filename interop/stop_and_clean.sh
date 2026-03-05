@@ -24,3 +24,8 @@ else
 fi
 
 $COMPOSE down -v
+
+# Remove interop wallet dirs so next run starts from clean slate
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16; do
+    rm -rf "$SCRIPT_DIR/wallet_dir_scenario_$i"
+done

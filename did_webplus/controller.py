@@ -35,8 +35,9 @@ class ControllerError(Exception):
 
 
 def _key_path(base_dir: Path, did: str) -> Path:
-    """Path to the private key file for a DID. Subdir is the DID itself."""
-    return base_dir / did / "privkey.json"
+    """Path to the private key file for a DID. Subdir is the base DID (no query or fragment)."""
+    base_did = did.split("?")[0] if "?" in did else did
+    return base_dir / base_did / "privkey.json"
 
 
 def load_key(base_dir: Path, did: str) -> jwk.JWK:
@@ -105,7 +106,7 @@ def create_did(
     Create a new DID: generate key in memory, build root doc, POST to VDR.
     Save key to base_dir only after POST succeeds (no temp directory).
 
-    Returns the created DID.
+    Returns the fully qualified DID (did?selfHash=...&versionId=0) for the created state.
     """
     try:
         vdr_components = parse_vdr_url(vdr_did_create_endpoint)
@@ -130,7 +131,8 @@ def create_did(
 
     kid = f"{did}?selfHash={doc['selfHash']}&versionId=0#0"
     save_key(base_dir, did, key, kid=kid)
-    return did
+    fully_qualified_did = f"{did}?selfHash={doc['selfHash']}&versionId=0"
+    return fully_qualified_did
 
 
 def _fetch_microledger(
@@ -219,28 +221,33 @@ def update_did(
     base_dir: Path,
     *,
     http_scheme_overrides: dict[str, str] | None = None,
-) -> None:
+) -> str:
     """
     Update a DID: load key, fetch latest, generate new key, build update doc,
     PUT to VDR, replace key on success.
+
+    Returns the fully qualified DID (did?selfHash=...&versionId=N) for the new state.
     """
-    parse_did(did)
-    key = load_key(base_dir, did)
-    jsonl = _fetch_microledger(did, http_scheme_overrides=http_scheme_overrides)
+    base_did = did.split("?")[0] if "?" in did else did
+    parse_did(base_did)
+    key = load_key(base_dir, base_did)
+    jsonl = _fetch_microledger(base_did, http_scheme_overrides=http_scheme_overrides)
     prev_doc = _last_document_from_jsonl(jsonl)
     new_key = jwk.JWK.generate(kty="OKP", crv="Ed25519")
     doc = _build_update_doc(prev_doc, new_key, key, deactivate=False)
     jcs_str = rfc8785.dumps(doc).decode("utf-8")
 
-    url = did_to_resolution_url(did, http_scheme_overrides=http_scheme_overrides)
+    url = did_to_resolution_url(base_did, http_scheme_overrides=http_scheme_overrides)
     with httpx.Client() as client:
         resp = client.put(url, content=jcs_str)
     if resp.status_code != 200:
         raise ControllerError(f"VDR PUT failed: {resp.status_code} {resp.text!r}")
 
-    _key_path(base_dir, did).unlink()
-    kid = f"{did}?selfHash={doc['selfHash']}&versionId={doc['versionId']}#0"
-    save_key(base_dir, did, new_key, kid=kid)
+    _key_path(base_dir, base_did).unlink()
+    kid = f"{base_did}?selfHash={doc['selfHash']}&versionId={doc['versionId']}#0"
+    save_key(base_dir, base_did, new_key, kid=kid)
+    fully_qualified_did = f"{base_did}?selfHash={doc['selfHash']}&versionId={doc['versionId']}"
+    return fully_qualified_did
 
 
 def deactivate_did(
@@ -248,22 +255,27 @@ def deactivate_did(
     base_dir: Path,
     *,
     http_scheme_overrides: dict[str, str] | None = None,
-) -> None:
+) -> str:
     """
     Deactivate a DID: build deactivation doc (empty verificationMethod, updateRules),
     sign with current key, PUT to VDR, delete key on success.
+
+    Returns the fully qualified DID (did?selfHash=...&versionId=N) for the tombstone state.
     """
-    parse_did(did)
-    key = load_key(base_dir, did)
-    jsonl = _fetch_microledger(did, http_scheme_overrides=http_scheme_overrides)
+    base_did = did.split("?")[0] if "?" in did else did
+    parse_did(base_did)
+    key = load_key(base_dir, base_did)
+    jsonl = _fetch_microledger(base_did, http_scheme_overrides=http_scheme_overrides)
     prev_doc = _last_document_from_jsonl(jsonl)
     doc = _build_update_doc(prev_doc, None, key, deactivate=True)
     jcs_str = rfc8785.dumps(doc).decode("utf-8")
 
-    url = did_to_resolution_url(did, http_scheme_overrides=http_scheme_overrides)
+    url = did_to_resolution_url(base_did, http_scheme_overrides=http_scheme_overrides)
     with httpx.Client() as client:
         resp = client.put(url, content=jcs_str)
     if resp.status_code != 200:
         raise ControllerError(f"VDR PUT failed: {resp.status_code} {resp.text!r}")
 
-    _key_path(base_dir, did).unlink()
+    _key_path(base_dir, base_did).unlink()
+    fully_qualified_did = f"{base_did}?selfHash={doc['selfHash']}&versionId={doc['versionId']}"
+    return fully_qualified_did

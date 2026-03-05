@@ -36,3 +36,6 @@ Thumbs.db
 # Local / misc
 *.log
 *.bak
+
+# Interop test wallet dirs (created per scenario, deleted by stop_and_clean.sh)
+interop/wallet_dir_scenario_*

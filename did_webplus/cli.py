@@ -225,12 +225,12 @@ def did_create_cmd(
     base_path = base_dir.expanduser().resolve()
     http_scheme_overrides = parse_http_scheme_overrides(http_scheme_override)
     try:
-        did = create_did(
+        fully_qualified_did = create_did(
             vdr_did_create_endpoint,
             base_path,
             http_scheme_overrides=http_scheme_overrides or None,
         )
-        typer.echo(did)
+        typer.echo(fully_qualified_did)
     except ControllerError as e:
         typer.echo(str(e), err=True)
         raise typer.Exit(1)
@@ -256,11 +256,12 @@ def did_update_cmd(
     base_path = base_dir.expanduser().resolve()
     http_scheme_overrides = parse_http_scheme_overrides(http_scheme_override)
     try:
-        update_did(
+        fully_qualified_did = update_did(
             did,
             base_path,
             http_scheme_overrides=http_scheme_overrides or None,
         )
+        typer.echo(fully_qualified_did)
     except ControllerError as e:
         typer.echo(str(e), err=True)
         raise typer.Exit(1)
@@ -286,11 +287,12 @@ def did_deactivate_cmd(
     base_path = base_dir.expanduser().resolve()
     http_scheme_overrides = parse_http_scheme_overrides(http_scheme_override)
     try:
-        deactivate_did(
+        fully_qualified_did = deactivate_did(
             did,
             base_path,
             http_scheme_overrides=http_scheme_overrides or None,
         )
+        typer.echo(fully_qualified_did)
     except ControllerError as e:
         typer.echo(str(e), err=True)
         raise typer.Exit(1)
