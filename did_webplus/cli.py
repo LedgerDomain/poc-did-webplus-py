@@ -267,9 +267,17 @@ def did_update_cmd(
         raise typer.Exit(1)
 
 
+DEACTIVATE_CONFIRM_VALUE = "THIS-IS-IRREVERSIBLE"
+
+
 @did_app.command("deactivate")
 def did_deactivate_cmd(
     did: str = typer.Argument(..., help="DID to deactivate"),
+    confirm: str | None = typer.Option(
+        None,
+        "--confirm",
+        help="Required confirmation: must be exactly THIS-IS-IRREVERSIBLE",
+    ),
     base_dir: Path = typer.Option(
         default_factory=_default_base_dir,
         path_type=Path,
@@ -284,6 +292,12 @@ def did_deactivate_cmd(
     ),
 ) -> None:
     """Deactivate a did:webplus DID (tombstone)."""
+    if confirm != DEACTIVATE_CONFIRM_VALUE:
+        typer.echo(
+            "DID deactivate is an irreversible action, and a confirmation is required.  The argument `--confirm THIS-IS-IRREVERSIBLE` is used to prevent accidental DID deactivation via explicit confirmation.  If not provided or not equal to that verbatim text, an error will be returned.",
+            err=True,
+        )
+        raise typer.Exit(1)
     base_path = base_dir.expanduser().resolve()
     http_scheme_overrides = parse_http_scheme_overrides(http_scheme_override)
     try:

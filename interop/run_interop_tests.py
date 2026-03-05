@@ -26,7 +26,7 @@ from urllib.parse import quote, urlparse
 
 import httpx
 
-RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.1.0"
+RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.1.1"
 
 # VDR base URLs and create endpoints
 RUST_VDR_URL = "http://rust-vdr:8085"
@@ -98,6 +98,31 @@ def _run_python_controller_update(did: str, wallet_dir: Path) -> None:
     logger.info("Result: PASS — update applied")
 
 
+DEACTIVATE_CONFIRM = "THIS-IS-IRREVERSIBLE"
+
+
+def _run_python_controller_deactivate(did: str, wallet_dir: Path) -> None:
+    """Run Python controller deactivate (requires --confirm THIS-IS-IRREVERSIBLE)."""
+    cmd = [
+        "uv", "run", "did-webplus", "did", "deactivate", did,
+        "--confirm", DEACTIVATE_CONFIRM,
+        "--base-dir", str(wallet_dir),
+        "--http-scheme-override", HTTP_SCHEME_OVERRIDE,
+    ]
+    logger.info("Action: Python controller deactivate — did deactivate %s", did)
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        cwd=_REPO_ROOT,
+        timeout=30,
+    )
+    if result.returncode != 0:
+        logger.error("Result: FAIL — Python deactivate: %s", result.stderr or result.stdout)
+        raise RuntimeError(f"Python controller deactivate failed: {result.stderr or result.stdout}")
+    logger.info("Result: PASS — deactivate applied")
+
+
 def _run_rust_controller_create(vdr_create_endpoint: str, wallet_dir: Path) -> str:
     """Run Rust controller create via Docker; return created DID from stdout."""
     cmd = [
@@ -150,6 +175,30 @@ def _run_rust_controller_update(wallet_dir: Path, did: str) -> None:
         logger.error("Result: FAIL — Rust update: %s", result.stderr or result.stdout)
         raise RuntimeError(f"Rust controller update failed: {result.stderr or result.stdout}")
     logger.info("Result: PASS — update applied")
+
+
+def _run_rust_controller_deactivate(wallet_dir: Path, did: str) -> None:
+    """Run Rust controller deactivate via Docker (requires --confirm THIS-IS-IRREVERSIBLE)."""
+    base_did = did.split("?")[0]
+    cmd = [
+        "docker", "run", "--rm",
+        "--network", "host",
+        "-e", f"DID_WEBPLUS_HTTP_SCHEME_OVERRIDE={HTTP_SCHEME_OVERRIDE}",
+        "-v", f"{wallet_dir.resolve()}:/root/.did-webplus",
+        RUST_CLI_IMAGE,
+        "wallet", "did", "deactivate", "--did", base_did, "--confirm", DEACTIVATE_CONFIRM,
+    ]
+    logger.info("Action: Rust controller deactivate — wallet did deactivate --did %s", base_did)
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if result.returncode != 0:
+        logger.error("Result: FAIL — Rust deactivate: %s", result.stderr or result.stdout)
+        raise RuntimeError(f"Rust controller deactivate failed: {result.stderr or result.stdout}")
+    logger.info("Result: PASS — deactivate applied")
 
 
 def _resolution_path(did: str) -> str:
@@ -315,6 +364,55 @@ def _run_resolve_and_assert(
     return True, resolved.get("selfHash")
 
 
+def _run_resolve_and_assert_deactivated(
+    did: str,
+    resolver_kind: str,
+    vdg_url: str | None,
+    expected_version_id: int = 2,
+) -> bool:
+    """Run chosen resolver, assert document is deactivated: updateRules {}, all key arrays []. Returns True iff all checks pass."""
+    if resolver_kind == "python":
+        result = _run_python_resolve(did, vdg_url=vdg_url)
+    else:
+        result = _run_rust_resolve(did, vdg_url=vdg_url)
+    resolver_name = "Python" if resolver_kind == "python" else "Rust"
+    if result.returncode != 0:
+        logger.error("Result: FAIL — %s resolve failed (after deactivate): %s", resolver_name, result.stderr or "(see stderr)")
+        return False
+    out = json.loads(result.stdout)
+    if not out.get("didDocument"):
+        logger.error("Result: FAIL — no didDocument in result (after deactivate)")
+        return False
+    doc = out["didDocument"]
+    resolved = json.loads(doc) if isinstance(doc, str) else doc
+    vid = resolved.get("versionId")
+    if vid != expected_version_id:
+        logger.error("Result: FAIL — expected versionId %s after deactivate, got %s", expected_version_id, vid)
+        return False
+    if resolved.get("updateRules") != {}:
+        logger.error("Result: FAIL — deactivated doc must have updateRules {}; got %s", resolved.get("updateRules"))
+        return False
+    empty_list_fields = (
+        "verificationMethod",
+        "authentication",
+        "assertionMethod",
+        "keyAgreement",
+        "capabilityInvocation",
+        "capabilityDelegation",
+    )
+    for field in empty_list_fields:
+        val = resolved.get(field)
+        if val is not None and val != []:
+            logger.error("Result: FAIL — deactivated doc must have %s []; got %s", field, val)
+            return False
+    logger.info(
+        "Result: PASS — %s resolver returned deactivated document (versionId=%s, updateRules={}, all key arrays [])",
+        resolver_name,
+        expected_version_id,
+    )
+    return True
+
+
 def run_scenario(
     controller_kind: str,
     vdr_kind: str,
@@ -322,7 +420,7 @@ def run_scenario(
     use_vdg: bool,
     wallet_dir: Path,
 ) -> bool:
-    """Execute one interop scenario: controller create -> resolve (v0) -> update -> verify VDR -> resolve (v1) [+ VDG checks]."""
+    """Execute one interop scenario: controller create -> resolve (v0) -> update -> resolve (v1) -> deactivate -> resolve (v2, tombstone checks)."""
     vdr_url = RUST_VDR_URL if vdr_kind == "rust" else PYTHON_VDR_URL
     vdr_create_endpoint = vdr_url
     vdg_url = VDG_URL if use_vdg else None
@@ -390,6 +488,20 @@ def run_scenario(
             if not _assert_vdg_headers(vdg_url, did_with_version, update_self_hash, expected_cache_hit=True, use_version_id_param=True):
                 return False
 
+        # 6. Deactivate
+        if controller_kind == "python":
+            _run_python_controller_deactivate(base_did, wallet_dir)
+        else:
+            _run_rust_controller_deactivate(wallet_dir, base_did)
+
+        if vdg_url:
+            time.sleep(0.5)
+
+        # 7. Resolve after deactivate (versionId=2, updateRules {}, all key arrays [])
+        logger.info("Action: Resolve after deactivate — expect versionId=2, updateRules={}, key arrays []")
+        if not _run_resolve_and_assert_deactivated(base_did, resolver_kind, vdg_url, expected_version_id=2):
+            return False
+
         return True
     except RuntimeError as e:
         logger.error("Result: FAIL — %s", e)
@@ -404,7 +516,7 @@ def _log_summary(n: int, controller: str, vdr: str, resolver: str, use_vdg: bool
         n, controller.capitalize(), vdr.capitalize(), resolver.capitalize(), vdg_str,
     )
     logger.info(
-        "  Controller created and updated DID; resolver ran after create (versionId=0) and after update (versionId=1)."
+        "  Controller created, updated, and deactivated DID; resolver ran after create (v0), update (v1), and deactivate (v2)."
     )
 
 

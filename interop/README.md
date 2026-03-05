@@ -45,14 +45,14 @@ On Linux/macOS, edit `/etc/hosts` with sudo (e.g. `sudo nano /etc/hosts`) and ad
 
 ### Test Details
 
-Each scenario uses a **clean wallet directory** for the duration of the run. The chosen **controller** (Python or Rust CLI) performs DID create and DID update against the chosen VDR. The chosen **resolver** runs after create (asserts versionId=0) and after update (asserts versionId=1). When VDG is used, the resolver talks via the Rust VDG and the test asserts VDG headers (e.g. X-DID-Webplus-VDG-Cache-Hit). Create and update are performed only via the controller CLI, not by hand.
+Each scenario uses a **clean wallet directory** for the duration of the run. The chosen **controller** (Python or Rust CLI) performs DID create, DID update, and DID deactivate against the chosen VDR. The chosen **resolver** runs after create (asserts versionId=0), after update (asserts versionId=1), and after deactivate (asserts versionId=2 and deactivated document shape: `updateRules` is `{}`, and `verificationMethod`, `authentication`, `assertionMethod`, `keyAgreement`, `capabilityInvocation`, and `capabilityDelegation` are all `[]`). When VDG is used, the resolver talks via the Rust VDG and the test asserts VDG headers (e.g. X-DID-Webplus-VDG-Cache-Hit). Create, update, and deactivate are performed only via the controller CLI; both Python and Rust controllers require `--confirm THIS-IS-IRREVERSIBLE` for deactivate.
 
 On success, output ends with a parameterized summary, for example:
 
 ```
 interop INFO === All tests PASSED ===
 interop INFO Summary — Scenario 7: Python controller, Rust VDR, Rust resolver, no VDG
-interop INFO   Controller created and updated DID; resolver ran after create (versionId=0) and after update (versionId=1).
+interop INFO   Controller created, updated, and deactivated DID; resolver ran after create (v0), update (v1), and deactivate (v2).
 ```
 
 ## Running Tests
@@ -78,9 +78,9 @@ To stop all containers and remove volumes (guaranteed clean slate):
 
 - **Rust VDR**: `ghcr.io/ledgerdomain/did-webplus-vdr:v0.1.0`
 - **Rust VDG**: `ghcr.io/ledgerdomain/did-webplus-vdg:v0.1.0`
-- **Rust CLI** (`ghcr.io/ledgerdomain/did-webplus-cli:v0.1.0`): used as **DID resolver** when Resolver=Rust and as **DID controller** when Controller=Rust (wallet in Docker volume).
+- **Rust CLI** (`ghcr.io/ledgerdomain/did-webplus-cli:v0.1.1`): used as **DID resolver** when Resolver=Rust and as **DID controller** when Controller=Rust (wallet in Docker volume).
 - **Python VDR**: Built from this repo (`interop/Dockerfile.python-vdr`)
-- **Python controller**: This repo’s `did-webplus did create` / `did update`; uses a local wallet directory (created per run).
+- **Python controller**: This repo’s `did-webplus did create` / `did update` / `did deactivate` (deactivate requires `--confirm THIS-IS-IRREVERSIBLE`); uses a local wallet directory (created per run).
 
 ## Ports
 
