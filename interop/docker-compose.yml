@@ -82,7 +82,7 @@ services:
       DID_WEBPLUS_VDR_HTTP_SCHEME_OVERRIDE: 'rust-vdg=http'
       DID_WEBPLUS_VDR_LISTEN_PORT: "8087"
       DID_WEBPLUS_VDR_VDG_HOSTS: ${PYTHON_VDR_VDG_HOSTS:-}
-      DID_WEBPLUS_STORE: /data/did_documents.db
+      DID_WEBPLUS_BASE_DIR: /data
     volumes:
       - python_vdr_data:/data
     ports:

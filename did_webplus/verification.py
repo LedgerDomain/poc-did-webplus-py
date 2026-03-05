@@ -77,9 +77,8 @@ def create_proof(doc: dict[str, Any], key: jwk.JWK) -> str:
     token = jws.JWS(payload_bytes)
     token.allowed_algs = list(jws.default_allowed_algs) + ["Ed25519"]
     token.add_signature(key, protected=protected)
-    compact = token.serialize(compact=True)
-    parts = compact.split(".")
-    return parts[0] + ".." + parts[2]
+    token.detach_payload()  # required for b64=false: compact encoding rejects payload with "."
+    return token.serialize(compact=True)  # yields header..signature (empty payload)
 
 
 def _multicodec_to_jwk(key_bytes: bytes) -> jwk.JWK:

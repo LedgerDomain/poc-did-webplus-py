@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import pytest
+import respx
 import rfc8785
 
 from did_webplus.selfhash import BLAKE3_PLACEHOLDER, compute_self_hash
@@ -33,7 +34,7 @@ def _make_root_doc() -> str:
 
 def test_cli_resolve_success(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """CLI resolve prints result when DID is in store."""
-    store_path = tmp_path / "did.db"
+    store_path = tmp_path / "did_documents.db"
     store = SQLiteDIDDocStore(store_path)
     jcs = _make_root_doc()
     import asyncio
@@ -45,7 +46,10 @@ def test_cli_resolve_success(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) ->
     from typer.testing import CliRunner
     runner = CliRunner()
     from did_webplus.cli import app
-    result = runner.invoke(app, ["resolve", did, "--store", str(store_path), "-o", "json"])
+    result = runner.invoke(
+        app,
+        ["resolve", did, "--base-dir", str(tmp_path), "--no-fetch", "-o", "json"],
+    )
     assert result.exit_code == 0
     out = json.loads(result.output)
     assert out["didDocument"]
@@ -54,8 +58,6 @@ def test_cli_resolve_success(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) ->
 
 def test_cli_resolve_error_json(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """CLI outputs W3C-style error result when -o json and resolution fails."""
-    store_path = tmp_path / "did.db"
-    store = SQLiteDIDDocStore(store_path)
     monkeypatch.chdir(tmp_path)
 
     from typer.testing import CliRunner
@@ -63,10 +65,49 @@ def test_cli_resolve_error_json(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
     from did_webplus.cli import app
     result = runner.invoke(
         app,
-        ["resolve", "did:webplus:example.com:nonexistent", "--store", str(store_path), "--no-fetch", "-o", "json"],
+        ["resolve", "did:webplus:example.com:nonexistent", "--base-dir", str(tmp_path), "--no-fetch", "-o", "json"],
     )
     assert result.exit_code == 1
     out = json.loads(result.output)
     assert out["didDocument"] is None
     assert out["didResolutionMetadata"]["error"]
     assert "not found" in out["didResolutionMetadata"]["error"].lower()
+
+
+@respx.mock
+def test_cli_did_create_success(tmp_path: Path) -> None:
+    """CLI did create prints DID on success."""
+    respx.post(url__regex=r".*did-documents\.jsonl$").mock(
+        return_value=respx.MockResponse(200)
+    )
+    from typer.testing import CliRunner
+
+    runner = CliRunner()
+    from did_webplus.cli import app
+
+    result = runner.invoke(
+        app,
+        ["did", "create", "http://localhost:8085", "--base-dir", str(tmp_path)],
+    )
+    assert result.exit_code == 0
+    did = result.output.strip()
+    assert did.startswith("did:webplus:localhost")
+    # Key is stored in subdir named by the DID itself
+    assert (tmp_path / did / "privkey.json").exists()
+
+
+@respx.mock
+def test_cli_did_create_vdr_failure(tmp_path: Path) -> None:
+    """CLI did create exits 1 when VDR returns error."""
+    respx.post(url__regex=r".*").mock(return_value=respx.MockResponse(400, text="Bad"))
+    from typer.testing import CliRunner
+
+    runner = CliRunner()
+    from did_webplus.cli import app
+
+    result = runner.invoke(
+        app,
+        ["did", "create", "http://localhost:8085", "--base-dir", str(tmp_path)],
+    )
+    assert result.exit_code == 1
+    assert "VDR POST failed" in result.output

@@ -144,38 +144,63 @@ class FullDIDResolver:
 
         record: DIDDocRecord | None = None
 
-        if query_self_hash:
-            record = await self._store.get_by_self_hash(did, query_self_hash)
-        elif query_version_id is not None:
-            record = await self._store.get_by_version_id(did, query_version_id)
-        else:
-            record = await self._store.get_latest(did)
-
-        if record is not None:
-            logger.debug(
-                "resolver: found in store did=%s versionId=%s selfHash=%s",
-                did,
-                record.version_id,
-                record.self_hash,
-            )
-            resolved_locally = True
-            metadata_resolved_locally = True
-        elif no_fetch:
-            raise ResolutionError(
-                f"DID not found in local store (offline mode): {did}"
-            )
-        else:
-            logger.debug("resolver: fetching did=%s vdg=%s", did, self._vdg_base_url)
-            await self._fetch_and_store(did)
-            fetched_from_vdr = True
+        if query_self_hash or query_version_id is not None:
+            # Specific version/selfHash: check store first, fetch only if not found
             if query_self_hash:
                 record = await self._store.get_by_self_hash(did, query_self_hash)
-            elif query_version_id is not None:
-                record = await self._store.get_by_version_id(did, query_version_id)
             else:
-                record = await self._store.get_latest(did)
-            if record is None:
-                logger.error("resolver: resolution failed did=%s (no record after fetch)", did)
+                record = await self._store.get_by_version_id(did, query_version_id)
+
+            if record is not None:
+                logger.debug(
+                    "resolver: found in store did=%s versionId=%s selfHash=%s",
+                    did,
+                    record.version_id,
+                    record.self_hash,
+                )
+                resolved_locally = True
+                metadata_resolved_locally = True
+            elif no_fetch:
+                raise ResolutionError(
+                    f"DID not found in local store (offline mode): {did}"
+                )
+            else:
+                logger.debug("resolver: fetching did=%s vdg=%s", did, self._vdg_base_url)
+                await self._fetch_and_store(did)
+                fetched_from_vdr = True
+                if query_self_hash:
+                    record = await self._store.get_by_self_hash(did, query_self_hash)
+                else:
+                    record = await self._store.get_by_version_id(did, query_version_id)
+                if record is None:
+                    logger.error(
+                        "resolver: resolution failed did=%s (no record after fetch)", did
+                    )
+                    raise ResolutionError(f"DID resolution failed for {did}")
+        else:
+            # Latest: always fetch from VDR first to sync updates (unless no_fetch)
+            if not no_fetch:
+                logger.debug("resolver: fetching did=%s vdg=%s", did, self._vdg_base_url)
+                await self._fetch_and_store(did)
+                fetched_from_vdr = True
+            record = await self._store.get_latest(did)
+            if record is not None:
+                resolved_locally = not fetched_from_vdr
+                metadata_resolved_locally = not fetched_from_vdr
+                logger.debug(
+                    "resolver: found in store did=%s versionId=%s selfHash=%s",
+                    did,
+                    record.version_id,
+                    record.self_hash,
+                )
+            elif no_fetch:
+                raise ResolutionError(
+                    f"DID not found in local store (offline mode): {did}"
+                )
+            else:
+                logger.error(
+                    "resolver: resolution failed did=%s (no record after fetch)", did
+                )
                 raise ResolutionError(f"DID resolution failed for {did}")
 
         logger.debug(

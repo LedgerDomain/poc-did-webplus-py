@@ -196,7 +196,7 @@ async def test_resolve_both_dids(
         lines = [ln.strip() for ln in entry["jsonl_path"].read_text().strip().split("\n") if ln.strip()]
         await store.add_did_documents(lines, 0)
 
-        result = await resolver.resolve(entry["did"])
+        result = await resolver.resolve(entry["did"], no_fetch=True)
         assert result.did_document
         doc = json.loads(result.did_document)
         assert doc["id"] == entry["did"]
@@ -278,7 +278,7 @@ async def test_resolve_ledgerdomain_did_with_full_verification(
 
     await store.add_did_documents(lines, 0)
     resolver = FullDIDResolver(store)
-    result = await resolver.resolve(did)
+    result = await resolver.resolve(did, no_fetch=True)
 
     assert result.did_document
     doc = json.loads(result.did_document)
@@ -316,7 +316,7 @@ async def test_resolution_matches_expected(
         await store.add_did_documents(lines, 0)
 
         resolver = FullDIDResolver(store)
-        result = await resolver.resolve(entry["did"])
+        result = await resolver.resolve(entry["did"], no_fetch=True)
 
         assert result.did_document == expected["didDocument"], f"Mismatch for {entry['root_self_hash'][:20]}"
         assert result.did_document_metadata.version_id == expected["didDocumentMetadata"]["versionId"]

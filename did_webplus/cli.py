@@ -7,6 +7,7 @@ from pathlib import Path
 
 import typer
 
+from did_webplus.controller import ControllerError, create_did, deactivate_did, update_did
 from did_webplus.did import parse_http_scheme_overrides
 from did_webplus.logging_config import configure_logging
 from did_webplus.resolver import FullDIDResolver
@@ -27,9 +28,9 @@ def _main(ctx: typer.Context) -> None:
         configure_logging()
 
 
-def _default_store_path() -> Path:
-    """Default SQLite store path: ~/.did-webplus/did_documents.db"""
-    return Path.home() / ".did-webplus" / "did_documents.db"
+def _default_base_dir() -> Path:
+    """Default base directory: ~/.poc-did-webplus-py (store, controller keys)."""
+    return Path.home() / ".poc-did-webplus-py"
 
 
 def _parse_bool_env(val: str | None) -> bool:
@@ -44,11 +45,11 @@ def _parse_bool_env(val: str | None) -> bool:
 @app.command("resolve")
 def resolve_cmd(
     did: str = typer.Argument(..., help="DID to resolve (e.g. did:webplus:example.com:...)"),
-    store: Path = typer.Option(
-        default_factory=_default_store_path,
+    base_dir: Path = typer.Option(
+        default_factory=_default_base_dir,
         path_type=Path,
-        envvar="DID_WEBPLUS_STORE",
-        help="Path to SQLite store (or set DID_WEBPLUS_STORE)",
+        envvar="DID_WEBPLUS_BASE_DIR",
+        help="Base directory (did_documents.db, controller keys; or set DID_WEBPLUS_BASE_DIR)",
     ),
     vdg_url: str | None = typer.Option(
         default=None,
@@ -83,7 +84,8 @@ def resolve_cmd(
     elif no_fetch is None:
         no_fetch = False
 
-    store_path = store.expanduser().resolve()
+    base_path = base_dir.expanduser().resolve()
+    store_path = base_path / "did_documents.db"
     store_path.parent.mkdir(parents=True, exist_ok=True)
 
     if output not in ("json", "pretty"):
@@ -142,11 +144,11 @@ def listen_cmd(
         envvar="DID_WEBPLUS_VDR_LISTEN_PORT",
         help="Port to listen on (or set DID_WEBPLUS_VDR_LISTEN_PORT)",
     ),
-    store: Path = typer.Option(
-        default_factory=_default_store_path,
+    base_dir: Path = typer.Option(
+        default_factory=_default_base_dir,
         path_type=Path,
-        envvar="DID_WEBPLUS_STORE",
-        help="Path to SQLite store (or set DID_WEBPLUS_STORE)",
+        envvar="DID_WEBPLUS_BASE_DIR",
+        help="Base directory (did_documents.db; or set DID_WEBPLUS_BASE_DIR)",
     ),
     did_hostname: str = typer.Option(
         ...,
@@ -176,7 +178,8 @@ def listen_cmd(
     """Run the did:webplus VDR service in listen mode."""
     import uvicorn
 
-    store_path = store.expanduser().resolve()
+    base_path = base_dir.expanduser().resolve()
+    store_path = base_path / "did_documents.db"
     store_path.parent.mkdir(parents=True, exist_ok=True)
     store_impl = SQLiteDIDDocStore(store_path)
 
@@ -193,6 +196,104 @@ def listen_cmd(
 
     typer.echo(f"Starting VDR at http://{host}:{port}", err=True)
     uvicorn.run(vdr_app, host=host, port=port)
+
+
+did_app = typer.Typer(help="DID controller operations")
+app.add_typer(did_app, name="did")
+
+
+@did_app.command("create")
+def did_create_cmd(
+    vdr_did_create_endpoint: str = typer.Argument(
+        ...,
+        help="VDR DID create endpoint URL (e.g. http://localhost:8085)",
+    ),
+    base_dir: Path = typer.Option(
+        default_factory=_default_base_dir,
+        path_type=Path,
+        envvar="DID_WEBPLUS_BASE_DIR",
+        help="Base directory (controller keys, did_documents.db; or set DID_WEBPLUS_BASE_DIR)",
+    ),
+    http_scheme_override: str | None = typer.Option(
+        None,
+        "--http-scheme-override",
+        envvar="DID_WEBPLUS_HTTP_SCHEME_OVERRIDE",
+        help="Comma-separated hostname=scheme pairs for resolution URL",
+    ),
+) -> None:
+    """Create a new did:webplus DID and store the controller key."""
+    base_path = base_dir.expanduser().resolve()
+    http_scheme_overrides = parse_http_scheme_overrides(http_scheme_override)
+    try:
+        did = create_did(
+            vdr_did_create_endpoint,
+            base_path,
+            http_scheme_overrides=http_scheme_overrides or None,
+        )
+        typer.echo(did)
+    except ControllerError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(1)
+
+
+@did_app.command("update")
+def did_update_cmd(
+    did: str = typer.Argument(..., help="DID to update"),
+    base_dir: Path = typer.Option(
+        default_factory=_default_base_dir,
+        path_type=Path,
+        envvar="DID_WEBPLUS_BASE_DIR",
+        help="Base directory (controller keys, did_documents.db; or set DID_WEBPLUS_BASE_DIR)",
+    ),
+    http_scheme_override: str | None = typer.Option(
+        None,
+        "--http-scheme-override",
+        envvar="DID_WEBPLUS_HTTP_SCHEME_OVERRIDE",
+        help="Comma-separated hostname=scheme pairs for resolution URL",
+    ),
+) -> None:
+    """Update a did:webplus DID (key rotation)."""
+    base_path = base_dir.expanduser().resolve()
+    http_scheme_overrides = parse_http_scheme_overrides(http_scheme_override)
+    try:
+        update_did(
+            did,
+            base_path,
+            http_scheme_overrides=http_scheme_overrides or None,
+        )
+    except ControllerError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(1)
+
+
+@did_app.command("deactivate")
+def did_deactivate_cmd(
+    did: str = typer.Argument(..., help="DID to deactivate"),
+    base_dir: Path = typer.Option(
+        default_factory=_default_base_dir,
+        path_type=Path,
+        envvar="DID_WEBPLUS_BASE_DIR",
+        help="Base directory (controller keys, did_documents.db; or set DID_WEBPLUS_BASE_DIR)",
+    ),
+    http_scheme_override: str | None = typer.Option(
+        None,
+        "--http-scheme-override",
+        envvar="DID_WEBPLUS_HTTP_SCHEME_OVERRIDE",
+        help="Comma-separated hostname=scheme pairs for resolution URL",
+    ),
+) -> None:
+    """Deactivate a did:webplus DID (tombstone)."""
+    base_path = base_dir.expanduser().resolve()
+    http_scheme_overrides = parse_http_scheme_overrides(http_scheme_override)
+    try:
+        deactivate_did(
+            did,
+            base_path,
+            http_scheme_overrides=http_scheme_overrides or None,
+        )
+    except ControllerError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(1)
 
 
 if __name__ == "__main__":

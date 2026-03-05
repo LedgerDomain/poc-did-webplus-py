@@ -29,6 +29,8 @@ uv sync --extra dev
 
 ### CLI
 
+#### DID Resolution
+
 ```bash
 # Resolve a DID (fetches from VDR if not cached)
 uv run did-webplus resolve "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow"
@@ -46,8 +48,33 @@ uv run did-webplus resolve "did:webplus:ledgerdomain.github.io:did-webplus-spec:
 uv run did-webplus resolve "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow" --no-fetch
 
 # Options (can also be set via environment variables)
-uv run did-webplus resolve "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow" --store ./mydb.db --vdg-url https://vdg.example.com
+uv run did-webplus resolve "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow" --base-dir ./mydata --vdg-url https://vdg.example.com
+```
 
+#### DID Create/Update/Deactivate
+
+The `did` subcommands implement a minimal DID controller: a single Ed25519 key stored under `--base-dir` (default `~/.poc-did-webplus-py`) in a subdirectory named for each controlled DID. Use `did create` to register a new DID with a VDR; it prints the DID so you can pass it to `did update` or `did deactivate`. The same `--base-dir` is used for the resolver's `did_documents.db` and the controller's keys.
+
+```bash
+# DID controller: create a new DID (prints the DID on success)
+uv run did-webplus did create http://localhost:8085
+
+# DID controller: create with custom base directory
+uv run did-webplus did create http://localhost:8085 --base-dir ./mydata
+
+# DID controller: update a DID (key rotation)
+uv run did-webplus did update "did:webplus:localhost%3A8085:uFiYourRootHashHere"
+
+# DID controller: deactivate a DID (tombstone)
+uv run did-webplus did deactivate "did:webplus:localhost%3A8085:uFiYourRootHashHere"
+
+# DID controller: use http scheme override for non-localhost VDRs
+uv run did-webplus did create https://example.com:3000 --http-scheme-override example.com=http
+```
+
+#### VDR Service
+
+```bash
 # Run VDR service in listen mode.
 uv run did-webplus listen --did-hostname localhost --port 8085
 ```

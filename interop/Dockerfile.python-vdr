@@ -22,6 +22,6 @@ ENV DID_WEBPLUS_VDR_LISTEN_PORT=8085
 EXPOSE 8085
 
 # Store path for SQLite (persisted via volume)
-ENV DID_WEBPLUS_STORE=/data/did_documents.db
+ENV DID_WEBPLUS_BASE_DIR=/data
 
 ENTRYPOINT ["uv", "run", "did-webplus", "listen"]

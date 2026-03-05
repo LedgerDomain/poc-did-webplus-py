@@ -62,7 +62,7 @@ async def test_resolve_offline_when_cached(store: SQLiteDIDDocStore) -> None:
     await store.add_did_documents([jcs], 0)
 
     resolver = FullDIDResolver(store)
-    result = await resolver.resolve(did)
+    result = await resolver.resolve(did, no_fetch=True)
 
     assert result.did_document == jcs
     assert result.did_resolution_metadata.did_document_resolved_locally is True
@@ -104,7 +104,7 @@ async def test_resolve_from_ledgerdomain_fixture(
 
     resolver = FullDIDResolver(store)
     did = ledgerdomain_did_1["did"]
-    result = await resolver.resolve(did)
+    result = await resolver.resolve(did, no_fetch=True)
 
     assert result.did_document
     assert result.did_document_metadata.version_id is not None

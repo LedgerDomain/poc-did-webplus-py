@@ -3,9 +3,24 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from urllib.parse import parse_qs, unquote
+from urllib.parse import parse_qs, unquote, urlparse
 
 PREFIX = "did:webplus:"
+
+
+@dataclass(frozen=True)
+class VDRURLComponents:
+    """Parsed components of a VDR URL for DID construction."""
+
+    host: str
+    port: int | None
+    path: str | None
+
+    def host_part_for_did(self) -> str:
+        """Host part for DID: host or host%3Aport if port is set."""
+        if self.port is not None:
+            return f"{self.host}%3A{self.port}"
+        return self.host
 
 
 def parse_http_scheme_overrides(val: str | None) -> dict[str, str]:
@@ -29,6 +44,49 @@ def parse_http_scheme_overrides(val: str | None) -> dict[str, str]:
             continue
         result[hostname] = scheme
     return result
+
+
+def parse_vdr_url(vdr_did_create_endpoint: str) -> VDRURLComponents:
+    """
+    Parse a VDR DID create endpoint URL into components for DID construction.
+
+    E.g. http://localhost:8085 -> host=localhost, port=8085, path=None
+    E.g. https://example.com:3000/abc -> host=example.com, port=3000, path=abc
+
+    Raises:
+        MalformedDIDError: If the URL is invalid.
+    """
+    parsed = urlparse(vdr_did_create_endpoint)
+    if not parsed.scheme or not parsed.netloc:
+        raise MalformedDIDError(f"Invalid VDR DID create endpoint: {vdr_did_create_endpoint!r}")
+    if parsed.scheme not in ("http", "https"):
+        raise MalformedDIDError(
+            f"VDR DID create endpoint scheme must be http or https: {vdr_did_create_endpoint!r}"
+        )
+
+    host = parsed.hostname or ""
+    port = parsed.port
+    path_str = parsed.path.strip("/") or None
+    return VDRURLComponents(host=host, port=port, path=path_str)
+
+
+def resolution_path(
+    did_str: str,
+    *,
+    http_scheme_overrides: dict[str, str] | None = None,
+) -> str:
+    """
+    Return the path portion of the resolution URL for a DID.
+
+    E.g. uFiXXX.../did-documents.jsonl or abc/uFiXXX.../did-documents.jsonl
+    """
+    components = parse_did(did_str)
+    path_parts: list[str] = []
+    if components.path:
+        path_parts.extend(components.path.split(":"))
+    path_parts.append(components.root_self_hash)
+    path_parts.append("did-documents.jsonl")
+    return "/".join(path_parts)
 
 
 class DIDError(Exception):
