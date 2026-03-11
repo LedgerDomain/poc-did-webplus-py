@@ -36,7 +36,7 @@ services:
       retries: 10
 
   rust-vdr:
-    image: ghcr.io/ledgerdomain/did-webplus-vdr:v0.1.0-rc.0
+    image: ghcr.io/ledgerdomain/did-webplus-vdr:v0.1.0
     platform: linux/amd64
     environment:
       DID_WEBPLUS_VDR_DATABASE_URL: postgres://postgres:postgres@rust-vdr-db:5432/postgres?sslmode=disable
@@ -53,7 +53,7 @@ services:
         condition: service_healthy
 
   rust-vdg:
-    image: ghcr.io/ledgerdomain/did-webplus-vdg:v0.1.0-rc.0
+    image: ghcr.io/ledgerdomain/did-webplus-vdg:v0.1.0
     platform: linux/amd64
     environment:
       DID_WEBPLUS_VDG_DATABASE_URL: postgres://postgres:postgres@rust-vdg-db:5432/postgres?sslmode=disable
