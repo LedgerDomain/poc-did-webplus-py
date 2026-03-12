@@ -87,3 +87,29 @@ To stop all containers and remove volumes (guaranteed clean slate):
 - Rust VDR: 8085
 - Rust VDG: 8086
 - Python VDR: 8087
+
+## Reproducibility
+
+The interoperability tests can be replicated on a fresh Ubuntu 24.04 instance, assuming username `ubuntu` as follows:
+
+    sudo apt update
+    sudo apt install --yes docker.io docker-compose-v2
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    sudo usermod -aG docker ubuntu
+
+Log out and back in to have usermod take effect.
+
+    sudo vim /etc/hosts
+
+And add:
+
+    # Used for poc-did-webplus-py interop testing
+    127.0.0.1  rust-vdr
+    127.0.0.1  rust-vdg
+    127.0.0.1  python-vdr
+
+Then:
+
+    cd ~ && git clone https://github.com/LedgerDomain/poc-did-webplus-py.git
+    cd ~/poc-did-webplus-py/interop
+    ./run_all_interop_tests.sh
