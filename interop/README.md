@@ -90,7 +90,7 @@ To stop all containers and remove volumes (guaranteed clean slate):
 
 ## Reproducibility
 
-The interoperability tests can be replicated on a fresh Ubuntu 24.04 instance, assuming username `ubuntu` as follows:
+The interoperability tests can be replicated on a fresh Ubuntu 24.04 instance, assuming username `ubuntu`, as follows.  Note that it seemed like 512MB of memory wasn't sufficient, but 1024MB of memory was sufficient.
 
     sudo apt update
     sudo apt install --yes docker.io docker-compose-v2
