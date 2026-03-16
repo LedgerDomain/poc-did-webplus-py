@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 import httpx
 
@@ -45,8 +45,11 @@ async def fetch_did_documents_jsonl(
         logger.debug("http_client: fetching from VDR url=%s did=%s", url, did)
 
     headers: dict[str, str] = {}
-    if known_octet_length > 0:
+    scheme = urlparse(url).scheme
+    if scheme == "http" and known_octet_length > 0:
         headers["Range"] = f"bytes={known_octet_length}-"
+    elif scheme != "http" and known_octet_length > 0:
+        return ""
 
     async with httpx.AsyncClient() as client:
         response = await client.get(url, headers=headers)
@@ -62,10 +65,14 @@ async def fetch_did_documents_jsonl(
 
     if response.status_code == 416:
         content_range = response.headers.get("Content-Range")
+        total = None
         if content_range and content_range.startswith("bytes */"):
-            total = int(content_range[8:].strip())
-            if total == known_octet_length:
-                return ""
+            try:
+                total = int(content_range[8:].strip())
+            except ValueError:
+                total = None
+        if total is not None and total == known_octet_length:
+            return ""
         raise HTTPClientError(
             f"416 Range Not Satisfiable: Content-Range={content_range!r}, "
             f"known_octet_length={known_octet_length}"

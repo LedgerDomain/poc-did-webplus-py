@@ -90,8 +90,10 @@ def test_cli_did_create_success(tmp_path: Path) -> None:
         ["did", "create", "http://localhost:8085", "--base-dir", str(tmp_path)],
     )
     assert result.exit_code == 0
-    did = result.output.strip()
-    assert did.startswith("did:webplus:localhost")
+    fully_qualified_did = result.output.strip()
+    assert fully_qualified_did.startswith("did:webplus:localhost")
+    # The controller stores keys under the base DID (without query params)
+    did = fully_qualified_did.split("?")[0]
     # Key is stored in subdir named by the DID itself
     assert (tmp_path / did / "privkey.json").exists()
 

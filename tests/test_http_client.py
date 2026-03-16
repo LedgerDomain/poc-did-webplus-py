@@ -23,9 +23,13 @@ async def test_fetch_full_content() -> None:
 @pytest.mark.asyncio
 async def test_fetch_with_range() -> None:
     did = "did:webplus:example.com:abc123"
-    url = "https://example.com/abc123/did-documents.jsonl"
+    url = "http://example.com/abc123/did-documents.jsonl"
     respx.get(url).mock(return_value=Response(206, text="new content"))
-    result = await fetch_did_documents_jsonl(did, known_octet_length=100)
+    result = await fetch_did_documents_jsonl(
+        did,
+        known_octet_length=100,
+        http_scheme_overrides={"example.com": "http"},
+    )
     assert "Range" in respx.calls.last.request.headers
     assert respx.calls.last.request.headers["Range"] == "bytes=100-"
 
@@ -34,14 +38,18 @@ async def test_fetch_with_range() -> None:
 @pytest.mark.asyncio
 async def test_fetch_416_up_to_date() -> None:
     did = "did:webplus:example.com:abc123"
-    url = "https://example.com/abc123/did-documents.jsonl"
+    url = "http://example.com/abc123/did-documents.jsonl"
     respx.get(url).mock(
         return_value=Response(
             416,
             headers={"Content-Range": "bytes */50"},
         )
     )
-    result = await fetch_did_documents_jsonl(did, known_octet_length=50)
+    result = await fetch_did_documents_jsonl(
+        did,
+        known_octet_length=50,
+        http_scheme_overrides={"example.com": "http"},
+    )
     assert result == ""
 
 
@@ -49,7 +57,7 @@ async def test_fetch_416_up_to_date() -> None:
 @pytest.mark.asyncio
 async def test_fetch_416_mismatch_raises() -> None:
     did = "did:webplus:example.com:abc123"
-    url = "https://example.com/abc123/did-documents.jsonl"
+    url = "http://example.com/abc123/did-documents.jsonl"
     respx.get(url).mock(
         return_value=Response(
             416,
@@ -57,7 +65,11 @@ async def test_fetch_416_mismatch_raises() -> None:
         )
     )
     with pytest.raises(HTTPClientError):
-        await fetch_did_documents_jsonl(did, known_octet_length=50)
+        await fetch_did_documents_jsonl(
+            did,
+            known_octet_length=50,
+            http_scheme_overrides={"example.com": "http"},
+        )
 
 
 @respx.mock

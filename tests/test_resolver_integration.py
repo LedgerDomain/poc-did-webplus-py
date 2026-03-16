@@ -165,6 +165,27 @@ def test_resolution_result_failed_to_dict() -> None:
     assert d["didResolutionMetadata"]["error"] == "error message"
 
 
+@pytest.mark.asyncio
+async def test_resolve_same_did_twice_ledgerdomain(store: SQLiteDIDDocStore) -> None:
+    """
+    Resolve a real ledgerdomain DID twice using the same store.
+
+    This mirrors running:
+      uv run did-webplus resolve "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow"
+    twice against the same did_documents.db and verifies the DID document is
+    the same for both resolutions.
+    """
+    did = "did:webplus:ledgerdomain.github.io:did-webplus-spec:uFiANVlMledNFUBJNiZPuvfgzxvJlGGDBIpDFpM4DXW6Bow"
+
+    resolver = FullDIDResolver(store)
+
+    result1 = await resolver.resolve(did)
+    assert result1.did_document
+
+    result2 = await resolver.resolve(did)
+    assert result2.did_document
+    assert result2.did_document == result1.did_document
+
 
 
 @pytest.mark.asyncio
