@@ -56,7 +56,8 @@ uv run did-webplus resolve "did:webplus:ledgerdomain.github.io:did-webplus-spec:
 The `did` subcommands implement a minimal DID controller: a single Ed25519 key stored under `--base-dir` (default `~/.poc-did-webplus-py`) in a subdirectory named for each controlled DID. Use `did create` to register a new DID with a VDR; it prints the DID so you can pass it to `did update` or `did deactivate`. The same `--base-dir` is used for the resolver's `did_documents.db` and the controller's keys.
 
 ```bash
-# DID controller: create a new DID (prints the DID on success)
+# DID controller: create a new DID (prints the DID on success).  Note that the host (hostname and port, which in
+# this case is `localhost:8085`) must match that of the VDR exactly.
 uv run did-webplus did create http://localhost:8085
 
 # DID controller: create with custom base directory
@@ -68,14 +69,16 @@ uv run did-webplus did update "did:webplus:localhost%3A8085:uFiYourRootHashHere"
 # DID controller: deactivate a DID (tombstone)
 uv run did-webplus did deactivate "did:webplus:localhost%3A8085:uFiYourRootHashHere"
 
-# DID controller: use http scheme override for non-localhost VDRs
+# DID controller: use http scheme override for non-localhost VDRs.  This (opting out of TLS-encrypted HTTP
+# for specific hosts) is intended only for testing, and should not be used in production.
 uv run did-webplus did create https://example.com:3000 --http-scheme-override example.com=http
 ```
 
 #### VDR Service
 
 ```bash
-# Run VDR service in listen mode.
+# Run VDR service in listen mode.  Note that the host (hostname and port) of the VDR here is `localhost:8085`,
+# and any DID create operations run against this VDR must specify that host exactly (see `did create` above).
 uv run did-webplus listen --did-hostname localhost --port 8085
 ```
 
