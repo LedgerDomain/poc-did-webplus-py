@@ -87,7 +87,6 @@ services:
       - python_vdr_data:/data
     ports:
       - "8087:8087"
-    command: ["--host", "0.0.0.0", "--port", "8087", "--did-hostname", "python-vdr", "--did-port", "8087"]
     healthcheck:
       test: ["CMD", "curl", "-f", "-s", "http://localhost:8087/health"]
       start_period: 10s

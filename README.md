@@ -67,7 +67,7 @@ uv run did-webplus did create http://localhost:8085 --base-dir ./mydata
 uv run did-webplus did update "did:webplus:localhost%3A8085:uFiYourRootHashHere"
 
 # DID controller: deactivate a DID (tombstone)
-uv run did-webplus did deactivate "did:webplus:localhost%3A8085:uFiYourRootHashHere"
+uv run did-webplus did deactivate "did:webplus:localhost%3A8085:uFiYourRootHashHere" --confirm THIS-IS-IRREVERSIBLE
 
 # DID controller: use http scheme override for non-localhost VDRs.  This (opting out of TLS-encrypted HTTP
 # for specific hosts) is intended only for testing, and should not be used in production.
@@ -77,9 +77,13 @@ uv run did-webplus did create https://example.com:3000 --http-scheme-override ex
 #### VDR Service
 
 ```bash
-# Run VDR service in listen mode.  Note that the host (hostname and port) of the VDR here is `localhost:8085`,
-# and any DID create operations run against this VDR must specify that host exactly (see `did create` above).
-uv run did-webplus listen --did-hostname localhost --port 8085
+# Run VDR service in listen mode.  Note that there are two concepts of host here.  One is the "listen host",
+# which is 0.0.0.0:<listen-port> where <listen-port> defaults to 80.  The other is "DID host", which is the
+# hostname and port that the VDR checks to be present in the DIDs that the VDR hosts -- any DID create
+# operations run against this VDR must specify that host exactly (see `did create` above).  The --listen-port
+# argument would be used e.g. in dockerized or reverse proxy configurations where the listen port and the
+# externally exposed port are different.
+uv run did-webplus listen --did-hostname localhost --did-port 8085 --listen-port 8085
 ```
 
 ## Development

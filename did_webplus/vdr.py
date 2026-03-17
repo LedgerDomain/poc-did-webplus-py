@@ -71,7 +71,8 @@ def _did_matches_vdr_config(did: str, config: VDRConfig) -> bool:
         return False
     if components.host.lower() != config.did_hostname.lower():
         return False
-    if components.port != config.did_port:
+    # If did_port is set in config, enforce it; otherwise accept any port
+    if config.did_port is not None and components.port != config.did_port:
         return False
     if config.path_prefix is not None and components.path != config.path_prefix:
         return False

@@ -130,19 +130,12 @@ def resolve_cmd(
 
 @app.command("listen")
 def listen_cmd(
-    host: str = typer.Option(
-        "0.0.0.0",
-        "--host",
-        "-h",
-        envvar="DID_WEBPLUS_VDR_HOST",
-        help="Host to bind (or set DID_WEBPLUS_VDR_HOST)",
-    ),
-    port: int = typer.Option(
-        8085,
-        "--port",
+    listen_port: int = typer.Option(
+        80,
+        "--listen-port",
         "-p",
         envvar="DID_WEBPLUS_VDR_LISTEN_PORT",
-        help="Port to listen on (or set DID_WEBPLUS_VDR_LISTEN_PORT)",
+        help="Port to listen on; can be different than --did-port if e.g. dockerized or there is a reverse proxy (or set DID_WEBPLUS_VDR_LISTEN_PORT)",
     ),
     base_dir: Path = typer.Option(
         default_factory=_default_base_dir,
@@ -160,7 +153,7 @@ def listen_cmd(
         None,
         "--did-port",
         envvar="DID_WEBPLUS_VDR_DID_PORT",
-        help="Port for DIDs (optional; or set DID_WEBPLUS_VDR_DID_PORT)",
+        help="Port number that will appear in DIDs hosted by this VDR (optional; or set DID_WEBPLUS_VDR_DID_PORT)",
     ),
     vdg_hosts: str = typer.Option(
         "",
@@ -194,8 +187,9 @@ def listen_cmd(
     )
     vdr_app = create_vdr_app(config)
 
-    typer.echo(f"Starting VDR at http://{host}:{port}", err=True)
-    uvicorn.run(vdr_app, host=host, port=port)
+    listen_hostname = "0.0.0.0"
+    typer.echo(f"Starting VDR listening at http://{listen_hostname}:{listen_port}; listen_port={listen_port}, base_dir={base_dir}, did_hostname={did_hostname}, did_port={did_port}, vdg_hosts={vdg_hosts}, path_prefix={path_prefix}", err=True)
+    uvicorn.run(vdr_app, host=listen_hostname, port=listen_port)
 
 
 did_app = typer.Typer(help="DID controller operations")

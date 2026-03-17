@@ -44,6 +44,36 @@ def _make_root_doc(host: str = "testserver", path_part: str | None = None) -> st
     return rfc8785.dumps(doc).decode("utf-8")
 
 
+def test_did_matches_vdr_config_allows_any_port_when_config_port_none(
+    vdr_store: SQLiteDIDDocStore,
+) -> None:
+    """
+    When VDRConfig.did_port is None, the VDR should accept DIDs whose host
+    includes an explicit port (e.g. localhost%3A8085) as long as the hostname
+    matches. This mirrors running the VDR with --did-hostname localhost and
+    no --did-port and creating a DID via http://localhost:8085.
+    """
+    config = VDRConfig(
+        did_hostname="localhost",
+        did_port=None,
+        path_prefix=None,
+        vdg_base_urls=[],
+        store=vdr_store,
+    )
+    app = create_vdr_app(config)
+    client = TestClient(app)
+
+    # Root document whose id uses host "localhost%3A8085"
+    jcs = _make_root_doc(host="localhost%3A8085")
+    doc = json.loads(jcs)
+    root_hash = doc["selfHash"]
+    path_part = root_hash + "/did-documents.jsonl"
+
+    # Simulate client talking to http://localhost:8085
+    resp = client.post(f"/{path_part}", content=jcs, headers={"host": "localhost:8085"})
+    assert resp.status_code == 200
+
+
 @pytest.fixture
 def vdr_store(tmp_path: Path) -> SQLiteDIDDocStore:
     return SQLiteDIDDocStore(tmp_path / "vdr.db")
