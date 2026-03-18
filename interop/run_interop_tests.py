@@ -26,7 +26,7 @@ from urllib.parse import quote, urlparse
 
 import httpx
 
-RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.1.1"
+RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.1.2"
 
 # VDR base URLs and create endpoints
 RUST_VDR_URL = "http://rust-vdr:8085"

@@ -78,7 +78,7 @@ To stop all containers and remove volumes (guaranteed clean slate):
 
 - **Rust VDR**: `ghcr.io/ledgerdomain/did-webplus-vdr:v0.1.0`
 - **Rust VDG**: `ghcr.io/ledgerdomain/did-webplus-vdg:v0.1.0`
-- **Rust CLI** (`ghcr.io/ledgerdomain/did-webplus-cli:v0.1.1`): used as **DID resolver** when Resolver=Rust and as **DID controller** when Controller=Rust (wallet in Docker volume).
+- **Rust CLI** (`ghcr.io/ledgerdomain/did-webplus-cli:v0.1.2`): used as **DID resolver** when Resolver=Rust and as **DID controller** when Controller=Rust (wallet in Docker volume).
 - **Python VDR**: Built from this repo (`interop/Dockerfile.python-vdr`)
 - **Python controller**: This repo’s `did-webplus did create` / `did update` / `did deactivate` (deactivate requires `--confirm THIS-IS-IRREVERSIBLE`); uses a local wallet directory (created per run).
 
