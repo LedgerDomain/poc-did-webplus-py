@@ -1,12 +1,12 @@
 {
   "name": "did-webplus-zkred-interop",
   "private": true,
-  "description": "Interop runner for @zkred/did-webplus (scenarios 17-22). Version pinned by package-lock.json; range ^0.4.0.",
+  "description": "Interop runner for @zkred/did-webplus (scenarios 17-22). Version pinned by package-lock.json; range ^0.7.0.",
   "type": "module",
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
-    "@zkred/did-webplus": "^0.4.0"
+    "@zkred/did-webplus": "^0.7.0"
   }
 }

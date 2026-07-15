@@ -48,9 +48,7 @@ On Linux/macOS, edit `/etc/hosts` with sudo (e.g. `sudo nano /etc/hosts`) and ad
 
 ### Test Details
 
-Each scenario uses a **clean wallet directory** for the duration of the run. For scenarios 1–20, the chosen **controller** (Python or Rust CLI, or reference controller for 17–20) performs DID create, DID update, and DID deactivate against the chosen VDR. The chosen **resolver** runs after create (asserts versionId=0), after update (asserts versionId=1), and after deactivate (asserts versionId=2 and deactivated document shape: `updateRules` is `{}`, and `verificationMethod`, `authentication`, `assertionMethod`, `keyAgreement`, `capabilityInvocation`, and `capabilityDelegation` are all `[]`). When VDG is used, the resolver talks via the Rust VDG and the test asserts VDG headers (e.g. X-DID-Webplus-VDG-Cache-Hit). Create, update, and deactivate are performed only via the controller CLI; both Python and Rust controllers require `--confirm THIS-IS-IRREVERSIBLE` for deactivate.
-
-Scenarios 21–22 use the TS controller for create + update only (no deactivate until the library supports it); both Python and Rust resolvers verify the same DID.
+Each scenario uses a **clean wallet directory** for the duration of the run. The chosen **controller** (Python or Rust CLI, TS/`@zkred/did-webplus` for 21–22, or reference controller for 17–20) performs DID create, DID update, and DID deactivate against the chosen VDR. The chosen **resolver** runs after create (asserts versionId=0), after update (asserts versionId=1), and after deactivate (asserts versionId=2 and deactivated document shape: `updateRules` is `{}`, and `verificationMethod`, `authentication`, `assertionMethod`, `keyAgreement`, `capabilityInvocation`, and `capabilityDelegation` are all `[]`). Scenarios 21–22 use the TS controller for the full lifecycle; both Python and Rust resolvers verify the same DID at each step. When VDG is used, the resolver talks via the Rust VDG and the test asserts VDG headers (e.g. X-DID-Webplus-VDG-Cache-Hit). Create, update, and deactivate are performed only via the controller CLI; Python and Rust controllers require `--confirm THIS-IS-IRREVERSIBLE` for deactivate.
 
 On success, output ends with a parameterized summary, for example:
 
@@ -76,12 +74,12 @@ Quick TS version card: [`ZKRED_VERSION.md`](ZKRED_VERSION.md).
 
 ## TypeScript implementation (`@zkred/did-webplus`) — version management
 
-Third-party library from [Zkred/did-methods](https://github.com/Zkred/did-methods/tree/main/packages/did-webplus) (`@zkred/did-webplus` on npm). Interop scenarios 17–22 invoke it via `ts_runner.mjs` inside the `did-webplus-zkred` Docker image. TS controller scenarios intentionally omit deactivate until the library exports a deactivate helper.
+Third-party library from [Zkred/did-methods](https://github.com/Zkred/did-methods/tree/main/packages/did-webplus) (`@zkred/did-webplus` on npm). Interop scenarios 17–22 invoke it via `ts_runner.mjs` inside the `did-webplus-zkred` Docker image.
 
 | What | Where |
 |------|-------|
-| Pinned version | `interop/package-lock.json` → `packages["node_modules/@zkred/did-webplus"].version` (currently **0.4.0**) |
-| Allowed range | `interop/package.json` → `"@zkred/did-webplus": "^0.4.0"` |
+| Pinned version | `interop/package-lock.json` → `packages["node_modules/@zkred/did-webplus"].version` (currently **0.7.0**) |
+| Allowed range | `interop/package.json` → `"@zkred/did-webplus": "^0.7.0"` |
 | Override for one-off runs | `INTEROP_ZKRED_DID_WEBPLUS_VERSION` env var |
 | Runner image | Built from `interop/Dockerfile.zkred` (rebuild required after version change) |
 | Scenarios affected | 17–22 only (1–16 unchanged) |
@@ -116,7 +114,7 @@ docker run --rm --entrypoint node did-webplus-zkred -e \
 ### Test a specific version without committing
 
 ```bash
-INTEROP_ZKRED_DID_WEBPLUS_VERSION=0.4.1 ./run_interop_tests.sh 17
+INTEROP_ZKRED_DID_WEBPLUS_VERSION=0.7.1 ./run_interop_tests.sh 17
 # or a git ref:
 INTEROP_ZKRED_DID_WEBPLUS_VERSION='github:Zkred/did-methods#abc1234' ./run_interop_tests.sh 17
 ```
@@ -133,8 +131,8 @@ Overrides rebuild the image for that run only and do **not** modify `package-loc
 | 18 | Resolver | Python | Python | **TS** | yes | Full + VDG header checks |
 | 19 | Resolver | Rust | Rust | **TS** | no | Full |
 | 20 | Resolver | Rust | Rust | **TS** | yes | Full + VDG header checks |
-| 21 | Controller | **TS** | Python | Python **and** Rust (same scenario) | no | Create + update only (v0, v1) |
-| 22 | Controller | **TS** | Rust | Python **and** Rust (same scenario) | no | Create + update only (v0, v1) |
+| 21 | Controller | **TS** | Python | Python **and** Rust (same scenario) | no | Full (create → v0 → update → v1 → deactivate → v2) |
+| 22 | Controller | **TS** | Rust | Python **and** Rust (same scenario) | no | Full (create → v0 → update → v1 → deactivate → v2) |
 
 **Prerequisites for local (non-Docker) TS runs:** Node 20+. Primary path is Docker (`did-webplus-zkred`); set `INTEROP_ZKRED_LOCAL=1` only for local `node ts_runner.mjs` development.
 

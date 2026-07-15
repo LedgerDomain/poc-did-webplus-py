@@ -10,8 +10,9 @@ Scenarios 17–20: TS (@zkred/did-webplus) resolver under test with reference
 Python/Rust controller + VDR full lifecycle (create → v0 → update → v1 →
 deactivate → v2), with optional VDG header checks.
 
-Scenarios 21–22: TS controller create+update only (v0, v1; no deactivate);
-both Python and Rust resolvers verify the same DID. VDG omitted.
+Scenarios 21–22: TS controller full lifecycle (create → v0 → update → v1 →
+deactivate → v2); both Python and Rust resolvers verify the same DID.
+VDG omitted.
 
 Usage: ./run_interop_tests.py <1-22>
 Or: docker compose up -d (with appropriate env) then ./run_interop_tests.py <1-22>
@@ -397,6 +398,34 @@ def _run_zkred_controller_update(did: str, wallet_dir: Path) -> None:
     logger.info("Result: PASS — update applied")
 
 
+def _run_zkred_controller_deactivate(did: str, wallet_dir: Path) -> None:
+    """Run Zkred/TS controller deactivate via Docker (or local node)."""
+    base_did = did.split("?")[0]
+    wallet_dir = wallet_dir.resolve()
+    if os.environ.get("INTEROP_ZKRED_LOCAL"):
+        wallet_arg = str(wallet_dir)
+    else:
+        wallet_arg = "/wallet"
+    args = [
+        "controller", "deactivate",
+        "--did", base_did,
+        "--wallet-dir", wallet_arg,
+    ]
+    cmd, cwd = _zkred_controller_cmd(args, wallet_dir)
+    logger.info("Action: Zkred/TS controller deactivate — controller deactivate --did %s", base_did)
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        cwd=cwd,
+        timeout=30,
+    )
+    if result.returncode != 0:
+        logger.error("Result: FAIL — Zkred/TS deactivate: %s", result.stderr or result.stdout)
+        raise RuntimeError(f"Zkred/TS controller deactivate failed: {result.stderr or result.stdout}")
+    logger.info("Result: PASS — deactivate applied")
+
+
 def _resolver_display_name(resolver_kind: str) -> str:
     """Human-readable resolver name for logs."""
     return {
@@ -490,7 +519,7 @@ def _ts_scenario_params(n: int) -> tuple[str, str, str, bool]:
 
     17–20: reference controller + matching VDR; TS (zkred) resolver; VDG on/off.
     21–22: TS controller + VDR; resolver_kind "both" means dual Python+Rust
-    verification after create (v0) and update (v1); no deactivate; use_vdg=False.
+    verification after create (v0), update (v1), and deactivate (v2); use_vdg=False.
     """
     mapping = {
         17: ("python", "python", "zkred", False),
@@ -606,6 +635,22 @@ def _run_resolve_and_assert_deactivated(
     return True
 
 
+def _run_both_reference_resolvers_and_assert_deactivated(
+    did: str,
+    vdg_url: str | None,
+    expected_version_id: int = 2,
+) -> bool:
+    """Run Python then Rust resolver; both must assert deactivated document shape.
+
+    Used by scenarios 21–22 (TS controller) for cross-implementation read checks.
+    """
+    if not _run_resolve_and_assert_deactivated(did, "python", vdg_url, expected_version_id):
+        return False
+    if not _run_resolve_and_assert_deactivated(did, "rust", vdg_url, expected_version_id):
+        return False
+    return True
+
+
 def run_scenario(
     controller_kind: str,
     vdr_kind: str,
@@ -619,7 +664,8 @@ def run_scenario(
     resolve (v1) → deactivate → resolve (v2, tombstone checks).
 
     TS-controller scenarios (21–22): create → both reference resolvers (v0) →
-    update → both reference resolvers (v1); no deactivate.
+    update → both reference resolvers (v1) → deactivate → both reference
+    resolvers (v2, tombstone checks).
     """
     if controller_kind == "zkred":
         return _run_ts_controller_scenario(vdr_kind, wallet_dir)
@@ -712,7 +758,7 @@ def run_scenario(
 
 
 def _run_ts_controller_scenario(vdr_kind: str, wallet_dir: Path) -> bool:
-    """Scenarios 21–22: TS create+update; both Python and Rust resolvers verify (no deactivate)."""
+    """Scenarios 21–22: TS create/update/deactivate; both Python and Rust resolvers verify."""
     vdr_url = RUST_VDR_URL if vdr_kind == "rust" else PYTHON_VDR_URL
     vdg_url = None  # VDG omitted for TS controller scenarios
 
@@ -748,10 +794,23 @@ def _run_ts_controller_scenario(vdr_kind: str, wallet_dir: Path) -> bool:
             return False
         logger.info("Result: PASS — VDR returns latest (versionId=1)")
 
-        # 5. Both reference resolvers after update (versionId=1); stop (no deactivate)
+        # 5. Both reference resolvers after update (versionId=1)
         logger.info("Action: Resolve after update (Python and Rust) — expect versionId=1")
         ok, _ = _run_both_reference_resolvers_and_assert(base_did, vdg_url, 1)
         if not ok:
+            return False
+
+        # 6. Deactivate via TS controller
+        _run_zkred_controller_deactivate(base_did, wallet_dir)
+
+        # 7. Both reference resolvers after deactivate (versionId=2, tombstone shape)
+        logger.info(
+            "Action: Resolve after deactivate (Python and Rust) — "
+            "expect versionId=2, updateRules={}, key arrays []"
+        )
+        if not _run_both_reference_resolvers_and_assert_deactivated(
+            base_did, vdg_url, expected_version_id=2
+        ):
             return False
 
         return True
@@ -792,8 +851,8 @@ def _log_summary(n: int, controller: str, vdr: str, resolver: str, use_vdg: bool
     )
     if controller == "zkred" or resolver == "both":
         logger.info(
-            "  TS controller created and updated DID; Python and Rust resolvers "
-            "verified after create (v0) and update (v1)."
+            "  TS controller created, updated, and deactivated DID; Python and Rust "
+            "resolvers verified after create (v0), update (v1), and deactivate (v2)."
         )
     else:
         logger.info(
@@ -806,7 +865,7 @@ def main() -> int:
         print("Usage: ./run_interop_tests.py <1-22>")
         print("Scenarios 1-16: Controller/VDR/Resolver (Python/Rust) × VDG (no/yes).")
         print("Scenarios 17-20: Zkred/TS resolver with reference controller + VDR full lifecycle.")
-        print("Scenarios 21-22: Zkred/TS controller create+update; Python and Rust resolvers verify.")
+        print("Scenarios 21-22: Zkred/TS controller full lifecycle; Python and Rust resolvers verify.")
         return 1
     scenario_arg = sys.argv[1]
     try:

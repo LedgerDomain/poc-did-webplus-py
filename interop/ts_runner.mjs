@@ -3,14 +3,16 @@
  * CLI runner for @zkred/did-webplus interop (scenarios 17–22).
  *
  * Commands:
- *   node ts_runner.mjs controller create  --vdr-url <url> --wallet-dir <dir>
- *   node ts_runner.mjs controller update  --did <base-did> --wallet-dir <dir>
+ *   node ts_runner.mjs controller create     --vdr-url <url> --wallet-dir <dir>
+ *   node ts_runner.mjs controller update     --did <base-did> --wallet-dir <dir>
+ *   node ts_runner.mjs controller deactivate --did <base-did> --wallet-dir <dir>
  *   node ts_runner.mjs resolve <did> [--vdg-url <url>] -o json
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   createDidDocument,
+  deactivateDidDocument,
   ed25519KeyPair,
   hashedKeyRule,
   registerDid,
@@ -24,8 +26,9 @@ const HTTP_SCHEME = { scheme: "http" };
 
 function usage() {
   return `Usage:
-  node ts_runner.mjs controller create  --vdr-url <url> --wallet-dir <dir>
-  node ts_runner.mjs controller update  --did <base-did> --wallet-dir <dir>
+  node ts_runner.mjs controller create     --vdr-url <url> --wallet-dir <dir>
+  node ts_runner.mjs controller update     --did <base-did> --wallet-dir <dir>
+  node ts_runner.mjs controller deactivate --did <base-did> --wallet-dir <dir>
   node ts_runner.mjs resolve <did> [--vdg-url <url>] -o json`;
 }
 
@@ -120,7 +123,7 @@ function parseArgv(argv) {
   }
   if (argv[0] === "controller") {
     const sub = argv[1];
-    if (sub !== "create" && sub !== "update") {
+    if (sub !== "create" && sub !== "update" && sub !== "deactivate") {
       fail(`unknown controller subcommand: ${sub ?? "(missing)"}\n${usage()}`);
     }
     const rest = argv.slice(2);
@@ -146,8 +149,8 @@ function parseArgv(argv) {
     if (sub === "create" && !out.vdrUrl) {
       fail(`--vdr-url is required for controller create\n${usage()}`);
     }
-    if (sub === "update" && !out.did) {
-      fail(`--did is required for controller update\n${usage()}`);
+    if ((sub === "update" || sub === "deactivate") && !out.did) {
+      fail(`--did is required for controller ${sub}\n${usage()}`);
     }
     return out;
   }
@@ -226,6 +229,26 @@ async function controllerUpdate({ did, walletDir }) {
   });
 }
 
+async function controllerDeactivate({ did, walletDir }) {
+  const state = loadState(walletDir);
+  const baseDid = did.split("?")[0];
+  if (state.document.id !== baseDid) {
+    throw new Error(
+      `wallet document id ${state.document.id} does not match --did ${baseDid}`,
+    );
+  }
+  const updateKey = deserializeKey(state.updateKey);
+  const doc = deactivateDidDocument(state.document, {
+    signers: [updateKey],
+  });
+  await submitDidUpdate(doc, HTTP_SCHEME);
+  saveState(walletDir, {
+    signingKey: state.signingKey,
+    updateKey: state.updateKey,
+    document: doc,
+  });
+}
+
 /**
  * Normalize TS resolve() output to match Python/Rust CLI JSON shape used by
  * the interop harness: didDocument as a JSON string, not an object.
@@ -269,6 +292,10 @@ async function main() {
     }
     if (parsed.command === "controller" && parsed.subcommand === "update") {
       await controllerUpdate(parsed);
+      return;
+    }
+    if (parsed.command === "controller" && parsed.subcommand === "deactivate") {
+      await controllerDeactivate(parsed);
       return;
     }
     if (parsed.command === "resolve") {
