@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 INTEROP_DIR = Path(__file__).resolve().parent
 _REPO_ROOT = str(INTEROP_DIR.parent)
 
-RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.1.4"
+RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.1.5"
 # Third-party Zkred TS runner image (not a poc-* tag).
 ZKRED_IMAGE = "did-webplus-zkred"
 
