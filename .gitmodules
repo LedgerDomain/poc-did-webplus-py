@@ -1,0 +1,3 @@
+[submodule "interop/ledgerdomain.github.io/did-webplus-spec"]
+	path = interop/ledgerdomain.github.io/did-webplus-spec
+	url = https://github.com/LedgerDomain/did-webplus-spec.git

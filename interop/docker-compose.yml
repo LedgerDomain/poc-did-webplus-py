@@ -36,7 +36,7 @@ services:
       retries: 10
 
   rust-vdr:
-    image: ghcr.io/ledgerdomain/did-webplus-vdr:v0.1.0
+    image: ghcr.io/ledgerdomain/did-webplus-vdr:v0.1.2
     platform: linux/amd64
     environment:
       DID_WEBPLUS_VDR_DATABASE_URL: postgres://postgres:postgres@rust-vdr-db:5432/postgres?sslmode=disable
@@ -53,7 +53,7 @@ services:
         condition: service_healthy
 
   rust-vdg:
-    image: ghcr.io/ledgerdomain/did-webplus-vdg:v0.1.0
+    image: ghcr.io/ledgerdomain/did-webplus-vdg:v0.1.2
     platform: linux/amd64
     environment:
       DID_WEBPLUS_VDG_DATABASE_URL: postgres://postgres:postgres@rust-vdg-db:5432/postgres?sslmode=disable
@@ -92,4 +92,19 @@ services:
       start_period: 10s
       interval: 5s
       timeout: 4s
+      retries: 5
+
+  ledgerdomain.github.io:
+    build:
+      context: .
+      dockerfile: Dockerfile.test-vector-server
+    volumes:
+      - ./ledgerdomain.github.io/did-webplus-spec/test-vector:/srv/did-webplus-spec/test-vector:ro
+    ports:
+      - "80:3001"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3001/did-webplus-spec/test-vector/index.json').read(1)"]
+      start_period: 5s
+      interval: 3s
+      timeout: 3s
       retries: 5
