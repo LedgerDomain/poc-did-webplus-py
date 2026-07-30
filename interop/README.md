@@ -10,16 +10,19 @@ Docker-based interoperability tests between the Python implementation, the Rust 
 
 ## Hostname Setup
 
-The interop tests use hostnames `rust-vdr`, `rust-vdg`, and `python-vdr` for HTTP requests. Add these entries to your system's `/etc/hosts` so they resolve to localhost:
+The interop tests use hostnames `rust-vdr`, `rust-vdg`, `python-vdr`, and `ledgerdomain.github.io` for HTTP requests. Add these entries to your system's `/etc/hosts` so they resolve to localhost:
 
 ```
 # Used for poc-did-webplus-py interop testing
 127.0.0.1  rust-vdr
 127.0.0.1  rust-vdg
 127.0.0.1  python-vdr
+127.0.0.1  ledgerdomain.github.io
 ```
 
 On Linux/macOS, edit `/etc/hosts` with sudo (e.g. `sudo nano /etc/hosts`) and add the lines above.
+
+> While this hosts entry is present, it shadows the real `ledgerdomain.github.io` machine-wide. That means `https://ledgerdomain.github.io` and `scripts/fetch_ledgerdomain_fixtures.py` will fail until you comment out or remove the `ledgerdomain.github.io` hosts line. See [resolver-conformance-testing.md](resolver-conformance-testing.md) for the test-vector catalog submodule.
 
 ## Test Matrix
 
@@ -71,6 +74,19 @@ interop INFO   Controller created, updated, and deactivated DID; resolver ran af
 ```
 
 Quick TS version card: [`ZKRED_VERSION.md`](ZKRED_VERSION.md).
+
+### Test-vector / resolver conformance suite
+
+See **[resolver-conformance-testing.md](resolver-conformance-testing.md)** for catalog layout, submodule setup, hosts entry, and how to run `./run_test_vectors.sh`.
+
+```bash
+# From the interop directory (after submodule init — see doc above)
+./run_test_vectors.sh
+
+# Example: only positive vectors with Python + Rust resolvers
+./run_test_vectors.sh --group positive --resolver python
+./run_test_vectors.sh --group positive --resolver rust
+```
 
 ## TypeScript implementation (`@zkred/did-webplus`) — version management
 
@@ -148,9 +164,9 @@ To stop all containers and remove volumes (guaranteed clean slate):
 
 ## Docker Images
 
-- **Rust VDR**: `ghcr.io/ledgerdomain/did-webplus-vdr:v0.1.0`
-- **Rust VDG**: `ghcr.io/ledgerdomain/did-webplus-vdg:v0.1.0`
-- **Rust CLI** (`ghcr.io/ledgerdomain/did-webplus-cli:v0.1.2`): used as **DID resolver** when Resolver=Rust and as **DID controller** when Controller=Rust (wallet in Docker volume).
+- **Rust VDR**: `ghcr.io/ledgerdomain/did-webplus-vdr`
+- **Rust VDG**: `ghcr.io/ledgerdomain/did-webplus-vdg`
+- **Rust CLI** (`ghcr.io/ledgerdomain/did-webplus-cli`): used as **DID resolver** when Resolver=Rust and as **DID controller** when Controller=Rust (wallet in Docker volume).
 - **Python VDR**: Built from this repo (`interop/Dockerfile.python-vdr`)
 - **Python controller**: This repo’s `did-webplus did create` / `did update` / `did deactivate` (deactivate requires `--confirm THIS-IS-IRREVERSIBLE`); uses a local wallet directory (created per run).
 - **Zkred TS runner** (`did-webplus-zkred`): built from `interop/Dockerfile.zkred`; bundles `@zkred/did-webplus` at the lockfile-pinned version. **Version management instructions: see [TypeScript implementation](#typescript-implementation-zkreddid-webplus--version-management).**
@@ -160,6 +176,7 @@ To stop all containers and remove volumes (guaranteed clean slate):
 - Rust VDR: 8085
 - Rust VDG: 8086
 - Python VDR: 8087
+- Test-vector static server (`ledgerdomain.github.io`): 80 (container serves on 3001)
 
 ## Reproducibility
 
@@ -180,6 +197,7 @@ And add:
     127.0.0.1  rust-vdr
     127.0.0.1  rust-vdg
     127.0.0.1  python-vdr
+    127.0.0.1  ledgerdomain.github.io
 
 Then:
 

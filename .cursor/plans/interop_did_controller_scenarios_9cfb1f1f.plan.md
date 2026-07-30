@@ -15,7 +15,7 @@ isProject: false
 
 ## Goal
 
-- **Controller** becomes a dimension: **Python** (this repo) or **Rust** (Docker `ghcr.io/ledgerdomain/did-webplus-cli:v0.1.0`).
+- **Controller** becomes a dimension: **Python** (this repo) or **Rust** (Docker `ghcr.io/ledgerdomain/did-webplus-cli`).
 - Create and update are performed **only** via the chosen controller’s CLI (no direct POST/PUT or in-process doc building for create/update).
 - **16 scenarios** total: exhaustive combination of 4 binary axes — (1) DID controller: Python vs Rust, (2) VDR: Python vs Rust, (3) DID resolver: Python vs Rust, (4) VDG: without Rust VDG vs with Rust VDG.
 - **Wallet directory**: one temp directory per scenario run, cleared (or created empty) before the run, used as the controller’s wallet/base dir for the whole scenario.

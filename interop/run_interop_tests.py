@@ -34,9 +34,15 @@ from urllib.parse import quote, urlparse
 
 import httpx
 
-RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.1.2"
-# Third-party Zkred TS runner image (not a poc-* tag).
-ZKRED_IMAGE = "did-webplus-zkred"
+from resolvers import (
+    HTTP_SCHEME_OVERRIDE,
+    RUST_CLI_IMAGE,
+    ZKRED_IMAGE,
+    _run_python_resolve,
+    _run_rust_resolve,
+    _run_zkred_resolve,
+)
+
 PACKAGE_LOCK_PATH = INTEROP_DIR / "package-lock.json"
 ZKRED_LOCKFILE_KEY = "node_modules/@zkred/did-webplus"
 
@@ -49,8 +55,7 @@ logger = logging.getLogger("interop")
 
 # Enable DEBUG logging for interop tests (main process and resolver subprocess)
 os.environ.setdefault("DID_WEBPLUS_LOG_LEVEL", "DEBUG")
-# Use http for test hostnames (rust-vdr, rust-vdg, python-vdr)
-HTTP_SCHEME_OVERRIDE = "rust-vdr=http,rust-vdg=http,python-vdr=http"
+# Use http for test hostnames (rust-vdr, rust-vdg, python-vdr, ledgerdomain.github.io)
 os.environ.setdefault("DID_WEBPLUS_HTTP_SCHEME_OVERRIDE", HTTP_SCHEME_OVERRIDE)
 
 # Add parent for imports
@@ -222,95 +227,6 @@ def _resolution_path(did: str) -> str:
     full_url = components.resolution_url(http_scheme_overrides=overrides or None)
     parsed = urlparse(full_url)
     return parsed.path.lstrip("/") if parsed.path else ""
-
-
-def _run_python_resolve(did: str, vdg_url: str | None = None) -> subprocess.CompletedProcess:
-    """Run Python resolver. vdg_url: if set, resolve via VDG instead of VDR."""
-    cmd = ["uv", "run", "did-webplus", "resolve", did, "-o", "json"]
-    if vdg_url:
-        cmd.extend(["--vdg-url", vdg_url.rstrip("/")])
-    via = f" via VDG {vdg_url}" if vdg_url else " (direct from VDR)"
-    logger.info("Running Python DID resolver%s", via)
-    logger.info("Command: %s", " ".join(cmd))
-    return subprocess.run(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=None,  # Let resolver logs (stderr) print to terminal
-        text=True,
-        cwd=os.path.join(os.path.dirname(__file__), ".."),
-        timeout=15,
-    )
-
-
-def _run_rust_resolve(did: str, vdg_url: str | None = None) -> subprocess.CompletedProcess:
-    """Run Rust resolver via Docker. vdg_url: if set, resolve via VDG instead of VDR."""
-    cmd = [
-        "docker",
-        "run",
-        "--rm",
-        "--network",
-        "host",
-        "-e",
-        f"DID_WEBPLUS_HTTP_SCHEME_OVERRIDE={HTTP_SCHEME_OVERRIDE}",
-        "-e",
-        "RUST_LOG=debug",
-        RUST_CLI_IMAGE,
-        "did",
-        "resolve",
-        did,
-        "--json",
-    ]
-    if vdg_url:
-        parsed = urlparse(vdg_url.rstrip("/"))
-        vdg_host = parsed.netloc or parsed.path
-        cmd.extend(["--vdg", vdg_host])
-    via = f" via VDG {vdg_url}" if vdg_url else " (direct from VDR)"
-    logger.info("Running Rust DID resolver%s", via)
-    logger.info("Command: %s", " ".join(cmd))
-    return subprocess.run(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=None,  # Let resolver logs (stderr) print to terminal
-        text=True,
-        timeout=15,
-    )
-
-
-def _run_zkred_resolve(did: str, vdg_url: str | None = None) -> subprocess.CompletedProcess:
-    """Run Zkred/TS resolver via Docker (or local node if INTEROP_ZKRED_LOCAL is set).
-
-    Image entrypoint is ``node ts_runner.mjs``; args are resolve <did> [-o json]
-    and optional --vdg-url. Uses --network host so rust-vdr / python-vdr / rust-vdg
-    resolve via /etc/hosts, same as the Rust CLI helper.
-    """
-    resolve_args = ["resolve", did, "-o", "json"]
-    if vdg_url:
-        resolve_args.extend(["--vdg-url", vdg_url.rstrip("/")])
-    via = f" via VDG {vdg_url}" if vdg_url else " (direct from VDR)"
-    if os.environ.get("INTEROP_ZKRED_LOCAL"):
-        cmd = ["node", str(INTEROP_DIR / "ts_runner.mjs"), *resolve_args]
-        cwd: str | None = str(INTEROP_DIR)
-    else:
-        cmd = [
-            "docker",
-            "run",
-            "--rm",
-            "--network",
-            "host",
-            ZKRED_IMAGE,
-            *resolve_args,
-        ]
-        cwd = None
-    logger.info("Running Zkred/TS DID resolver%s", via)
-    logger.info("Command: %s", " ".join(cmd))
-    return subprocess.run(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=None,  # Let resolver logs (stderr) print to terminal
-        text=True,
-        cwd=cwd,
-        timeout=15,
-    )
 
 
 def _zkred_controller_cmd(args: list[str], wallet_dir: Path) -> tuple[list[str], str | None]:
