@@ -12,13 +12,39 @@ from did_webplus.did import parse_did, parse_did_with_query
 logger = logging.getLogger(__name__)
 from did_webplus.document import DIDDocument, parse_did_document
 from did_webplus.http_client import fetch_did_documents_jsonl
-from did_webplus.selfhash import verify_self_hash
+from did_webplus.selfhash import (
+    SelfHashError,
+    verify_is_canonically_serialized,
+    verify_self_hash,
+)
 from did_webplus.store import DIDDocRecord, DIDDocStore
 from did_webplus.verification import VerificationError, verify_proofs
 
 
 class ResolutionError(Exception):
     """DID resolution failed."""
+
+
+def _split_jsonl_records(content: str) -> list[str]:
+    """
+    Split a JSONL body into record lines with strict structural rules.
+
+    - CR (\\r) is rejected (including CRLF line endings).
+    - Blank lines are rejected.
+    - A single trailing newline after the last record is allowed and dropped.
+    - Lines are not stripped (wire bytes must match JCS exactly).
+    """
+    if "\r" in content:
+        raise ResolutionError("malformed-jsonl-line: CR/CRLF not allowed")
+    if content.endswith("\n"):
+        content = content[:-1]
+    if not content:
+        return []
+    lines = content.split("\n")
+    for i, line in enumerate(lines):
+        if line == "":
+            raise ResolutionError(f"malformed-jsonl-line: blank line at index {i}")
+    return lines
 
 
 @dataclass
@@ -292,12 +318,11 @@ class FullDIDResolver:
             vdg_base_url=self._vdg_base_url,
             http_scheme_overrides=self._http_scheme_overrides or None,
         )
-        content = content.strip()
         if not content:
             logger.debug("resolver: _fetch_and_store did=%s no new content", did)
             return
 
-        lines = [ln for ln in content.split("\n") if ln.strip()]
+        lines = _split_jsonl_records(content)
         if not lines:
             return
 
@@ -311,10 +336,10 @@ class FullDIDResolver:
             prev_doc = json.loads(latest.did_document_jcs)
 
         for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            doc_dict = json.loads(line)
+            try:
+                doc_dict = json.loads(line)
+            except json.JSONDecodeError as e:
+                raise ResolutionError(f"malformed-jsonl-line: invalid JSON: {e}") from e
             logger.debug(
                 "resolver: validating doc did=%s versionId=%s selfHash=%s",
                 doc_dict.get("id"),
@@ -348,11 +373,23 @@ def _validate_document(
     prev_doc: dict | None,
 ) -> None:
     """Validate a single document (self-hash, chain, proofs) and raise if invalid."""
-    verify_self_hash(jcs_str)
-    doc = parse_did_document(jcs_str)
-    prev = parse_did_document(json.dumps(prev_doc)) if prev_doc else None
-    doc.verify_chain_constraints(prev)
     try:
+        if "versionId" not in doc_dict or type(doc_dict["versionId"]) is not int:
+            raise ResolutionError(
+                f"versionId must be a JSON integer, got "
+                f"{type(doc_dict.get('versionId')).__name__}"
+            )
+        verify_is_canonically_serialized(doc_dict, jcs_str)
+        verify_self_hash(jcs_str)
+        doc = parse_did_document(jcs_str)
+        prev = parse_did_document(json.dumps(prev_doc)) if prev_doc else None
+        doc.verify_chain_constraints(prev)
         verify_proofs(doc_dict, prev_doc)
+    except ResolutionError:
+        raise
+    except SelfHashError as e:
+        raise ResolutionError(f"Self-hash verification failed: {e}") from e
     except VerificationError as e:
         raise ResolutionError(f"Proof verification failed: {e}") from e
+    except ValueError as e:
+        raise ResolutionError(f"Document validation failed: {e}") from e

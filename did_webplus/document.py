@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictInt
 
 
 class DIDDocument(BaseModel):
@@ -21,7 +21,7 @@ class DIDDocument(BaseModel):
     updateRules: dict[str, Any] = Field(..., alias="updateRules")
     proofs: list[str] = Field(default_factory=list, alias="proofs")
     validFrom: str = Field(..., alias="validFrom")
-    versionId: int = Field(..., alias="versionId", ge=0)
+    versionId: StrictInt = Field(..., alias="versionId", ge=0)
     verificationMethod: list[dict[str, Any]] = Field(
         default_factory=list, alias="verificationMethod"
     )

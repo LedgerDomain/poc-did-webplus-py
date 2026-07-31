@@ -5,9 +5,15 @@ from __future__ import annotations
 import copy
 import json
 from typing import Any
+from urllib.parse import parse_qs
 
 import rfc8785
 from multiformats import multibase, multihash
+
+_MULTIBASE_BY_PREFIX = {
+    "u": "base64url",
+    "z": "base58btc",
+}
 
 # Placeholder for BLAKE3 self-hash slots (multihash format, same as other algorithms)
 BLAKE3_PLACEHOLDER = multibase.encode(
@@ -24,19 +30,33 @@ def _jcs_serialize(obj: Any) -> bytes:
     return rfc8785.dumps(obj)
 
 
+def _multibase_name_for_hash(hash_str: str) -> str:
+    """Return multibase codec name for a hash string prefix."""
+    if not hash_str:
+        raise SelfHashError("Empty hash string")
+    prefix = hash_str[0]
+    name = _MULTIBASE_BY_PREFIX.get(prefix)
+    if name is None:
+        raise SelfHashError(
+            f"Unsupported multibase prefix: {prefix!r} "
+            "(expected 'u' for base64url or 'z' for base58btc)"
+        )
+    return name
+
+
 def _parse_hash(hash_str: str) -> tuple[str, bytes, str]:
     """
     Parse hash string. Returns (codec_name, digest, placeholder).
-    All hashes use multihash format (code + length + digest).
+
+    All hashes use multihash format (code + length + digest). Placeholder and
+    digest encoding use the same multibase as hash_str ('u' or 'z').
     """
-    if not hash_str or hash_str[0] != "u":
-        raise SelfHashError("Hash must start with 'u' (base64url)")
+    mb_name = _multibase_name_for_hash(hash_str)
     try:
         raw = multibase.decode(hash_str)
     except Exception as e:
         raise SelfHashError(f"Invalid multibase in hash: {e}") from e
 
-    # Multihash format
     try:
         mh = multihash.from_digest(raw)
     except KeyError as e:
@@ -44,22 +64,20 @@ def _parse_hash(hash_str: str) -> tuple[str, bytes, str]:
     if not multihash.is_implemented(name=mh.name):
         raise SelfHashError(f"Multihash {mh.name!r} not implemented")
     digest = multihash.unwrap(raw)
-    placeholder = multibase.encode(mh.wrap(b"\x00" * len(digest)), "base64url")
+    placeholder = multibase.encode(mh.wrap(b"\x00" * len(digest)), mb_name)
     return mh.name, digest, placeholder
 
 
-def _encode_hash(codec_name: str, digest: bytes) -> str:
-    """Encode digest as multihash (u + base64url)."""
+def _encode_hash(
+    codec_name: str,
+    digest: bytes,
+    *,
+    multibase_name: str = "base64url",
+) -> str:
+    """Encode digest as multihash with the given multibase."""
     mh = multihash.get(codec_name)
     wrapped = mh.wrap(digest)
-    return multibase.encode(wrapped, "base64url")
-
-
-def _get_hash_prefix(hash_str: str) -> str:
-    """Get multibase prefix: 'u' for base64url, 'z' for base58btc."""
-    if not hash_str:
-        raise SelfHashError("Empty hash string")
-    return hash_str[0]
+    return multibase.encode(wrapped, multibase_name)
 
 
 def _is_placeholder(hash_str: str) -> bool:
@@ -71,6 +89,106 @@ def _is_placeholder(hash_str: str) -> bool:
         return hash_str == placeholder
     except SelfHashError:
         return False
+
+
+def _did_path_suffix(did_str: str) -> str | None:
+    """Return the last path component of a did:webplus DID (root self-hash slot)."""
+    if "?" in did_str:
+        did_str = did_str.split("?", 1)[0]
+    if "#" in did_str:
+        did_str = did_str.split("#", 1)[0]
+    prefix = "did:webplus:"
+    if not did_str.startswith(prefix):
+        return None
+    parts = did_str[len(prefix) :].split(":")
+    if not parts:
+        return None
+    return parts[-1]
+
+
+def _query_self_hash(url: str) -> str | None:
+    """Return the selfHash query param from a DID URL, if present."""
+    if "?" not in url:
+        return None
+    _, query = url.split("?", 1)
+    query = query.split("#", 1)[0]
+    params = parse_qs(query, keep_blank_values=True)
+    values = params.get("selfHash")
+    if not values:
+        return None
+    return values[0]
+
+
+def _assert_self_hash_slots_consistent(doc: dict[str, Any]) -> None:
+    """
+    Assert every self-hash slot already equals doc["selfHash"].
+
+    Root: DID id path suffix; selfHash; each verificationMethod id/kid selfHash
+    query param and path suffix (and controller path suffix).
+    Non-root: selfHash field + VM/kid query selfHash params only.
+    """
+    claimed = doc.get("selfHash")
+    if not claimed:
+        raise SelfHashError("Document has no selfHash field")
+
+    is_root = (
+        "prevDIDDocumentSelfHash" not in doc
+        or doc["prevDIDDocumentSelfHash"] is None
+    )
+
+    def check_equal(slot_name: str, value: str | None) -> None:
+        if value != claimed:
+            raise SelfHashError(
+                f"self-hash-slot-mismatch: {slot_name}={value!r}, "
+                f"expected {claimed!r}"
+            )
+
+    if is_root:
+        if "id" in doc and doc["id"]:
+            check_equal("id.pathSuffix", _did_path_suffix(doc["id"]))
+            q = _query_self_hash(doc["id"])
+            if q is not None:
+                check_equal("id.selfHash", q)
+
+        for i, vm in enumerate(doc.get("verificationMethod", [])):
+            if "id" in vm and vm["id"]:
+                check_equal(f"verificationMethod[{i}].id.pathSuffix", _did_path_suffix(vm["id"]))
+                q = _query_self_hash(vm["id"])
+                if q is None:
+                    raise SelfHashError(
+                        f"vm-id-selfhash-mismatch: verificationMethod[{i}].id "
+                        "missing selfHash query param"
+                    )
+                check_equal(f"verificationMethod[{i}].id.selfHash", q)
+            if "controller" in vm and vm["controller"]:
+                check_equal(
+                    f"verificationMethod[{i}].controller.pathSuffix",
+                    _did_path_suffix(vm["controller"]),
+                )
+            jwk = vm.get("publicKeyJwk")
+            if isinstance(jwk, dict) and jwk.get("kid"):
+                check_equal(
+                    f"verificationMethod[{i}].kid.pathSuffix",
+                    _did_path_suffix(jwk["kid"]),
+                )
+                q = _query_self_hash(jwk["kid"])
+                if q is None:
+                    raise SelfHashError(
+                        f"vm-id-selfhash-mismatch: verificationMethod[{i}].kid "
+                        "missing selfHash query param"
+                    )
+                check_equal(f"verificationMethod[{i}].kid.selfHash", q)
+    else:
+        for i, vm in enumerate(doc.get("verificationMethod", [])):
+            if "id" in vm and vm["id"]:
+                q = _query_self_hash(vm["id"])
+                if q is not None:
+                    check_equal(f"verificationMethod[{i}].id.selfHash", q)
+            jwk = vm.get("publicKeyJwk")
+            if isinstance(jwk, dict) and jwk.get("kid"):
+                q = _query_self_hash(jwk["kid"])
+                if q is not None:
+                    check_equal(f"verificationMethod[{i}].kid.selfHash", q)
 
 
 def _replace_self_hash_slots_in_place(doc: dict[str, Any], placeholder: str) -> None:
@@ -157,7 +275,8 @@ def verify_self_hash(jcs_str: str) -> str:
     Verify the self-hash of a DID document and return the claimed digest.
 
     Supports BLAKE3, SHA-224, SHA-256, SHA-384, SHA-512, SHA3-224, SHA3-256,
-    SHA3-384, SHA3-512 via multicodec detection.
+    SHA3-384, SHA3-512 via multicodec detection. Multibase may be base64url
+    ('u') or base58btc ('z').
 
     Returns:
         The verified self-hash string.
@@ -170,18 +289,12 @@ def verify_self_hash(jcs_str: str) -> str:
     if not claimed:
         raise SelfHashError("Document has no selfHash field")
 
-    prefix = _get_hash_prefix(claimed)
-    if prefix not in ("u", "z"):
-        raise SelfHashError(
-            f"Unsupported multibase prefix: {prefix!r} "
-            "(expected 'u' for base64url or 'z' for base58btc)"
-        )
-
-    if prefix == "z":
-        raise SelfHashError("base58btc ('z') self-hash verification not implemented")
+    mb_name = _multibase_name_for_hash(claimed)
 
     if _is_placeholder(claimed):
         raise SelfHashError("Document has placeholder selfHash, not a real hash")
+
+    _assert_self_hash_slots_consistent(doc)
 
     codec_name, _, placeholder = _parse_hash(claimed)
     doc_copy = copy.deepcopy(doc)
@@ -190,7 +303,7 @@ def verify_self_hash(jcs_str: str) -> str:
     size = 32 if codec_name == "blake3" else None  # BLAKE3 requires explicit size
     digest_bytes = multihash.digest(msg, codec_name, size=size)
     raw_digest = multihash.unwrap(digest_bytes)
-    computed = _encode_hash(codec_name, raw_digest)
+    computed = _encode_hash(codec_name, raw_digest, multibase_name=mb_name)
 
     if computed != claimed:
         raise SelfHashError(
@@ -203,6 +316,7 @@ def compute_self_hash(
     doc: dict[str, Any],
     *,
     algorithm: str = "blake3",
+    multibase_name: str = "base64url",
 ) -> str:
     """
     Compute and return the self-hash for a document (with placeholder in slots).
@@ -223,16 +337,18 @@ def compute_self_hash(
     }
     if algorithm not in supported:
         raise ValueError(f"Unknown algorithm: {algorithm}")
+    if multibase_name not in ("base64url", "base58btc"):
+        raise ValueError(f"Unknown multibase: {multibase_name}")
     mh = multihash.get(algorithm)
     placeholder = multibase.encode(
-        mh.wrap(b"\x00" * (mh.max_digest_size or 32)), "base64url"
+        mh.wrap(b"\x00" * (mh.max_digest_size or 32)), multibase_name
     )
     _replace_self_hash_slots_in_place(doc, placeholder)
     msg = _jcs_serialize(doc)
     size = 32 if algorithm == "blake3" else None  # BLAKE3 requires explicit size
     digest_bytes = multihash.digest(msg, algorithm, size=size)
     raw_digest = multihash.unwrap(digest_bytes)
-    result = _encode_hash(algorithm, raw_digest)
+    result = _encode_hash(algorithm, raw_digest, multibase_name=multibase_name)
     _replace_self_hash_slots_in_place(doc, result)
     return result
 
@@ -240,13 +356,14 @@ def compute_self_hash(
 def hash_bytes_for_hashed_key(data: bytes, hash_str: str) -> str:
     """
     Hash bytes using the same algorithm as indicated by hash_str (e.g. from hashedKey).
-    Returns the encoded hash (u + base64url).
+    Returns the encoded hash with the same multibase as hash_str.
     """
+    mb_name = _multibase_name_for_hash(hash_str)
     codec_name, _, _ = _parse_hash(hash_str)
     size = 32 if codec_name == "blake3" else None  # BLAKE3 requires explicit size
     digest_bytes = multihash.digest(data, codec_name, size=size)
     raw_digest = multihash.unwrap(digest_bytes)
-    return _encode_hash(codec_name, raw_digest)
+    return _encode_hash(codec_name, raw_digest, multibase_name=mb_name)
 
 
 def verify_is_canonically_serialized(doc: dict[str, Any], jcs_str: str) -> None:
