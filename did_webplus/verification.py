@@ -9,10 +9,13 @@ import logging
 from typing import Any
 
 import rfc8785
-
-logger = logging.getLogger(__name__)
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.serialization import (
+    Encoding,
+    PublicFormat,
+)
 from jwcrypto import jwk, jws
-from multiformats import multibase
+from multiformats import multibase, multicodec
 
 from did_webplus.selfhash import (
     _parse_hash,
@@ -20,9 +23,45 @@ from did_webplus.selfhash import (
     hash_bytes_for_hashed_key,
 )
 
+logger = logging.getLogger(__name__)
+
+# JWS algs used by did:webplus proofs (beyond jwcrypto defaults for Ed* aliases).
+_PROOF_ALGS = list(jws.default_allowed_algs) + ["Ed25519", "Ed448"]
+
+_OKP_CODE_TO_CRV = {
+    "ed25519-pub": ("Ed25519", 32),
+    "ed448-pub": ("Ed448", 57),
+}
+
+_EC_CODE_TO_CURVE = {
+    "p256-pub": (ec.SECP256R1(), "P-256"),
+    "p384-pub": (ec.SECP384R1(), "P-384"),
+    "p521-pub": (ec.SECP521R1(), "P-521"),
+    "secp256k1-pub": (ec.SECP256K1(), "secp256k1"),
+}
+
+_CRV_TO_CODE = {
+    "Ed25519": "ed25519-pub",
+    "Ed448": "ed448-pub",
+    "P-256": "p256-pub",
+    "P-384": "p384-pub",
+    "P-521": "p521-pub",
+    "secp256k1": "secp256k1-pub",
+}
+
 
 class VerificationError(Exception):
     """Proof or update rules verification failed."""
+
+
+def _ensure_eddsa_alg_aliases() -> None:
+    """Register Ed25519/Ed448 as EdDSA aliases without rewriting JWS headers."""
+    import jwcrypto.jwa as jwa_module
+
+    eddsa = jwa_module.JWA.algorithms_registry["EdDSA"]
+    for name in ("Ed25519", "Ed448"):
+        if name not in jwa_module.JWA.algorithms_registry:
+            jwa_module.JWA.algorithms_registry[name] = eddsa
 
 
 def _jcs_serialize(obj: Any) -> bytes:
@@ -44,14 +83,17 @@ def _bytes_to_sign(doc: dict[str, Any]) -> bytes:
     return _jcs_serialize(doc_copy)
 
 
+def _b64url_uint(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
+
+
+def _b64url_decode(data: str) -> bytes:
+    return base64.urlsafe_b64decode(data + "==")
+
+
 def jwk_to_multibase_key(key: jwk.JWK) -> str:
-    """Export Ed25519 JWK public key as multibase-encoded multicodec (u...)."""
-    pub = key.export_public(as_dict=True)
-    if pub.get("kty") != "OKP" or pub.get("crv") != "Ed25519":
-        raise VerificationError("Only Ed25519 OKP keys supported")
-    x = base64.urlsafe_b64decode(pub["x"] + "==")
-    multicodec = bytes([0xED, 0x01]) + x
-    return multibase.encode(multicodec, "base64url")
+    """Export a public JWK as multibase-encoded multicodec (u...)."""
+    return multibase.encode(_pub_key_to_multicodec_bytes(key), "base64url")
 
 
 def create_proof(doc: dict[str, Any], key: jwk.JWK) -> str:
@@ -62,20 +104,30 @@ def create_proof(doc: dict[str, Any], key: jwk.JWK) -> str:
     the bytes-to-sign (JCS with proofs removed and self-hash slots replaced).
     Returns compact detached JWS (header..signature, no payload).
     """
-    import jwcrypto.jwa as jwa_module
-
-    if "Ed25519" not in jwa_module.JWA.algorithms_registry:
-        jwa_module.JWA.algorithms_registry["Ed25519"] = (
-            jwa_module.JWA.algorithms_registry["EdDSA"]
-        )
+    _ensure_eddsa_alg_aliases()
     payload_bytes = _bytes_to_sign(doc)
     kid = jwk_to_multibase_key(key)
+    pub = key.export_public(as_dict=True)
+    if pub.get("kty") == "OKP" and pub.get("crv") == "Ed25519":
+        alg = "Ed25519"
+    elif pub.get("kty") == "OKP" and pub.get("crv") == "Ed448":
+        alg = "Ed448"
+    elif pub.get("kty") == "EC" and pub.get("crv") == "P-256":
+        alg = "ES256"
+    elif pub.get("kty") == "EC" and pub.get("crv") == "P-384":
+        alg = "ES384"
+    elif pub.get("kty") == "EC" and pub.get("crv") == "P-521":
+        alg = "ES512"
+    elif pub.get("kty") == "EC" and pub.get("crv") == "secp256k1":
+        alg = "ES256K"
+    else:
+        raise VerificationError(f"Unsupported key for proof: {pub.get('kty')}/{pub.get('crv')}")
     protected = json.dumps(
-        {"alg": "Ed25519", "kid": kid, "crit": ["b64"], "b64": False},
+        {"alg": alg, "kid": kid, "crit": ["b64"], "b64": False},
         separators=(",", ":"),
     )
     token = jws.JWS(payload_bytes)
-    token.allowed_algs = list(jws.default_allowed_algs) + ["Ed25519"]
+    token.allowed_algs = list(_PROOF_ALGS)
     token.add_signature(key, protected=protected)
     token.detach_payload()  # required for b64=false: compact encoding rejects payload with "."
     return token.serialize(compact=True)  # yields header..signature (empty payload)
@@ -85,38 +137,51 @@ def _multicodec_to_jwk(key_bytes: bytes) -> jwk.JWK:
     """
     Convert multicodec-encoded public key to JWK.
 
-    Supports Ed25519 (0xed01) and P-256 (0x1200).
+    Multicodec code is an unsigned varint. EC keys use compressed SEC1 points.
     """
-    if len(key_bytes) < 2:
-        raise VerificationError(f"Key too short: {len(key_bytes)} bytes")
+    try:
+        codec, key_material = multicodec.unwrap(key_bytes)
+    except Exception as e:
+        raise VerificationError(f"Invalid multicodec key: {e}") from e
 
-    prefix = key_bytes[0] << 8 | key_bytes[1]
-    if prefix == 0xED01:
-        if len(key_bytes) != 34:
+    if codec.name in _OKP_CODE_TO_CRV:
+        crv, expected_len = _OKP_CODE_TO_CRV[codec.name]
+        if len(key_material) != expected_len:
             raise VerificationError(
-                f"Ed25519 key must be 34 bytes (2 prefix + 32 key), got {len(key_bytes)}"
+                f"{crv} key must be {expected_len} bytes, got {len(key_material)}"
             )
-        raw_key = key_bytes[2:]
-        x_b64 = base64.urlsafe_b64encode(raw_key).rstrip(b"=").decode("ascii")
         return jwk.JWK.from_json(
-            json.dumps({"kty": "OKP", "crv": "Ed25519", "x": x_b64})
-        )
-    if prefix == 0x1200:
-        if len(key_bytes) != 67:
-            raise VerificationError(
-                f"P-256 key must be 67 bytes (2 prefix + 65 uncompressed), got {len(key_bytes)}"
+            json.dumps(
+                {
+                    "kty": "OKP",
+                    "crv": crv,
+                    "x": _b64url_uint(key_material),
+                }
             )
-        raw_key = key_bytes[2:]
-        if raw_key[0] != 0x04:
-            raise VerificationError("P-256 key must be uncompressed (0x04)")
-        x = raw_key[1:33]
-        y = raw_key[33:65]
-        x_b64 = base64.urlsafe_b64encode(x).rstrip(b"=").decode("ascii")
-        y_b64 = base64.urlsafe_b64encode(y).rstrip(b"=").decode("ascii")
-        return jwk.JWK.from_json(
-            json.dumps({"kty": "EC", "crv": "P-256", "x": x_b64, "y": y_b64})
         )
-    raise VerificationError(f"Unsupported multicodec prefix: 0x{prefix:04x}")
+
+    if codec.name in _EC_CODE_TO_CURVE:
+        curve, crv_name = _EC_CODE_TO_CURVE[codec.name]
+        try:
+            pub = ec.EllipticCurvePublicKey.from_encoded_point(curve, key_material)
+        except Exception as e:
+            raise VerificationError(f"Invalid {crv_name} public key: {e}") from e
+        nums = pub.public_numbers()
+        byte_len = (nums.curve.key_size + 7) // 8
+        x = nums.x.to_bytes(byte_len, "big")
+        y = nums.y.to_bytes(byte_len, "big")
+        return jwk.JWK.from_json(
+            json.dumps(
+                {
+                    "kty": "EC",
+                    "crv": crv_name,
+                    "x": _b64url_uint(x),
+                    "y": _b64url_uint(y),
+                }
+            )
+        )
+
+    raise VerificationError(f"Unsupported multicodec: {codec.name} ({hex(codec.code)})")
 
 
 def _decode_multibase_key(key_str: str) -> bytes:
@@ -128,37 +193,29 @@ def _decode_multibase_key(key_str: str) -> bytes:
     return multibase.decode(key_str)
 
 
-def _verify_proof(proof_jws: str, payload_bytes: bytes) -> jwk.JWK | None:
+def _verify_proof(proof_jws: str, payload_bytes: bytes) -> jwk.JWK:
     """
     Verify a JWS proof over the detached payload.
 
-    Returns the public key (as JWK) if verification succeeds, else None.
-    kid is multibase-encoded multicodec public key (e.g. u7Q... for Ed25519).
-    Registers "Ed25519" as alias for "EdDSA" so we keep the original header
-    (changing it would alter the signing input and break verification).
+    Returns the public key (as JWK) if verification succeeds.
+    Raises VerificationError on any failure.
     """
     try:
-        # jwcrypto only has "EdDSA" in its registry; some JWS use "Ed25519".
-        # Register Ed25519 as alias so we can verify without modifying the header
-        # (header modification would change the signing input).
-        import jwcrypto.jwa as jwa_module
-
-        if "Ed25519" not in jwa_module.JWA.algorithms_registry:
-            jwa_module.JWA.algorithms_registry["Ed25519"] = (
-                jwa_module.JWA.algorithms_registry["EdDSA"]
-            )
+        _ensure_eddsa_alg_aliases()
         token = jws.JWS()
-        token.allowed_algs = list(jws.default_allowed_algs) + ["Ed25519"]
+        token.allowed_algs = list(_PROOF_ALGS)
         token.deserialize(proof_jws)
         kid = token.jose_header.get("kid")
         if not kid:
-            return None
+            raise VerificationError("Proof JWS header missing kid")
         key_bytes = _decode_multibase_key(kid)
         key = _multicodec_to_jwk(key_bytes)
         token.verify(key, detached_payload=payload_bytes)
         return key
-    except Exception:
-        return None
+    except VerificationError:
+        raise
+    except Exception as e:
+        raise VerificationError(f"Proof verification failed: {e}") from e
 
 
 def verify_proofs(
@@ -168,7 +225,8 @@ def verify_proofs(
     """
     Verify all proofs and return list of valid proof public keys (base64url).
 
-    For non-root, the valid proof keys must satisfy prev_doc's updateRules.
+    Every entry in proofs[] must cryptographically verify. For non-root, the
+    valid proof keys must also satisfy prev_doc's updateRules.
     """
     logger.debug(
         "verification: verify_proofs did=%s versionId=%s num_proofs=%d prev_doc=%s",
@@ -181,11 +239,8 @@ def verify_proofs(
     valid_keys: list[jwk.JWK] = []
     for i, proof in enumerate(doc.get("proofs", [])):
         key = _verify_proof(proof, payload_bytes)
-        if key is not None:
-            valid_keys.append(key)
-            logger.debug("verification: proof[%d] valid", i)
-        else:
-            logger.debug("verification: proof[%d] invalid or failed", i)
+        valid_keys.append(key)
+        logger.debug("verification: proof[%d] valid", i)
 
     valid_pub_keys_b64: list[str] = []
     for k in valid_keys:
@@ -288,13 +343,24 @@ def _verify_update_rules_inner(
 
 
 def _pub_key_to_multicodec_bytes(key: jwk.JWK) -> bytes:
-    """Export JWK to multicodec bytes for hashing."""
+    """Export JWK to multicodec bytes (varint code + key material; EC compressed)."""
     export = key.export_public(as_dict=True)
-    if export.get("kty") == "OKP" and export.get("crv") == "Ed25519":
-        raw = base64.urlsafe_b64decode(export["x"] + "==")
-        return bytes([0xED, 0x01]) + raw
-    if export.get("kty") == "EC" and export.get("crv") == "P-256":
-        x = base64.urlsafe_b64decode(export["x"] + "==")
-        y = base64.urlsafe_b64decode(export["y"] + "==")
-        return bytes([0x12, 0x00]) + bytes([4]) + x + y
-    raise VerificationError(f"Cannot export key type: {export.get('kty')}")
+    kty = export.get("kty")
+    crv = export.get("crv")
+    code_name = _CRV_TO_CODE.get(crv) if crv else None
+    if kty == "OKP" and code_name in _OKP_CODE_TO_CRV:
+        raw = _b64url_decode(export["x"])
+        expected = _OKP_CODE_TO_CRV[code_name][1]
+        if len(raw) != expected:
+            raise VerificationError(
+                f"{crv} key must be {expected} bytes, got {len(raw)}"
+            )
+        return multicodec.wrap(code_name, raw)
+    if kty == "EC" and code_name in _EC_CODE_TO_CURVE:
+        curve, _ = _EC_CODE_TO_CURVE[code_name]
+        x = int.from_bytes(_b64url_decode(export["x"]), "big")
+        y = int.from_bytes(_b64url_decode(export["y"]), "big")
+        pub = ec.EllipticCurvePublicNumbers(x, y, curve).public_key()
+        compressed = pub.public_bytes(Encoding.X962, PublicFormat.CompressedPoint)
+        return multicodec.wrap(code_name, compressed)
+    raise VerificationError(f"Cannot export key type: {kty}/{crv}")

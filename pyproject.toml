@@ -23,6 +23,7 @@ classifiers = [
 ]
 dependencies = [
     "blake3>=1.0.0",
+    "cryptography>=42.0.0",
     "fastapi>=0.100.0",
     "httpx>=0.25.0",
     "jwcrypto>=1.5.0",

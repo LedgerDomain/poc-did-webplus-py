@@ -329,6 +329,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "blake3" },
+    { name = "cryptography" },
     { name = "fastapi" },
     { name = "httpx" },
     { name = "jwcrypto" },
@@ -349,6 +350,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "blake3", specifier = ">=1.0.0" },
+    { name = "cryptography", specifier = ">=42.0.0" },
     { name = "fastapi", specifier = ">=0.100.0" },
     { name = "httpx", specifier = ">=0.25.0" },
     { name = "jwcrypto", specifier = ">=1.5.0" },

@@ -5,7 +5,24 @@ import pytest
 from did_webplus.document import DIDDocument, parse_did_document
 
 
-def test_parse_root_document() -> None:
+def test_parse_rejects_string_version_id() -> None:
+    doc_json = """{
+        "id": "did:webplus:example.com:abc123",
+        "selfHash": "Exyz",
+        "validFrom": "2024-01-01T00:00:00.000Z",
+        "versionId": "0",
+        "updateRules": {"key": "dummy"},
+        "proofs": [],
+        "verificationMethod": [],
+        "authentication": [],
+        "assertionMethod": [],
+        "keyAgreement": [],
+        "capabilityInvocation": [],
+        "capabilityDelegation": []
+    }"""
+    with pytest.raises(Exception):
+        parse_did_document(doc_json)
+
     doc_json = """{
         "id": "did:webplus:example.com:abc123",
         "selfHash": "Exyz",

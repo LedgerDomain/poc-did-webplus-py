@@ -13,7 +13,11 @@ from fastapi import FastAPI, Request, Response
 
 from did_webplus.did import MalformedDIDError, parse_did
 from did_webplus.document import parse_did_document
-from did_webplus.selfhash import verify_self_hash
+from did_webplus.selfhash import (
+    SelfHashError,
+    verify_is_canonically_serialized,
+    verify_self_hash,
+)
 from did_webplus.store import DIDDocStore
 from did_webplus.verification import VerificationError, verify_proofs
 
@@ -85,14 +89,26 @@ def _validate_document(
     prev_doc: dict | None,
 ) -> None:
     """Validate a single document (self-hash, chain, proofs) and raise if invalid."""
-    verify_self_hash(jcs_str)
-    doc = parse_did_document(jcs_str)
-    prev = parse_did_document(json.dumps(prev_doc)) if prev_doc else None
-    doc.verify_chain_constraints(prev)
     try:
+        if "versionId" not in doc_dict or type(doc_dict["versionId"]) is not int:
+            raise VDRError(
+                f"versionId must be a JSON integer, got "
+                f"{type(doc_dict.get('versionId')).__name__}"
+            )
+        verify_is_canonically_serialized(doc_dict, jcs_str)
+        verify_self_hash(jcs_str)
+        doc = parse_did_document(jcs_str)
+        prev = parse_did_document(json.dumps(prev_doc)) if prev_doc else None
+        doc.verify_chain_constraints(prev)
         verify_proofs(doc_dict, prev_doc)
+    except VDRError:
+        raise
+    except SelfHashError as e:
+        raise VDRError(f"Self-hash verification failed: {e}") from e
     except VerificationError as e:
         raise VDRError(f"Proof verification failed: {e}") from e
+    except ValueError as e:
+        raise VDRError(f"Document validation failed: {e}") from e
 
 
 async def _notify_vdgs(did: str, vdg_base_urls: list[str]) -> None:
