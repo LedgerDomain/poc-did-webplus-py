@@ -26,7 +26,9 @@ def _valid_from_now() -> str:
     """Return validFrom timestamp with millisecond precision, no trailing zeros in fractional part."""
     dt = datetime.now(timezone.utc)
     ms = dt.microsecond // 1000
-    frac = str(ms).rstrip("0") if ms else ""
+    # Zero-pad to 3 digits before stripping trailing zeros so e.g. 92ms → ".092"
+    # not ".92" (which parses as 920ms).
+    frac = f"{ms:03d}".rstrip("0") if ms else ""
     return dt.strftime("%Y-%m-%dT%H:%M:%S") + (f".{frac}Z" if frac else "Z")
 
 
