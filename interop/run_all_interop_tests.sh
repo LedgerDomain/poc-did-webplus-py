@@ -131,15 +131,12 @@ run_scenario() {
     echo "Waiting for services to be healthy..."
     sleep 3
 
-    cd "$SCRIPT_DIR/.."
-    if uv run python interop/run_interop_tests.py "$scenario"; then
+    if $COMPOSE run --rm --build interop-runner "$scenario"; then
         kill "$LOG_PID" 2>/dev/null || true
-        cd "$SCRIPT_DIR"
         $COMPOSE down
         return 0
     else
         kill "$LOG_PID" 2>/dev/null || true
-        cd "$SCRIPT_DIR"
         $COMPOSE down
         return 1
     fi

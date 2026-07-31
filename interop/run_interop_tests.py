@@ -35,6 +35,7 @@ from urllib.parse import quote, urlparse
 import httpx
 
 from resolvers import (
+    DOCKER_NETWORK,
     HTTP_SCHEME_OVERRIDE,
     RUST_CLI_IMAGE,
     ZKRED_IMAGE,
@@ -140,13 +141,23 @@ def _run_python_controller_deactivate(did: str, wallet_dir: Path) -> None:
     logger.info("Result: PASS — deactivate applied")
 
 
+def _host_visible_wallet_dir(wallet_dir: Path) -> Path:
+    """Translate a container-local wallets/ path to its host-visible path for
+    sibling `docker run -v` mounts (DooD: docker.sock's daemon resolves -v
+    source paths against the host filesystem, not this container's)."""
+    host_wallets_dir = os.environ.get("DID_WEBPLUS_INTEROP_HOST_WALLETS_DIR")
+    if not host_wallets_dir:
+        return wallet_dir.resolve()  # host-based run (no docker.sock hop); unchanged
+    return Path(host_wallets_dir) / wallet_dir.name
+
+
 def _run_rust_controller_create(vdr_create_endpoint: str, wallet_dir: Path) -> str:
     """Run Rust controller create via Docker; return created DID from stdout."""
     cmd = [
         "docker", "run", "--rm",
-        "--network", "host",
+        "--network", DOCKER_NETWORK,
         "-e", f"DID_WEBPLUS_HTTP_SCHEME_OVERRIDE={HTTP_SCHEME_OVERRIDE}",
-        "-v", f"{wallet_dir.resolve()}:/root/.did-webplus",
+        "-v", f"{_host_visible_wallet_dir(wallet_dir)}:/root/.did-webplus",
         RUST_CLI_IMAGE,
         "wallet", "did", "create", "--vdr", vdr_create_endpoint,
     ]
@@ -175,9 +186,9 @@ def _run_rust_controller_update(wallet_dir: Path, did: str) -> None:
     base_did = did.split("?")[0]
     cmd = [
         "docker", "run", "--rm",
-        "--network", "host",
+        "--network", DOCKER_NETWORK,
         "-e", f"DID_WEBPLUS_HTTP_SCHEME_OVERRIDE={HTTP_SCHEME_OVERRIDE}",
-        "-v", f"{wallet_dir.resolve()}:/root/.did-webplus",
+        "-v", f"{_host_visible_wallet_dir(wallet_dir)}:/root/.did-webplus",
         RUST_CLI_IMAGE,
         "wallet", "did", "update", "--did", base_did,
     ]
@@ -199,9 +210,9 @@ def _run_rust_controller_deactivate(wallet_dir: Path, did: str) -> None:
     base_did = did.split("?")[0]
     cmd = [
         "docker", "run", "--rm",
-        "--network", "host",
+        "--network", DOCKER_NETWORK,
         "-e", f"DID_WEBPLUS_HTTP_SCHEME_OVERRIDE={HTTP_SCHEME_OVERRIDE}",
-        "-v", f"{wallet_dir.resolve()}:/root/.did-webplus",
+        "-v", f"{_host_visible_wallet_dir(wallet_dir)}:/root/.did-webplus",
         RUST_CLI_IMAGE,
         "wallet", "did", "deactivate", "--did", base_did, "--confirm", DEACTIVATE_CONFIRM,
     ]
@@ -236,18 +247,18 @@ def _zkred_controller_cmd(args: list[str], wallet_dir: Path) -> tuple[list[str],
     ``args`` to already include ``--wallet-dir /wallet``; local mode uses the
     host path in ``args`` and runs ``node`` under ``INTEROP_DIR``.
     """
-    wallet_dir = wallet_dir.resolve()
     if os.environ.get("INTEROP_ZKRED_LOCAL"):
         cmd = ["node", str(INTEROP_DIR / "ts_runner.mjs"), *args]
         return cmd, str(INTEROP_DIR)
+    host_wallet_dir = _host_visible_wallet_dir(wallet_dir)
     cmd = [
         "docker",
         "run",
         "--rm",
         "--network",
-        "host",
+        DOCKER_NETWORK,
         "-v",
-        f"{wallet_dir}:/wallet",
+        f"{host_wallet_dir}:/wallet",
         ZKRED_IMAGE,
         *args,
     ]
@@ -813,7 +824,7 @@ def main() -> int:
     logger.info("Waiting for services...")
     time.sleep(3)
 
-    wallet_dir = INTEROP_DIR / f"wallet_dir_scenario_{n}"
+    wallet_dir = INTEROP_DIR / "wallets" / f"wallet_dir_scenario_{n}"
     if wallet_dir.exists():
         shutil.rmtree(wallet_dir)
     wallet_dir.mkdir(parents=True, exist_ok=True)

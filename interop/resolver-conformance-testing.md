@@ -7,15 +7,10 @@ This is separate from the 22-scenario controller/VDR/resolver interop matrix in 
 ## Prerequisites
 
 - Docker and Docker Compose
-- [uv](https://docs.astral.sh/uv/)
 - Git submodule initialized (see below)
-- `/etc/hosts` entry (same as other interop tests):
+- Access to the Docker socket (`/var/run/docker.sock`) so the runner can start sibling containers for the Rust and Zkred resolvers
 
-```
-127.0.0.1  ledgerdomain.github.io
-```
-
-> That entry shadows the real GitHub Pages site machine-wide. Comment it out when you need `https://ledgerdomain.github.io` or `scripts/fetch_ledgerdomain_fixtures.py`.
+Relative to previous version of interop test, no `/etc/hosts` edits are required.  If you had edited `/etc/hosts` (in particular, entries for `rust-vdr`, `rust-vdg`, `python-vdr`, and `ledgerdomain.github.io`), then you should remove those entries.  The `ledgerdomain.github.io` compose service and the `test-vector-runner` both join the named Docker network `interop-net`; Docker’s embedded DNS resolves that hostname for every container on the network. Rust/Zkred sibling `docker run` calls use `--network interop-net` via `DID_WEBPLUS_INTEROP_DOCKER_NETWORK` (set by compose).
 
 ## Test-vector catalog (git submodule)
 
@@ -75,7 +70,9 @@ cd interop
 ./run_test_vectors.sh
 ```
 
-What that does: starts only the `ledgerdomain.github.io` compose service, waits for health, streams logs, runs `run_test_vectors.py`, then tears the service down.
+What that does: starts the `ledgerdomain.github.io` compose service, waits for health, streams logs, builds the zkred image when needed, then `docker compose run --rm --build test-vector-runner` (which runs `run_test_vectors.py` inside the runner container on `interop-net`), and tears the service down.
+
+The `test-vector-runner` image bundles `uv` + `did_webplus` and the Docker CLI. It mounts `/var/run/docker.sock` so Rust/Zkred resolves spawn as sibling containers on `interop-net` (same Docker daemon), while the Python resolver runs in-process inside the runner.
 
 ### Useful filters
 
@@ -90,7 +87,7 @@ What that does: starts only the `ledgerdomain.github.io` compose service, waits 
 
 `--group` and `--name` are repeatable. Default `--resolver` is `all` (python + rust + zkred).
 
-Zkred runs need the `did-webplus-zkred` image (built on demand via the shared resolver helpers / Docker, same as scenarios 17–22).
+Zkred runs need the `did-webplus-zkred` image (built on demand by `run_test_vectors.sh` / the shared resolver helpers, same as scenarios 17–22).
 
 ## Oracle (what “pass” means)
 
@@ -109,9 +106,10 @@ For each selected vector and resolver:
 | Piece | Role |
 |-------|------|
 | Submodule `…/did-webplus-spec` | Pinned catalog + `test-vector/index.json` |
-| `docker-compose.yml` → `ledgerdomain.github.io` | Serves catalog over HTTP (RangeHTTPServer) |
-| `run_test_vectors.sh` | Compose lifecycle + runner |
+| `docker-compose.yml` → `ledgerdomain.github.io` | Serves catalog over HTTP (RangeHTTPServer on port 80) on `interop-net` |
+| `docker-compose.yml` → `test-vector-runner` | Orchestrator container (`uv` + Docker CLI; socket mount for sibling Rust/Zkred) |
+| `run_test_vectors.sh` | Compose lifecycle + `compose run test-vector-runner` |
 | `run_test_vectors.py` | Fetch index/vectors, run resolvers, report |
-| `resolvers.py` | Shared Python / Rust / Zkred resolve helpers |
+| `resolvers.py` | Shared Python / Rust / Zkred resolve helpers (`DID_WEBPLUS_INTEROP_DOCKER_NETWORK`) |
 
 Root `test-vectors/` (plural) is an older, separate fixture set — not this catalog.

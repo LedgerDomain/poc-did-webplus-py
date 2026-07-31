@@ -25,7 +25,13 @@ fi
 
 $COMPOSE down -v
 
-# Remove interop wallet dirs so next run starts from clean slate
-for i in $(seq 1 22); do
-    rm -rf "$SCRIPT_DIR/wallet_dir_scenario_$i"
-done
+# Wallet dirs under wallets/ (and any leftover flat wallet_dir_scenario_*) may be
+# root-owned after dockerized interop-runner runs (bind-mount writes as root).
+# Remove them via a disposable container so host-user cleanup needs no sudo.
+docker run --rm \
+    -v "$SCRIPT_DIR:/interop" \
+    alpine:3.20 \
+    sh -c 'rm -rf /interop/wallets /interop/wallet_dir_scenario_*'
+
+# Recreate wallets/ as the invoking user so the next compose bind-mount starts clean.
+mkdir -p "$SCRIPT_DIR/wallets"
