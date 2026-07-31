@@ -144,7 +144,6 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Run Python test script
-cd "$SCRIPT_DIR/.."
-uv run python interop/run_interop_tests.py "$SCENARIO"
+# Run interop tests via compose (orchestrator in interop-runner container)
+$COMPOSE run --rm --build interop-runner "$SCENARIO"
 EXIT_CODE=$?

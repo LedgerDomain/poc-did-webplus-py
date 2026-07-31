@@ -38,6 +38,7 @@ Thumbs.db
 *.bak
 
 # Interop test wallet dirs (created per scenario, deleted by stop_and_clean.sh)
+interop/wallets/
 interop/wallet_dir_scenario_*
 
 # Interop Node deps (lockfile committed; install via npm ci)

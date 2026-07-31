@@ -15,6 +15,9 @@ RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.1.5"
 # Third-party Zkred TS runner image (not a poc-* tag).
 ZKRED_IMAGE = "did-webplus-zkred"
 
+# Sibling docker run network; default "host" for host-based /etc/hosts runs.
+DOCKER_NETWORK = os.environ.get("DID_WEBPLUS_INTEROP_DOCKER_NETWORK", "host")
+
 # Use http for test hostnames (rust-vdr, rust-vdg, python-vdr, ledgerdomain.github.io)
 HTTP_SCHEME_OVERRIDE = (
     "rust-vdr=http,rust-vdg=http,python-vdr=http,ledgerdomain.github.io=http"
@@ -67,7 +70,7 @@ def _run_rust_resolve(
         "run",
         "--rm",
         "--network",
-        "host",
+        DOCKER_NETWORK,
         "-e",
         f"DID_WEBPLUS_HTTP_SCHEME_OVERRIDE={HTTP_SCHEME_OVERRIDE}",
         "-e",
@@ -104,8 +107,8 @@ def _run_zkred_resolve(
     """Run Zkred/TS resolver via Docker (or local node if INTEROP_ZKRED_LOCAL is set).
 
     Image entrypoint is ``node ts_runner.mjs``; args are resolve <did> [-o json]
-    and optional --vdg-url. Uses --network host so rust-vdr / python-vdr / rust-vdg
-    resolve via /etc/hosts, same as the Rust CLI helper.
+    and optional --vdg-url. Uses ``DOCKER_NETWORK`` (default host) so rust-vdr /
+    python-vdr / rust-vdg resolve via /etc/hosts or a named compose network.
 
     ``base_dir`` is accepted for API parity with the Python helper; the Zkred
     resolve path does not use a wallet/base-dir.
@@ -124,7 +127,7 @@ def _run_zkred_resolve(
             "run",
             "--rm",
             "--network",
-            "host",
+            DOCKER_NETWORK,
             ZKRED_IMAGE,
             *resolve_args,
         ]

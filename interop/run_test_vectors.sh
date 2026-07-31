@@ -41,6 +41,34 @@ else
     exit 1
 fi
 
+build_zkred_image() {
+    echo "Building zkred runner image (did-webplus-zkred)..."
+    if [[ -n "${INTEROP_ZKRED_DID_WEBPLUS_VERSION:-}" ]]; then
+        echo "=== TS version override: $INTEROP_ZKRED_DID_WEBPLUS_VERSION (lockfile unchanged) ==="
+        # Semver/tag → @zkred/did-webplus@… ; github:/git+ specs used as-is
+        local spec
+        if [[ "$INTEROP_ZKRED_DID_WEBPLUS_VERSION" == github:* || "$INTEROP_ZKRED_DID_WEBPLUS_VERSION" == git+* ]]; then
+            spec="$INTEROP_ZKRED_DID_WEBPLUS_VERSION"
+        else
+            spec="@zkred/did-webplus@${INTEROP_ZKRED_DID_WEBPLUS_VERSION}"
+        fi
+        # One-off image: install override version instead of npm ci from lockfile
+        docker build -t did-webplus-zkred --build-arg "ZKRED_SPEC=$spec" -f - . <<'EOF'
+FROM node:20-slim
+ARG ZKRED_SPEC
+WORKDIR /app
+COPY ts_runner.mjs ./
+RUN npm init -y && npm install --ignore-scripts --save "$ZKRED_SPEC"
+ENTRYPOINT ["node", "ts_runner.mjs"]
+EOF
+    else
+        docker build -f Dockerfile.zkred -t did-webplus-zkred .
+    fi
+}
+
+# Sibling docker run --resolver zkred needs did-webplus-zkred on the host daemon
+build_zkred_image
+
 echo "Starting $SERVICE..."
 $COMPOSE up -d --build "$SERVICE"
 
@@ -91,8 +119,7 @@ cleanup() {
 trap cleanup EXIT
 
 echo "Running test-vector runner..."
-cd "$SCRIPT_DIR/.."
 set +e
-uv run python interop/run_test_vectors.py "$@"
+$COMPOSE run --rm --build test-vector-runner "$@"
 EXIT_CODE=$?
 set -e

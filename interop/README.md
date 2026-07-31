@@ -5,24 +5,10 @@ Docker-based interoperability tests between the Python implementation, the Rust 
 ## Prerequisites
 
 - Docker and Docker Compose
-- [uv](https://docs.astral.sh/uv/) (for running the test script)
+- Access to the Docker socket (`/var/run/docker.sock`) so the runner containers can start sibling containers for Rust/Zkred
 - Node 20+ only if running `ts_runner.mjs` outside Docker (optional; Docker is the primary path)
 
-## Hostname Setup
-
-The interop tests use hostnames `rust-vdr`, `rust-vdg`, `python-vdr`, and `ledgerdomain.github.io` for HTTP requests. Add these entries to your system's `/etc/hosts` so they resolve to localhost:
-
-```
-# Used for poc-did-webplus-py interop testing
-127.0.0.1  rust-vdr
-127.0.0.1  rust-vdg
-127.0.0.1  python-vdr
-127.0.0.1  ledgerdomain.github.io
-```
-
-On Linux/macOS, edit `/etc/hosts` with sudo (e.g. `sudo nano /etc/hosts`) and add the lines above.
-
-> While this hosts entry is present, it shadows the real `ledgerdomain.github.io` machine-wide. That means `https://ledgerdomain.github.io` and `scripts/fetch_ledgerdomain_fixtures.py` will fail until you comment out or remove the `ledgerdomain.github.io` hosts line. See [resolver-conformance-testing.md](resolver-conformance-testing.md) for the test-vector catalog submodule.
+Relative to previous version of interop test, no `/etc/hosts` edits are required.  If you had edited `/etc/hosts` (in particular, entries for `rust-vdr`, `rust-vdg`, `python-vdr`, and `ledgerdomain.github.io`), then you should remove those entries.  Both the 22-scenario matrix (`interop-runner`) and the test-vector suite (`test-vector-runner`) join the named Docker network `interop-net`; Docker’s embedded DNS resolves `rust-vdr`, `rust-vdg`, `python-vdr`, and `ledgerdomain.github.io` for every container on that network.
 
 ## Test Matrix
 
@@ -77,7 +63,7 @@ Quick TS version card: [`ZKRED_VERSION.md`](ZKRED_VERSION.md).
 
 ### Test-vector / resolver conformance suite
 
-See **[resolver-conformance-testing.md](resolver-conformance-testing.md)** for catalog layout, submodule setup, hosts entry, and how to run `./run_test_vectors.sh`.
+See **[resolver-conformance-testing.md](resolver-conformance-testing.md)** for catalog layout, submodule setup, the `test-vector-runner` service, and how to run `./run_test_vectors.sh`.
 
 ```bash
 # From the interop directory (after submodule init — see doc above)
@@ -176,7 +162,7 @@ To stop all containers and remove volumes (guaranteed clean slate):
 - Rust VDR: 8085
 - Rust VDG: 8086
 - Python VDR: 8087
-- Test-vector static server (`ledgerdomain.github.io`): 80 (container serves on 3001)
+- Test-vector static server (`ledgerdomain.github.io`): 80
 
 ## Reproducibility
 
@@ -184,25 +170,12 @@ The interoperability tests can be replicated on a fresh Ubuntu 24.04 instance, a
 
     sudo apt update
     sudo apt install --yes docker.io docker-compose-v2
-    curl -LsSf https://astral.sh/uv/install.sh | sh
     sudo usermod -aG docker ubuntu
 
 Log out and back in to have usermod take effect.
-
-    sudo vim /etc/hosts
-
-And add:
-
-    # Used for poc-did-webplus-py interop testing
-    127.0.0.1  rust-vdr
-    127.0.0.1  rust-vdg
-    127.0.0.1  python-vdr
-    127.0.0.1  ledgerdomain.github.io
-
-Then:
 
     cd ~ && git clone https://github.com/LedgerDomain/poc-did-webplus-py.git
     cd ~/poc-did-webplus-py/interop
     ./run_all_interop_tests.sh
 
-`./run_all_interop_tests.sh` runs all 22 scenarios. Scenarios 17–22 require building the zkred runner image (`did-webplus-zkred`); that build happens automatically in the shell scripts. The TS package version is determined by the committed `interop/package-lock.json` at clone time (unless you set `INTEROP_ZKRED_DID_WEBPLUS_VERSION` for a one-off override). See [TypeScript implementation](#typescript-implementation-zkreddid-webplus--version-management) and [`ZKRED_VERSION.md`](ZKRED_VERSION.md).
+`./run_all_interop_tests.sh` runs all 22 scenarios. No `/etc/hosts` edits are needed — service hostnames resolve via Docker network DNS (`interop-net`). Scenarios 17–22 require building the zkred runner image (`did-webplus-zkred`); that build happens automatically in the shell scripts. The TS package version is determined by the committed `interop/package-lock.json` at clone time (unless you set `INTEROP_ZKRED_DID_WEBPLUS_VERSION` for a one-off override). See [TypeScript implementation](#typescript-implementation-zkreddid-webplus--version-management) and [`ZKRED_VERSION.md`](ZKRED_VERSION.md).
