@@ -1,8 +1,6 @@
 # `@zkred/did-webplus` version card
 
-**Pinned version: `0.8.1`** (from `package-lock.json` → `packages["node_modules/@zkred/did-webplus"].version`)
-
-Versioning is intentional and manual: a committed lockfile keeps CI/repros stable, while `^0.8.1` in `package.json` allows deliberate bumps via PR. Re-review the package on each lockfile bump (changelog, install scripts, transitive deps). There is no automatic upgrade path.
+Pinned versioning is intentional: a committed lockfile keeps CI/repros stable, while (e.g.) `^0.8.1` in `package.json` allows deliberate bumps via PR. Re-review the package on each lockfile bump (changelog, install scripts, transitive deps). There is no automatic upgrade path.
 
 ## Commands
 
