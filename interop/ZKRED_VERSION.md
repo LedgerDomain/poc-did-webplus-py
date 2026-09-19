@@ -1,6 +1,6 @@
 # `@zkred/did-webplus` version card
 
-Pinned versioning is intentional: a committed lockfile keeps CI/repros stable, while (e.g.) `^0.8.1` in `package.json` allows deliberate bumps via PR. Re-review the package on each lockfile bump (changelog, install scripts, transitive deps). There is no automatic upgrade path.
+Pinned versioning is intentional: a committed lockfile keeps CI/repros stable, while (e.g.) `^X.Y.Z` in `package.json` allows deliberate bumps via PR. Re-review the package on each lockfile bump (changelog, install scripts, transitive deps). There is no automatic upgrade path.
 
 ## Commands
 

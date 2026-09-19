@@ -80,8 +80,8 @@ Third-party library from [Zkred/did-methods](https://github.com/Zkred/did-method
 
 | What | Where |
 |------|-------|
-| Pinned version | `interop/package-lock.json` → `packages["node_modules/@zkred/did-webplus"].version` (currently **0.7.0**) |
-| Allowed range | `interop/package.json` → `"@zkred/did-webplus": "^0.7.0"` |
+| Pinned version | `interop/package-lock.json` → `packages["node_modules/@zkred/did-webplus"].version` |
+| Allowed range | `interop/package.json` → `"@zkred/did-webplus": "^X.Y.Z"` |
 | Override for one-off runs | `INTEROP_ZKRED_DID_WEBPLUS_VERSION` env var |
 | Runner image | Built from `interop/Dockerfile.zkred` (rebuild required after version change) |
 | Scenarios affected | 17–22 only (1–16 unchanged) |
@@ -106,7 +106,7 @@ docker run --rm --entrypoint node did-webplus-zkred -e \
 
 ### Bump to a new release (standard workflow)
 
-1. Edit `interop/package.json` if the semver range needs widening (e.g. `^0.5.0`).
+1. Edit `interop/package.json` if the semver range needs widening.
 2. Run `npm update @zkred/did-webplus` (or `npm install @zkred/did-webplus@<version>`) inside `interop/`.
 3. Commit **both** `package.json` and `package-lock.json`. Update the pinned version line in [`ZKRED_VERSION.md`](ZKRED_VERSION.md).
 4. **Re-review** the new version before merging: skim [Zkred/did-methods CHANGELOG](https://github.com/Zkred/did-methods/blob/main/packages/did-webplus/CHANGELOG.md), confirm no new install scripts, check transitive deps in the lockfile diff.
@@ -115,9 +115,15 @@ docker run --rm --entrypoint node did-webplus-zkred -e \
 
 ### Test a specific version without committing
 
+To specify a specific version `X.Y.Z`, use
+
 ```bash
-INTEROP_ZKRED_DID_WEBPLUS_VERSION=0.7.1 ./run_interop_tests.sh 17
-# or a git ref:
+INTEROP_ZKRED_DID_WEBPLUS_VERSION=X.Y.Z ./run_interop_tests.sh 17
+```
+
+Or a git ref:
+
+```bash
 INTEROP_ZKRED_DID_WEBPLUS_VERSION='github:Zkred/did-methods#abc1234' ./run_interop_tests.sh 17
 ```
 
