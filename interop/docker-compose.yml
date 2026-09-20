@@ -1,5 +1,5 @@
 # Interoperability testing: Python and Rust did:webplus VDR/VDG
-# Run: ./run_interop_tests.sh <1|2|3|4>
+# Run: ./run.sh matrix <1-22>
 
 volumes:
   rust_vdr_postgres_data:
@@ -113,7 +113,13 @@ services:
     ports:
       - "80:80"
     healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:80/did-webplus-spec/test-vector/index.json').read(1)"]
+      test:
+        [
+          "CMD",
+          "python3",
+          "-c",
+          "import json, urllib.request; r=urllib.request.urlopen('http://127.0.0.1:80/health', timeout=2); o=json.loads(r.read()); assert o.get('ok') and o.get('controlApi')",
+        ]
       start_period: 5s
       interval: 3s
       timeout: 3s
@@ -126,6 +132,7 @@ services:
     networks: [interop-net]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./reports:/app/interop/reports
     environment:
       DID_WEBPLUS_INTEROP_DOCKER_NETWORK: interop-net
     depends_on:
@@ -140,6 +147,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./wallets:/app/interop/wallets
+      - ./reports:/app/interop/reports
     environment:
       DID_WEBPLUS_INTEROP_DOCKER_NETWORK: interop-net
       DID_WEBPLUS_INTEROP_HOST_WALLETS_DIR: ${PWD}/wallets

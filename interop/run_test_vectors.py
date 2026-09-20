@@ -17,24 +17,29 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.error
 import urllib.request
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any
+from pathlib import Path
+from typing import Any, Literal
 from urllib.parse import urljoin
 
 from resolvers import (
     HTTP_SCHEME_OVERRIDE,
-    _run_python_resolve,
-    _run_rust_resolve,
-    _run_zkred_resolve,
+    ResolutionOptions,
+    ResolveResult,
+    ResolverKind,
+    resolve,
 )
 
 INDEX_FORMAT = "did-webplus-test-vector-index/2"
 VECTOR_FORMAT = "did-webplus-test-vector/1"
 DEFAULT_CATALOG_URL = "http://ledgerdomain.github.io/did-webplus-spec/test-vector"
 RESOLVER_CHOICES = ("python", "rust", "zkred")
+SUITE_ID = "vectors"
+CaseStatus = Literal["pass", "fail", "error", "timeout"]
 
 logger = logging.getLogger("interop.test_vectors")
 
@@ -65,6 +70,8 @@ class CaseResult:
     resolver: str
     ok: bool
     detail: str
+    status: CaseStatus
+    unsupported_options: tuple[str, ...] = ()
 
 
 def _http_get_json(url: str, timeout: float) -> Any:
@@ -217,40 +224,46 @@ def _fetch_vector_meta(
     )
 
 
-def _parse_resolve_stdout(
-    result: subprocess.CompletedProcess,
+def _resolve_outcome(
+    result: ResolveResult,
 ) -> tuple[bool, int | None, str]:
-    """Parse resolver stdout into (succeeded, versionId or None, detail)."""
+    """Map adapter result to oracle inputs (succeeded, versionId, detail)."""
+    detail_parts: list[str] = []
+    if result.unsupported_options:
+        detail_parts.append(
+            f"unsupported options: {', '.join(result.unsupported_options)}"
+        )
     if result.returncode != 0:
-        return False, None, "resolve exited non-zero"
-    try:
-        out = json.loads(result.stdout)
-    except json.JSONDecodeError as e:
-        return False, None, f"invalid JSON stdout: {e}"
-    doc = out.get("didDocument")
-    if not doc:
-        return False, None, "no didDocument in result"
-    resolved = json.loads(doc) if isinstance(doc, str) else doc
-    if not isinstance(resolved, dict):
-        return False, None, "didDocument is not an object"
-    return True, resolved.get("versionId"), "ok"
+        detail_parts.append("resolve exited non-zero")
+        return False, None, "; ".join(detail_parts) or "resolve exited non-zero"
+    if result.parse_error:
+        detail_parts.append(result.parse_error)
+        return False, None, "; ".join(detail_parts)
+    if not result.did_document:
+        detail_parts.append("no didDocument in result")
+        return False, None, "; ".join(detail_parts)
+    vid = result.did_document.get("versionId")
+    if detail_parts:
+        return True, vid, "; ".join(detail_parts)
+    return True, vid, "ok"
 
 
 def _run_resolver(
-    resolver: str,
+    resolver: ResolverKind,
     did: str,
     *,
     timeout: float,
-) -> subprocess.CompletedProcess:
-    """Invoke one shared resolver helper; Python gets a fresh temp base-dir."""
-    if resolver == "python":
-        with tempfile.TemporaryDirectory(prefix="tv-py-") as base_dir:
-            return _run_python_resolve(did, base_dir=base_dir, timeout=timeout)
-    if resolver == "rust":
-        return _run_rust_resolve(did, timeout=timeout)
-    if resolver == "zkred":
-        return _run_zkred_resolve(did, timeout=timeout)
-    raise ValueError(f"unknown resolver {resolver!r}")
+) -> ResolveResult:
+    """Invoke unified adapter; each case gets a fresh persistent store mount."""
+    prefix = f"tv-{resolver[:2]}-"
+    with tempfile.TemporaryDirectory(prefix=prefix) as store_dir:
+        return resolve(
+            resolver,  # ResolverKind; validated by RESOLVER_CHOICES
+            did,
+            options=ResolutionOptions(),
+            store_dir=store_dir,
+            timeout=timeout,
+        )
 
 
 def _evaluate_oracle(
@@ -301,9 +314,12 @@ def _evaluate_oracle(
 
 def _run_case(meta: VectorMeta, resolver: str, timeout: float) -> CaseResult:
     """Resolve one vector with one resolver and evaluate the oracle."""
+    unsupported_v: tuple[str, ...] = ()
+    status: CaseStatus = "pass"
     try:
         result = _run_resolver(resolver, meta.did, timeout=timeout)
-        resolve_ok, version_id_o, parse_detail = _parse_resolve_stdout(result)
+        unsupported_v = tuple(result.unsupported_options or ())
+        resolve_ok, version_id_o, parse_detail = _resolve_outcome(result)
         if not resolve_ok and parse_detail != "resolve exited non-zero":
             logger.debug(
                 "%s/%s parse: %s", meta.name, resolver, parse_detail
@@ -311,12 +327,15 @@ def _run_case(meta: VectorMeta, resolver: str, timeout: float) -> CaseResult:
         ok, detail = _evaluate_oracle(meta, resolve_ok, version_id_o)
         if not resolve_ok and parse_detail != "resolve exited non-zero":
             detail = f"{detail} ({parse_detail})"
+        status = "pass" if ok else "fail"
     except subprocess.TimeoutExpired:
         # Timeout counts as resolve failure for the oracle.
         ok, detail = _evaluate_oracle(meta, False, None)
         detail = f"resolver timed out after {timeout}s; {detail}"
+        status = "timeout"
     except Exception as e:
         ok, detail = False, f"harness error: {e}"
+        status = "error"
 
     return CaseResult(
         name=meta.name,
@@ -324,7 +343,50 @@ def _run_case(meta: VectorMeta, resolver: str, timeout: float) -> CaseResult:
         resolver=resolver,
         ok=ok,
         detail=detail,
+        status=status,
+        unsupported_options=unsupported_v,
     )
+
+
+def _case_to_json(case: CaseResult) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "name": case.name,
+        "resolver": case.resolver,
+        "ok": case.ok,
+        "status": case.status,
+        "detail": case.detail,
+    }
+    if case.unsupported_options:
+        payload["unsupported_options"] = list(case.unsupported_options)
+    return payload
+
+
+def _write_suite_artifact(
+    path: Path,
+    *,
+    config: dict[str, Any],
+    cases: list[CaseResult],
+    expected: int,
+    executed: int,
+    expected_by_resolver_m: dict[str, int],
+    duration_seconds: float,
+    runner_exit_code: int,
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload: dict[str, Any] = {
+        "suite": SUITE_ID,
+        "kind": "vectors",
+        "config": config,
+        "expected": expected,
+        "executed": executed,
+        "expectedByResolver": expected_by_resolver_m,
+        "cases": [_case_to_json(c) for c in cases],
+        "durationSeconds": round(duration_seconds, 3),
+        "runnerExitCode": runner_exit_code,
+    }
+    with path.open("w", encoding="utf-8") as fh:
+        json.dump(payload, fh, indent=2, sort_keys=True)
+        fh.write("\n")
 
 
 def _print_summary(result_v: list[CaseResult]) -> None:
@@ -404,72 +466,107 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=60.0,
         help="Per-resolve timeout in seconds (default: 60)",
     )
+    parser.add_argument(
+        "--report-json",
+        metavar="PATH",
+        default=None,
+        help="Write machine-readable suite artifact to PATH",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
-    if args.jobs < 1:
-        print("--jobs must be >= 1", file=sys.stderr)
-        return 2
-
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(levelname)s %(name)s: %(message)s",
-    )
-
-    resolver_v = (
-        list(RESOLVER_CHOICES) if args.resolver == "all" else [args.resolver]
-    )
+    report_path_o = Path(args.report_json) if args.report_json else None
+    config_m = {k: v for k, v in vars(args).items() if k != "report_json"}
+    t0 = time.monotonic()
+    runner_exit = 2
+    result_v: list[CaseResult] = []
+    expected = 0
+    executed = 0
+    expected_by_resolver_m: dict[str, int] = {}
 
     try:
-        index = _fetch_index(args.catalog_url, args.timeout)
-        name_v = _select_vector_names(index, args.group, args.name)
-        name_to_group_v = _groups_for_vector(index["groups"])
-        meta_v: list[VectorMeta] = []
-        for name in name_v:
-            meta_v.append(
-                _fetch_vector_meta(
-                    args.catalog_url,
-                    name,
-                    index["vectors"][name],
-                    name_to_group_v.get(name, []),
-                    args.timeout,
+        if args.jobs < 1:
+            print("--jobs must be >= 1", file=sys.stderr)
+            return runner_exit
+
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(levelname)s %(name)s: %(message)s",
+        )
+
+        resolver_v = (
+            list(RESOLVER_CHOICES) if args.resolver == "all" else [args.resolver]
+        )
+
+        try:
+            index = _fetch_index(args.catalog_url, args.timeout)
+            name_v = _select_vector_names(index, args.group, args.name)
+            name_to_group_v = _groups_for_vector(index["groups"])
+            meta_v: list[VectorMeta] = []
+            for name in name_v:
+                meta_v.append(
+                    _fetch_vector_meta(
+                        args.catalog_url,
+                        name,
+                        index["vectors"][name],
+                        name_to_group_v.get(name, []),
+                        args.timeout,
+                    )
                 )
+        except RuntimeError as e:
+            print(f"ERROR: {e}", file=sys.stderr)
+            return runner_exit
+
+        jobs = [(meta, resolver) for meta in meta_v for resolver in resolver_v]
+        expected = len(jobs)
+        expected_by_resolver_m = {r: len(meta_v) for r in resolver_v}
+
+        print(
+            f"Running {len(meta_v)} vector(s) × {len(resolver_v)} resolver(s) "
+            f"with jobs={args.jobs}, timeout={args.timeout}s"
+        )
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
+            future_m = {
+                pool.submit(_run_case, meta, resolver, args.timeout): (
+                    meta.name,
+                    resolver,
+                )
+                for meta, resolver in jobs
+            }
+            for future in concurrent.futures.as_completed(future_m):
+                case = future.result()
+                status = "PASS" if case.ok else "FAIL"
+                line = f"{status} {case.resolver} {case.name}"
+                if not case.ok:
+                    line = f"{line}: {case.detail}"
+                print(line, flush=True)
+                result_v.append(case)
+
+        executed = len(result_v)
+        result_v.sort(key=lambda c: (c.name, c.resolver))
+        _print_summary(result_v)
+
+        failed = sum(1 for c in result_v if not c.ok)
+        total = len(result_v)
+        print(f"\n=== {total - failed}/{total} passed ===")
+        runner_exit = 1 if failed else 0
+        return runner_exit
+    finally:
+        if report_path_o is not None:
+            cases_sorted_v = sorted(result_v, key=lambda c: (c.name, c.resolver))
+            _write_suite_artifact(
+                report_path_o,
+                config=config_m,
+                cases=cases_sorted_v,
+                expected=expected,
+                executed=executed,
+                expected_by_resolver_m=expected_by_resolver_m,
+                duration_seconds=time.monotonic() - t0,
+                runner_exit_code=runner_exit,
             )
-    except RuntimeError as e:
-        print(f"ERROR: {e}", file=sys.stderr)
-        return 2
-
-    print(
-        f"Running {len(meta_v)} vector(s) × {len(resolver_v)} resolver(s) "
-        f"with jobs={args.jobs}, timeout={args.timeout}s"
-    )
-
-    jobs = [(meta, resolver) for meta in meta_v for resolver in resolver_v]
-    result_v: list[CaseResult] = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        future_m = {
-            pool.submit(_run_case, meta, resolver, args.timeout): (meta.name, resolver)
-            for meta, resolver in jobs
-        }
-        for future in concurrent.futures.as_completed(future_m):
-            case = future.result()
-            status = "PASS" if case.ok else "FAIL"
-            line = f"{status} {case.resolver} {case.name}"
-            if not case.ok:
-                line = f"{line}: {case.detail}"
-            print(line, flush=True)
-            result_v.append(case)
-
-    # Stable order for summary
-    result_v.sort(key=lambda c: (c.name, c.resolver))
-    _print_summary(result_v)
-
-    failed = sum(1 for c in result_v if not c.ok)
-    total = len(result_v)
-    print(f"\n=== {total - failed}/{total} passed ===")
-    return 1 if failed else 0
 
 
 if __name__ == "__main__":

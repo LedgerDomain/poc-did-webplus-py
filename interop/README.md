@@ -49,29 +49,76 @@ interop INFO   Controller created, updated, and deactivated DID; resolver ran af
 
 ## Running Tests
 
+Unified entry point: **`./run.sh`** (`matrix` | `vectors` | `scenarios` | `all` | `clean`).
+
 ```bash
 # From the interop directory
-./run_all_interop_tests.sh   # Run all 22 scenarios
+./run.sh matrix              # All 22 controller/VDR/resolver scenarios
+./run.sh matrix 1            # Single scenario (1–22)
+./run.sh matrix 17           # First TS (@zkred) scenario
 
-# Or run a single scenario (1-22):
-./run_interop_tests.sh 1
-./run_interop_tests.sh 10
-./run_interop_tests.sh 17   # first TS scenario
+./run.sh vectors             # Test-vector resolver conformance (catalog oracle)
+./run.sh scenarios           # Resolution-scenario conformance (multi-step + control API)
+
+./run.sh all                 # matrix (all) + vectors + scenarios
+./run.sh clean               # Stop compose, remove volumes, reset wallets/
 ```
 
 Quick TS version card: [`ZKRED_VERSION.md`](ZKRED_VERSION.md).
 
 ### Test-vector / resolver conformance suite
 
-See **[resolver-conformance-testing.md](resolver-conformance-testing.md)** for catalog layout, submodule setup, the `test-vector-runner` service, and how to run `./run_test_vectors.sh`.
+See **[resolver-conformance-testing.md](resolver-conformance-testing.md)** for catalog layout, submodule setup, the catalog server control API, resolution scenarios, and adapter architecture.
 
 ```bash
-# From the interop directory (after submodule init — see doc above)
-./run_test_vectors.sh
+# After submodule init — see doc above
+./run.sh vectors
+./run.sh vectors --group positive --resolver python
+./run.sh scenarios --resolver rust
+```
 
-# Example: only positive vectors with Python + Rust resolvers
-./run_test_vectors.sh --group positive --resolver python
-./run_test_vectors.sh --group positive --resolver rust
+Resolver implementations are invoked through **`interop/resolvers.py`**: Python (`did-webplus-python-cli` image), Rust (`did-webplus-cli`), and Zkred (`did-webplus-zkred`) as sibling Docker containers on `interop-net`.
+
+## Run reports
+
+Every `./run.sh matrix`, `vectors`, `scenarios`, or `all` invocation writes a timestamped directory under **`interop/reports/`** (gitignored). At the end of the run, `run.sh` prints the path to the rendered summary, for example:
+
+```text
+Interop report: interop/reports/2026-09-20T07.11.43Z/report.md
+```
+
+`interop/reports/latest` is a symlink to the most recent run.
+
+### Layout
+
+```text
+interop/reports/<RUN_ID>/
+  run.json              # written at start: argv, env whitelist, host, git, planned units
+  suites/*.json         # one artifact per runner (matrix-07, vectors, scenarios, …)
+  logs/*.log            # tee'd stdout/stderr per suite
+  report.json           # aggregate (schemaVersion); written at end by report.py
+  report.md             # human-readable summary from report.json
+```
+
+`RUN_ID` is UTC time (`YYYY-MM-DDTHH.MM.SSZ`). If the process dies before `report.json` exists, `run.json` and whatever landed in `suites/` still show how far the run got.
+
+`./run.sh clean` stops compose, removes volumes, and resets `wallets/`; it does **not** delete `reports/`.
+
+### Verdicts
+
+Verdicts are **per unit only** — one matrix scenario, or one resolver within one catalog suite (`vectors` / `scenarios`). They are not rolled up per component across categories.
+
+| Verdict | Meaning |
+|---------|---------|
+| **PASS** | Every case that should run for that unit ran and passed. |
+| **FAIL** | A case failed, or a planned case did not run (`not-run`). |
+
+`report.md` lists verdict rows with pass/expected counts, duration, and copy-paste repro commands (including env prefixes when non-default options were set). Each row includes **Controller**, **VDR**, **VDG**, and **Resolver** columns with normalized implementation names (`python`, `rust`, `zkred`, `test-vector-server`, or `none`). Catalog suites use `test-vector-server` as the VDR; matrix scenarios use `none` for VDG when that axis is off. Failures include assertion detail, the failing matrix step name when applicable, and per-case repro lines; full `docker run` lines from the resolver harness are in the tee'd suite logs linked from the report.
+
+To regenerate `report.json` / `report.md` from an existing directory (for example after pulling report.py fixes):
+
+```bash
+python3 interop/report.py interop/reports/<RUN_ID>
 ```
 
 ## TypeScript implementation (`@zkred/did-webplus`) — version management
@@ -83,7 +130,7 @@ Third-party library from [Zkred/did-methods](https://github.com/Zkred/did-method
 | Pinned version | `interop/package-lock.json` → `packages["node_modules/@zkred/did-webplus"].version` |
 | Allowed range | `interop/package.json` → `"@zkred/did-webplus": "^X.Y.Z"` |
 | Override for one-off runs | `INTEROP_ZKRED_DID_WEBPLUS_VERSION` env var |
-| Runner image | Built from `interop/Dockerfile.zkred` (rebuild required after version change) |
+| Runner image | Built from `interop/Dockerfile.zkred`; `./run.sh` rebuilds when lockfile or override changes |
 | Scenarios affected | 17–22 only (1–16 unchanged) |
 
 ### Check which version will run
@@ -110,26 +157,25 @@ docker run --rm --entrypoint node did-webplus-zkred -e \
 2. Run `npm update @zkred/did-webplus` (or `npm install @zkred/did-webplus@<version>`) inside `interop/`.
 3. Commit **both** `package.json` and `package-lock.json`. Update the pinned version line in [`ZKRED_VERSION.md`](ZKRED_VERSION.md).
 4. **Re-review** the new version before merging: skim [Zkred/did-methods CHANGELOG](https://github.com/Zkred/did-methods/blob/main/packages/did-webplus/CHANGELOG.md), confirm no new install scripts, check transitive deps in the lockfile diff.
-5. Rebuild the zkred Docker image: `docker build -f Dockerfile.zkred -t did-webplus-zkred .`
-6. Run TS scenarios to verify: `./run_interop_tests.sh 17` then `./run_all_interop_tests.sh`.
+5. Run TS scenarios to verify: `./run.sh matrix 17` then `./run.sh matrix` (rebuilds the zkred image automatically).
 
 ### Test a specific version without committing
 
 To specify a specific version `X.Y.Z`, use
 
 ```bash
-INTEROP_ZKRED_DID_WEBPLUS_VERSION=X.Y.Z ./run_interop_tests.sh 17
+INTEROP_ZKRED_DID_WEBPLUS_VERSION=X.Y.Z ./run.sh matrix 17
 ```
 
 Or a git ref:
 
 ```bash
-INTEROP_ZKRED_DID_WEBPLUS_VERSION='github:Zkred/did-methods#abc1234' ./run_interop_tests.sh 17
+INTEROP_ZKRED_DID_WEBPLUS_VERSION='github:Zkred/did-methods#abc1234' ./run.sh matrix 17
 ```
 
 Overrides rebuild the image for that run only and do **not** modify `package-lock.json`.
 
-> **When rebuild is required:** After any change to `package.json`, `package-lock.json`, or `INTEROP_ZKRED_DID_WEBPLUS_VERSION`, the zkred runner image must be rebuilt. `run_interop_tests.sh` does this automatically for scenarios 17–22 (and builds the image unconditionally for simplicity).
+> **Image rebuild:** `./run.sh` rebuilds `did-webplus-zkred` automatically before matrix, vectors, or scenarios when `package.json`, `package-lock.json`, or `INTEROP_ZKRED_DID_WEBPLUS_VERSION` changes (`Dockerfile.zkred` copies the lockfiles before `npm ci`, so a lockfile bump invalidates the layer). No manual `docker build` is required.
 
 ### Scenarios 17–22 (TS roles)
 
@@ -151,7 +197,7 @@ Attribution: [`@zkred/did-webplus`](https://github.com/Zkred/did-methods/tree/ma
 To stop all containers and remove volumes (guaranteed clean slate):
 
 ```bash
-./stop_and_clean.sh
+./run.sh clean
 ```
 
 ## Docker Images
@@ -160,6 +206,7 @@ To stop all containers and remove volumes (guaranteed clean slate):
 - **Rust VDG**: `ghcr.io/ledgerdomain/did-webplus-vdg`
 - **Rust CLI** (`ghcr.io/ledgerdomain/did-webplus-cli`): used as **DID resolver** when Resolver=Rust and as **DID controller** when Controller=Rust (wallet in Docker volume).
 - **Python VDR**: Built from this repo (`interop/Dockerfile.python-vdr`)
+- **Python resolver** (`did-webplus-python-cli`): built from `interop/Dockerfile.python-cli`; sibling container for catalog suites (matrix controller still uses in-runner `did-webplus` CLI today).
 - **Python controller**: This repo’s `did-webplus did create` / `did update` / `did deactivate` (deactivate requires `--confirm THIS-IS-IRREVERSIBLE`); uses a local wallet directory (created per run).
 - **Zkred TS runner** (`did-webplus-zkred`): built from `interop/Dockerfile.zkred`; bundles `@zkred/did-webplus` at the lockfile-pinned version. **Version management instructions: see [TypeScript implementation](#typescript-implementation-zkreddid-webplus--version-management).**
 
@@ -168,7 +215,7 @@ To stop all containers and remove volumes (guaranteed clean slate):
 - Rust VDR: 8085
 - Rust VDG: 8086
 - Python VDR: 8087
-- Test-vector static server (`ledgerdomain.github.io`): 80
+- Test-vector catalog server (`ledgerdomain.github.io`, static + control API): 80
 
 ## Reproducibility
 
@@ -181,7 +228,9 @@ The interoperability tests can be replicated on a fresh Ubuntu 24.04 instance, a
 Log out and back in to have usermod take effect.
 
     cd ~ && git clone https://github.com/LedgerDomain/poc-did-webplus-py.git
-    cd ~/poc-did-webplus-py/interop
-    ./run_all_interop_tests.sh
+    cd ~/poc-did-webplus-py
+    git submodule update --init interop/ledgerdomain.github.io/did-webplus-spec
+    cd interop
+    ./run.sh matrix
 
-`./run_all_interop_tests.sh` runs all 22 scenarios. No `/etc/hosts` edits are needed — service hostnames resolve via Docker network DNS (`interop-net`). Scenarios 17–22 require building the zkred runner image (`did-webplus-zkred`); that build happens automatically in the shell scripts. The TS package version is determined by the committed `interop/package-lock.json` at clone time (unless you set `INTEROP_ZKRED_DID_WEBPLUS_VERSION` for a one-off override). See [TypeScript implementation](#typescript-implementation-zkreddid-webplus--version-management) and [`ZKRED_VERSION.md`](ZKRED_VERSION.md).
+`./run.sh matrix` runs all 22 scenarios. No `/etc/hosts` edits are needed — service hostnames resolve via Docker network DNS (`interop-net`). Scenarios 17–22 require building the zkred runner image (`did-webplus-zkred`); that build happens automatically. The TS package version is determined by the committed `interop/package-lock.json` at clone time (unless you set `INTEROP_ZKRED_DID_WEBPLUS_VERSION` for a one-off override). See [TypeScript implementation](#typescript-implementation-zkreddid-webplus--version-management) and [`ZKRED_VERSION.md`](ZKRED_VERSION.md).

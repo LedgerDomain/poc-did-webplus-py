@@ -1,0 +1,22 @@
+# Image tag: did-webplus-python-cli
+# Build from interop/: docker build -f Dockerfile.python-cli -t did-webplus-python-cli ..
+# (build context is repo root)
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Install uv for fast installs
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Copy project files (build context is repo root)
+COPY pyproject.toml ./
+COPY did_webplus/ ./did_webplus/
+
+# Install the package (no dev deps)
+RUN uv sync --no-dev
+
+# Default store path when a host dir is mounted at /data (per-scenario resolve store)
+ENV DID_WEBPLUS_BASE_DIR=/data
+
+# Pass subcommands as container args, e.g. resolve, create, listen
+ENTRYPOINT ["uv", "run", "did-webplus"]

@@ -20,12 +20,16 @@ Or: docker compose up -d (with appropriate env) then ./run_interop_tests.py <1-2
 
 from __future__ import annotations
 
+import argparse
 import json
+from dataclasses import dataclass
+from typing import Any, Literal, cast
 import logging
 import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -38,10 +42,11 @@ from resolvers import (
     DOCKER_NETWORK,
     HTTP_SCHEME_OVERRIDE,
     RUST_CLI_IMAGE,
+    ResolutionOptions,
+    ResolveResult,
+    ResolverKind,
     ZKRED_IMAGE,
-    _run_python_resolve,
-    _run_rust_resolve,
-    _run_zkred_resolve,
+    resolve,
 )
 
 PACKAGE_LOCK_PATH = INTEROP_DIR / "package-lock.json"
@@ -53,6 +58,24 @@ PYTHON_VDR_URL = "http://python-vdr:8087"
 VDG_URL = "http://rust-vdg:8086"
 
 logger = logging.getLogger("interop")
+
+CaseStatus = Literal["pass", "fail", "error"]
+
+_current_step_o: str | None = None
+_failure_detail_o: str | None = None
+
+
+def _step(fmt: str, *args: object) -> None:
+    """Log an Action line and record the current step for failure reporting."""
+    global _current_step_o
+    rendered = fmt % args if args else fmt
+    _current_step_o = rendered
+    logger.info("Action: %s", rendered)
+
+
+def _record_failure(detail: str) -> None:
+    global _failure_detail_o
+    _failure_detail_o = detail
 
 # Enable DEBUG logging for interop tests (main process and resolver subprocess)
 os.environ.setdefault("DID_WEBPLUS_LOG_LEVEL", "DEBUG")
@@ -76,7 +99,7 @@ def _run_python_controller_create(vdr_create_endpoint: str, wallet_dir: Path) ->
         "--base-dir", str(wallet_dir),
         "--http-scheme-override", HTTP_SCHEME_OVERRIDE,
     ]
-    logger.info("Action: Python controller create — %s", " ".join(cmd))
+    _step("Python controller create — %s", " ".join(cmd))
     result = subprocess.run(
         cmd,
         capture_output=True,
@@ -102,7 +125,7 @@ def _run_python_controller_update(did: str, wallet_dir: Path) -> None:
         "--base-dir", str(wallet_dir),
         "--http-scheme-override", HTTP_SCHEME_OVERRIDE,
     ]
-    logger.info("Action: Python controller update — did update %s", did)
+    _step("Python controller update — did update %s", did)
     result = subprocess.run(
         cmd,
         capture_output=True,
@@ -127,7 +150,7 @@ def _run_python_controller_deactivate(did: str, wallet_dir: Path) -> None:
         "--base-dir", str(wallet_dir),
         "--http-scheme-override", HTTP_SCHEME_OVERRIDE,
     ]
-    logger.info("Action: Python controller deactivate — did deactivate %s", did)
+    _step("Python controller deactivate — did deactivate %s", did)
     result = subprocess.run(
         cmd,
         capture_output=True,
@@ -161,7 +184,7 @@ def _run_rust_controller_create(vdr_create_endpoint: str, wallet_dir: Path) -> s
         RUST_CLI_IMAGE,
         "wallet", "did", "create", "--vdr", vdr_create_endpoint,
     ]
-    logger.info("Action: Rust controller create — wallet did create --vdr %s", vdr_create_endpoint)
+    _step("Rust controller create — wallet did create --vdr %s", vdr_create_endpoint)
     result = subprocess.run(
         cmd,
         capture_output=True,
@@ -192,7 +215,7 @@ def _run_rust_controller_update(wallet_dir: Path, did: str) -> None:
         RUST_CLI_IMAGE,
         "wallet", "did", "update", "--did", base_did,
     ]
-    logger.info("Action: Rust controller update — wallet did update --did %s", base_did)
+    _step("Rust controller update — wallet did update --did %s", base_did)
     result = subprocess.run(
         cmd,
         capture_output=True,
@@ -216,7 +239,7 @@ def _run_rust_controller_deactivate(wallet_dir: Path, did: str) -> None:
         RUST_CLI_IMAGE,
         "wallet", "did", "deactivate", "--did", base_did, "--confirm", DEACTIVATE_CONFIRM,
     ]
-    logger.info("Action: Rust controller deactivate — wallet did deactivate --did %s", base_did)
+    _step("Rust controller deactivate — wallet did deactivate --did %s", base_did)
     result = subprocess.run(
         cmd,
         capture_output=True,
@@ -278,7 +301,7 @@ def _run_zkred_controller_create(vdr_url: str, wallet_dir: Path) -> str:
         "--wallet-dir", wallet_arg,
     ]
     cmd, cwd = _zkred_controller_cmd(args, wallet_dir)
-    logger.info("Action: Zkred/TS controller create — %s", " ".join(cmd))
+    _step("Zkred/TS controller create — %s", " ".join(cmd))
     result = subprocess.run(
         cmd,
         capture_output=True,
@@ -311,7 +334,7 @@ def _run_zkred_controller_update(did: str, wallet_dir: Path) -> None:
         "--wallet-dir", wallet_arg,
     ]
     cmd, cwd = _zkred_controller_cmd(args, wallet_dir)
-    logger.info("Action: Zkred/TS controller update — controller update --did %s", base_did)
+    _step("Zkred/TS controller update — controller update --did %s", base_did)
     result = subprocess.run(
         cmd,
         capture_output=True,
@@ -339,7 +362,7 @@ def _run_zkred_controller_deactivate(did: str, wallet_dir: Path) -> None:
         "--wallet-dir", wallet_arg,
     ]
     cmd, cwd = _zkred_controller_cmd(args, wallet_dir)
-    logger.info("Action: Zkred/TS controller deactivate — controller deactivate --did %s", base_did)
+    _step("Zkred/TS controller deactivate — controller deactivate --did %s", base_did)
     result = subprocess.run(
         cmd,
         capture_output=True,
@@ -381,13 +404,13 @@ def _assert_vdg_headers(
     encoded_did = quote(did_query, safe="")
     url = f"{vdg_url.rstrip('/')}/webplus/v1/resolve/{encoded_did}"
     if use_version_id_param:
-        logger.info(
-            "Action: Rust VDG headers (versionId param) — GET resolve with ?versionId=1. "
+        _step(
+            "Rust VDG headers (versionId param) — GET resolve with ?versionId=1. "
             "VDG has version from VDR notifications; X-DID-Webplus-VDG-Cache-Hit expected true."
         )
     else:
-        logger.info(
-            "Action: Rust VDG headers (plain DID) — GET resolve without versionId query param. "
+        _step(
+            "Rust VDG headers (plain DID) — GET resolve without versionId query param. "
             "VDG must fetch latest from VDR; X-DID-Webplus-VDG-Cache-Hit expected false."
         )
     r = httpx.get(url, timeout=10.0)
@@ -461,6 +484,26 @@ def _ts_scenario_params(n: int) -> tuple[str, str, str, bool]:
     return mapping[n]
 
 
+def _matrix_resolve(
+    resolver_kind: ResolverKind,
+    did: str,
+    vdg_url: str | None,
+    *,
+    timeout: float = 15,
+) -> ResolveResult:
+    """Invoke unified adapter with a fresh store for each matrix resolve."""
+    prefix = f"interop-{resolver_kind[:2]}-"
+    with tempfile.TemporaryDirectory(prefix=prefix) as store_dir:
+        return resolve(
+            resolver_kind,
+            did,
+            options=ResolutionOptions(),
+            store_dir=store_dir,
+            vdg_url=vdg_url,
+            timeout=timeout,
+        )
+
+
 def _run_resolve_and_assert(
     did: str,
     resolver_kind: str,
@@ -468,22 +511,18 @@ def _run_resolve_and_assert(
     expected_version_id: int,
 ) -> tuple[bool, str | None]:
     """Run chosen resolver, assert versionId. Returns (ok, resolved_self_hash or None)."""
-    if resolver_kind == "python":
-        result = _run_python_resolve(did, vdg_url=vdg_url)
-    elif resolver_kind == "zkred":
-        result = _run_zkred_resolve(did, vdg_url=vdg_url)
-    else:
-        result = _run_rust_resolve(did, vdg_url=vdg_url)
+    result = _matrix_resolve(cast(ResolverKind, resolver_kind), did, vdg_url)
     resolver_name = _resolver_display_name(resolver_kind)
     if result.returncode != 0:
         logger.error("Result: FAIL — %s resolve failed: %s", resolver_name, result.stderr or "(see stderr)")
         return False, None
-    out = json.loads(result.stdout)
-    if not out.get("didDocument"):
+    if result.parse_error:
+        logger.error("Result: FAIL — %s resolve output: %s", resolver_name, result.parse_error)
+        return False, None
+    if not result.did_document:
         logger.error("Result: FAIL — no didDocument in result")
         return False, None
-    doc = out["didDocument"]
-    resolved = json.loads(doc) if isinstance(doc, str) else doc
+    resolved = result.did_document
     vid = resolved.get("versionId")
     if vid != expected_version_id:
         logger.error("Result: FAIL — expected versionId %s, got %s", expected_version_id, vid)
@@ -518,22 +557,18 @@ def _run_resolve_and_assert_deactivated(
     expected_version_id: int = 2,
 ) -> bool:
     """Run chosen resolver, assert document is deactivated: updateRules {}, all key arrays []. Returns True iff all checks pass."""
-    if resolver_kind == "python":
-        result = _run_python_resolve(did, vdg_url=vdg_url)
-    elif resolver_kind == "zkred":
-        result = _run_zkred_resolve(did, vdg_url=vdg_url)
-    else:
-        result = _run_rust_resolve(did, vdg_url=vdg_url)
+    result = _matrix_resolve(cast(ResolverKind, resolver_kind), did, vdg_url)
     resolver_name = _resolver_display_name(resolver_kind)
     if result.returncode != 0:
         logger.error("Result: FAIL — %s resolve failed (after deactivate): %s", resolver_name, result.stderr or "(see stderr)")
         return False
-    out = json.loads(result.stdout)
-    if not out.get("didDocument"):
+    if result.parse_error:
+        logger.error("Result: FAIL — %s resolve output (after deactivate): %s", resolver_name, result.parse_error)
+        return False
+    if not result.did_document:
         logger.error("Result: FAIL — no didDocument in result (after deactivate)")
         return False
-    doc = out["didDocument"]
-    resolved = json.loads(doc) if isinstance(doc, str) else doc
+    resolved = result.did_document
     vid = resolved.get("versionId")
     if vid != expected_version_id:
         logger.error("Result: FAIL — expected versionId %s after deactivate, got %s", expected_version_id, vid)
@@ -594,6 +629,9 @@ def run_scenario(
     update → both reference resolvers (v1) → deactivate → both reference
     resolvers (v2, tombstone checks).
     """
+    global _failure_detail_o
+    _failure_detail_o = None
+
     if controller_kind == "zkred":
         return _run_ts_controller_scenario(vdr_kind, wallet_dir)
 
@@ -612,7 +650,7 @@ def run_scenario(
         # 2. Resolve after create (versionId=0)
         if vdg_url:
             time.sleep(0.3)
-        logger.info("Action: Resolve after create — expect versionId=0")
+        _step("Resolve after create — expect versionId=0")
         ok, root_self_hash = _run_resolve_and_assert(base_did, resolver_kind, vdg_url, 0)
         if not ok:
             return False
@@ -632,7 +670,7 @@ def run_scenario(
         # 4. Verify VDR GET
         path = _resolution_path(base_did)
         url = f"{vdr_url.rstrip('/')}/{path}"
-        logger.info("Action: GET from VDR — fetch did-documents.jsonl")
+        _step("GET from VDR — fetch did-documents.jsonl")
         r = httpx.get(url, timeout=10.0)
         if r.status_code != 200:
             logger.error("Result: FAIL — GET returned %s", r.status_code)
@@ -653,7 +691,7 @@ def run_scenario(
             time.sleep(0.5)
 
         # 5. Resolve after update (versionId=1)
-        logger.info("Action: Resolve after update — expect versionId=1")
+        _step("Resolve after update — expect versionId=1")
         ok, _ = _run_resolve_and_assert(base_did, resolver_kind, vdg_url, 1)
         if not ok:
             return False
@@ -674,18 +712,22 @@ def run_scenario(
             time.sleep(0.5)
 
         # 7. Resolve after deactivate (versionId=2, updateRules {}, all key arrays [])
-        logger.info("Action: Resolve after deactivate — expect versionId=2, updateRules={}, key arrays []")
+        _step("Resolve after deactivate — expect versionId=2, updateRules={}, key arrays []")
         if not _run_resolve_and_assert_deactivated(base_did, resolver_kind, vdg_url, expected_version_id=2):
             return False
 
         return True
     except RuntimeError as e:
         logger.error("Result: FAIL — %s", e)
+        _record_failure(str(e))
         return False
 
 
 def _run_ts_controller_scenario(vdr_kind: str, wallet_dir: Path) -> bool:
     """Scenarios 21–22: TS create/update/deactivate; both Python and Rust resolvers verify."""
+    global _failure_detail_o
+    _failure_detail_o = None
+
     vdr_url = RUST_VDR_URL if vdr_kind == "rust" else PYTHON_VDR_URL
     vdg_url = None  # VDG omitted for TS controller scenarios
 
@@ -695,7 +737,7 @@ def _run_ts_controller_scenario(vdr_kind: str, wallet_dir: Path) -> bool:
         base_did = did.split("?")[0] if "?" in did else did
 
         # 2. Both reference resolvers after create (versionId=0)
-        logger.info("Action: Resolve after create (Python and Rust) — expect versionId=0")
+        _step("Resolve after create (Python and Rust) — expect versionId=0")
         ok, _ = _run_both_reference_resolvers_and_assert(base_did, vdg_url, 0)
         if not ok:
             return False
@@ -706,7 +748,7 @@ def _run_ts_controller_scenario(vdr_kind: str, wallet_dir: Path) -> bool:
         # 4. Verify VDR GET
         path = _resolution_path(base_did)
         url = f"{vdr_url.rstrip('/')}/{path}"
-        logger.info("Action: GET from VDR — fetch did-documents.jsonl")
+        _step("GET from VDR — fetch did-documents.jsonl")
         r = httpx.get(url, timeout=10.0)
         if r.status_code != 200:
             logger.error("Result: FAIL — GET returned %s", r.status_code)
@@ -722,7 +764,7 @@ def _run_ts_controller_scenario(vdr_kind: str, wallet_dir: Path) -> bool:
         logger.info("Result: PASS — VDR returns latest (versionId=1)")
 
         # 5. Both reference resolvers after update (versionId=1)
-        logger.info("Action: Resolve after update (Python and Rust) — expect versionId=1")
+        _step("Resolve after update (Python and Rust) — expect versionId=1")
         ok, _ = _run_both_reference_resolvers_and_assert(base_did, vdg_url, 1)
         if not ok:
             return False
@@ -731,8 +773,8 @@ def _run_ts_controller_scenario(vdr_kind: str, wallet_dir: Path) -> bool:
         _run_zkred_controller_deactivate(base_did, wallet_dir)
 
         # 7. Both reference resolvers after deactivate (versionId=2, tombstone shape)
-        logger.info(
-            "Action: Resolve after deactivate (Python and Rust) — "
+        _step(
+            "Resolve after deactivate (Python and Rust) — "
             "expect versionId=2, updateRules={}, key arrays []"
         )
         if not _run_both_reference_resolvers_and_assert_deactivated(
@@ -743,6 +785,7 @@ def _run_ts_controller_scenario(vdr_kind: str, wallet_dir: Path) -> bool:
         return True
     except RuntimeError as e:
         logger.error("Result: FAIL — %s", e)
+        _record_failure(str(e))
         return False
 
 
@@ -787,55 +830,208 @@ def _log_summary(n: int, controller: str, vdr: str, resolver: str, use_vdg: bool
         )
 
 
-def main() -> int:
-    if len(sys.argv) < 2:
-        print("Usage: ./run_interop_tests.py <1-22>")
-        print("Scenarios 1-16: Controller/VDR/Resolver (Python/Rust) × VDG (no/yes).")
-        print("Scenarios 17-20: Zkred/TS resolver with reference controller + VDR full lifecycle.")
-        print("Scenarios 21-22: Zkred/TS controller full lifecycle; Python and Rust resolvers verify.")
-        return 1
-    scenario_arg = sys.argv[1]
-    try:
-        n = int(scenario_arg)
-    except ValueError:
-        n = -1
-    if n < 1 or n > 22:
-        print("Scenario must be 1-22")
-        return 1
+@dataclass(frozen=True)
+class MatrixCaseResult:
+    """Single matrix scenario run (one case per suite artifact)."""
 
-    controller_kind, vdr_kind, resolver_kind, use_vdg = _scenario_params(n)
-    logger.info(
-        "=== Scenario %s: %s controller, %s VDR, %s resolver, %s ===",
-        n,
-        _controller_display_name(controller_kind),
-        vdr_kind.capitalize(),
-        _resolver_display_name(resolver_kind),
-        "Rust VDG" if use_vdg else "no VDG",
+    name: str
+    ok: bool
+    status: CaseStatus
+    detail: str
+    axes: dict[str, Any]
+    failed_step_o: str | None
+
+
+def _scenario_axes(
+    controller_kind: str,
+    vdr_kind: str,
+    resolver_kind: str,
+    use_vdg: bool,
+) -> dict[str, Any]:
+    return {
+        "controller": controller_kind,
+        "vdr": vdr_kind,
+        "resolver": resolver_kind,
+        "vdg": use_vdg,
+    }
+
+
+def _matrix_suite_id(scenario: int) -> str:
+    return f"matrix-{scenario:02d}"
+
+
+def _case_to_json(case: MatrixCaseResult) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "name": case.name,
+        "ok": case.ok,
+        "status": case.status,
+        "detail": case.detail,
+        "axes": case.axes,
+    }
+    if case.failed_step_o is not None:
+        payload["failedStep"] = case.failed_step_o
+    return payload
+
+
+def _write_suite_artifact(
+    path: Path,
+    *,
+    suite_id: str,
+    scenario: int,
+    config: dict[str, Any],
+    case_o: MatrixCaseResult | None,
+    expected: int,
+    executed: int,
+    duration_seconds: float,
+    runner_exit_code: int,
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    cases_v: list[dict[str, Any]] = []
+    if case_o is not None:
+        cases_v.append(_case_to_json(case_o))
+    payload: dict[str, Any] = {
+        "suite": suite_id,
+        "kind": "matrix",
+        "scenario": scenario,
+        "config": config,
+        "expected": expected,
+        "executed": executed,
+        "cases": cases_v,
+        "durationSeconds": round(duration_seconds, 3),
+        "runnerExitCode": runner_exit_code,
+    }
+    with path.open("w", encoding="utf-8") as fh:
+        json.dump(payload, fh, indent=2, sort_keys=True)
+        fh.write("\n")
+
+
+def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Run did:webplus interop matrix scenario (1–22).",
     )
-    if 17 <= n <= 22:
+    parser.add_argument(
+        "scenario",
+        type=int,
+        metavar="N",
+        help="Scenario number 1–22",
+    )
+    parser.add_argument(
+        "--report-json",
+        metavar="PATH",
+        default=None,
+        help="Write machine-readable suite artifact to PATH",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = _parse_args(argv)
+    report_path_o = Path(args.report_json) if args.report_json else None
+    config_m = {k: v for k, v in vars(args).items() if k != "report_json"}
+    t0 = time.monotonic()
+    runner_exit = 2
+    case_o: MatrixCaseResult | None = None
+    expected = 1
+    executed = 0
+    n = args.scenario
+
+    try:
+        if n < 1 or n > 22:
+            print("Scenario must be 1-22", file=sys.stderr)
+            return runner_exit
+
+        controller_kind, vdr_kind, resolver_kind, use_vdg = _scenario_params(n)
+        axes_m = _scenario_axes(controller_kind, vdr_kind, resolver_kind, use_vdg)
+        case_name = f"scenario-{n}"
+
         logger.info(
-            "=== TS interop: @zkred/did-webplus %s (from package-lock.json) ===",
-            _zkred_pinned_version(),
+            "=== Scenario %s: %s controller, %s VDR, %s resolver, %s ===",
+            n,
+            _controller_display_name(controller_kind),
+            vdr_kind.capitalize(),
+            _resolver_display_name(resolver_kind),
+            "Rust VDG" if use_vdg else "no VDG",
         )
-        logger.info(
-            "=== Version management: see interop/README.md or interop/ZKRED_VERSION.md ==="
-        )
+        if 17 <= n <= 22:
+            logger.info(
+                "=== TS interop: @zkred/did-webplus %s (from package-lock.json) ===",
+                _zkred_pinned_version(),
+            )
+            logger.info(
+                "=== Version management: see interop/README.md or interop/ZKRED_VERSION.md ==="
+            )
 
-    logger.info("Waiting for services...")
-    time.sleep(3)
+        logger.info("Waiting for services...")
+        time.sleep(3)
 
-    wallet_dir = INTEROP_DIR / "wallets" / f"wallet_dir_scenario_{n}"
-    if wallet_dir.exists():
-        shutil.rmtree(wallet_dir)
-    wallet_dir.mkdir(parents=True, exist_ok=True)
+        wallet_dir = INTEROP_DIR / "wallets" / f"wallet_dir_scenario_{n}"
+        if wallet_dir.exists():
+            shutil.rmtree(wallet_dir)
+        wallet_dir.mkdir(parents=True, exist_ok=True)
 
-    ok = run_scenario(controller_kind, vdr_kind, resolver_kind, use_vdg, wallet_dir)
-    if ok:
-        logger.info("=== All tests PASSED ===")
-        _log_summary(n, controller_kind, vdr_kind, resolver_kind, use_vdg)
-    else:
-        logger.error("=== Tests FAILED ===")
-    return 0 if ok else 1
+        ok = run_scenario(controller_kind, vdr_kind, resolver_kind, use_vdg, wallet_dir)
+        executed = 1
+        if ok:
+            logger.info("=== All tests PASSED ===")
+            _log_summary(n, controller_kind, vdr_kind, resolver_kind, use_vdg)
+            case_o = MatrixCaseResult(
+                name=case_name,
+                ok=True,
+                status="pass",
+                detail="",
+                axes=axes_m,
+                failed_step_o=None,
+            )
+            runner_exit = 0
+        else:
+            logger.error("=== Tests FAILED ===")
+            if _current_step_o:
+                logger.error("Failed at step: %s", _current_step_o)
+            detail = _failure_detail_o or "scenario failed"
+            case_o = MatrixCaseResult(
+                name=case_name,
+                ok=False,
+                status="fail",
+                detail=detail,
+                axes=axes_m,
+                failed_step_o=_current_step_o,
+            )
+            runner_exit = 1
+        return runner_exit
+    except Exception as e:
+        logger.exception("Matrix harness error: %s", e)
+        runner_exit = 2
+        if n >= 1 and n <= 22:
+            try:
+                controller_kind, vdr_kind, resolver_kind, use_vdg = _scenario_params(n)
+                axes_m = _scenario_axes(
+                    controller_kind, vdr_kind, resolver_kind, use_vdg
+                )
+            except ValueError:
+                axes_m = {}
+            case_o = MatrixCaseResult(
+                name=f"scenario-{n}",
+                ok=False,
+                status="error",
+                detail=f"matrix harness error: {e}",
+                axes=axes_m,
+                failed_step_o=_current_step_o,
+            )
+            executed = 0
+        return runner_exit
+    finally:
+        if report_path_o is not None:
+            _write_suite_artifact(
+                report_path_o,
+                suite_id=_matrix_suite_id(n) if 1 <= n <= 22 else "matrix-00",
+                scenario=n,
+                config=config_m,
+                case_o=case_o,
+                expected=expected,
+                executed=executed,
+                duration_seconds=time.monotonic() - t0,
+                runner_exit_code=runner_exit,
+            )
 
 
 if __name__ == "__main__":

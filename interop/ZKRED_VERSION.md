@@ -17,13 +17,11 @@ docker run --rm --entrypoint node did-webplus-zkred -e \
 # Bump to a new release (then commit package.json + package-lock.json)
 npm install @zkred/did-webplus@<version>
 # Update the pinned version line at the top of this file in the same PR.
-
-# Rebuild runner image
-docker build -f Dockerfile.zkred -t did-webplus-zkred .
+# ./run.sh rebuilds did-webplus-zkred automatically on the next matrix/vectors/scenarios run.
 
 # Run TS scenarios
-./run_interop_tests.sh 17
-./run_all_interop_tests.sh
+./run.sh matrix 17
+./run.sh matrix
 ```
 
 Full operator guide: [README.md § TypeScript implementation](README.md#typescript-implementation-zkreddid-webplus--version-management).

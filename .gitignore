@@ -1,3 +1,5 @@
+attic
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -37,7 +39,7 @@ Thumbs.db
 *.log
 *.bak
 
-# Interop test wallet dirs (created per scenario, deleted by stop_and_clean.sh)
+# Interop test wallet dirs (created per scenario, deleted by interop/run.sh clean)
 interop/wallets/
 interop/wallet_dir_scenario_*
 

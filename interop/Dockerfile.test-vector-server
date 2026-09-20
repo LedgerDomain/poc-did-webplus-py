@@ -1,5 +1,5 @@
 FROM python:3.12-slim
-RUN pip install --no-cache-dir rangehttpserver
 WORKDIR /srv
+COPY test_vector_server.py /srv/test_vector_server.py
 EXPOSE 80
-CMD ["python3", "-m", "RangeHTTPServer", "80"]
+CMD ["python3", "/srv/test_vector_server.py", "80"]

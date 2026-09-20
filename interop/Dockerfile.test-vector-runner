@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends docker-cli ca-c
 # Copy project files (build context is repo root)
 COPY pyproject.toml ./
 COPY did_webplus/ ./did_webplus/
-COPY interop/resolvers.py interop/run_test_vectors.py interop/run_interop_tests.py ./interop/
+COPY interop/resolvers.py interop/run_test_vectors.py interop/run_resolution_scenarios.py interop/run_interop_tests.py ./interop/
 
 # Install the package (no dev deps)
 RUN uv sync --no-dev
