@@ -1,0 +1,147 @@
+{
+  "argv": [
+    "./run.sh",
+    "all"
+  ],
+  "endedAt": "2026-09-21T02:06:29Z",
+  "env": {},
+  "git": {
+    "branch": "main",
+    "catalogSubmoduleSha": "b021c119f0fafdf387a104d2cb3e0bff786dc4b1",
+    "dirty": true,
+    "sha": "a19d61f630a7b2e99f290311c7d54de6ee73c3b3"
+  },
+  "host": {
+    "arch": "x86_64",
+    "composeVersion": "Docker Compose version 2.40.3+ds1-0ubuntu1~24.04.1",
+    "cpuCount": 22,
+    "dockerVersion": "Docker version 29.1.3, build 29.1.3-0ubuntu3~24.04.2",
+    "kernel": "Linux 7.0.0-31-generic",
+    "machine": "x86_64",
+    "memTotalBytes": 66823376896
+  },
+  "invocation": "all",
+  "plannedUnits": [
+    {
+      "kind": "matrix",
+      "scenario": 1,
+      "suite": "matrix-01"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 2,
+      "suite": "matrix-02"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 3,
+      "suite": "matrix-03"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 4,
+      "suite": "matrix-04"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 5,
+      "suite": "matrix-05"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 6,
+      "suite": "matrix-06"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 7,
+      "suite": "matrix-07"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 8,
+      "suite": "matrix-08"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 9,
+      "suite": "matrix-09"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 10,
+      "suite": "matrix-10"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 11,
+      "suite": "matrix-11"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 12,
+      "suite": "matrix-12"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 13,
+      "suite": "matrix-13"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 14,
+      "suite": "matrix-14"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 15,
+      "suite": "matrix-15"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 16,
+      "suite": "matrix-16"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 17,
+      "suite": "matrix-17"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 18,
+      "suite": "matrix-18"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 19,
+      "suite": "matrix-19"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 20,
+      "suite": "matrix-20"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 21,
+      "suite": "matrix-21"
+    },
+    {
+      "kind": "matrix",
+      "scenario": 22,
+      "suite": "matrix-22"
+    },
+    {
+      "kind": "vectors",
+      "suite": "vectors"
+    },
+    {
+      "kind": "scenarios",
+      "suite": "scenarios"
+    }
+  ],
+  "runId": "2026-09-21T01.54.57Z",
+  "startedAt": "2026-09-21T01:54:57Z",
+  "zkredPin": "0.9.1"
+}

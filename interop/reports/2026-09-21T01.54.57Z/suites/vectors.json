@@ -1,0 +1,6302 @@
+{
+  "cases": [
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "base-base58btc",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "base-base58btc",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "base-base58btc",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "baseline-valid-root",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "baseline-valid-root",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "baseline-valid-root",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "baseline-valid-update",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "baseline-valid-update",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "baseline-valid-update",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "cold-plain-did-no-metadata",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "cold-plain-did-no-metadata",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "cold-plain-did-no-metadata",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "conflicting-query-params",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "conflicting-query-params",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "conflicting-query-params",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "data-model-malformed-id",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "data-model-malformed-id",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "data-model-malformed-id",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "data-model-missing-required-field",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "data-model-missing-required-field",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "data-model-missing-required-field",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "data-model-version-id-string",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "data-model-version-id-string",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "data-model-version-id-string",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "deactivated-all-local",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "deactivated-all-local",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "deactivated-all-local",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "did-multi-path-components",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "did-multi-path-components",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "did-multi-path-components",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00000",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00000",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00000",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00001",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00001",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00001",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00002",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00002",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00002",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00003",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00003",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00003",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00004",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00004",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00004",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00005",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00005",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00005",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00006",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00006",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00006",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00007",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00007",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00007",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00008",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00008",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00008",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00009",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00009",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00009",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00010",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00010",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00010",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00011",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00011",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00011",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00012",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00012",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00012",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00013",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00013",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00013",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00014",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00014",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00014",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00015",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00015",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00015",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00016",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00016",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00016",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00017",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00017",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00017",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00018",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00018",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00018",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00019",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00019",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00019",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00020",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00020",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00020",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00021",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00021",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00021",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00022",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00022",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00022",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00023",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00023",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00023",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00024",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00024",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00024",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00025",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00025",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00025",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00026",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00026",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00026",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00027",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00027",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00027",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00028",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00028",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00028",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00029",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00029",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00029",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00030",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00030",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00030",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00031",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00031",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00031",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00032",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00032",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00032",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00033",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00033",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00033",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00034",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00034",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00034",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00035",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00035",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00035",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00036",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00036",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00036",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00037",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00037",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00037",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00038",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00038",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00038",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00039",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00039",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00039",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00040",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00040",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00040",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00041",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00041",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00041",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00042",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00042",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00042",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00043",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00043",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00043",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00044",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00044",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00044",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00045",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00045",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00045",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00046",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00046",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00046",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00047",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00047",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00047",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00048",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00048",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00048",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00049",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00049",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00049",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00050",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00050",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00050",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00051",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00051",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00051",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00052",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00052",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00052",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00053",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00053",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00053",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00054",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00054",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00054",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00055",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00055",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00055",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00056",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00056",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00056",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00057",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00057",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00057",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00058",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00058",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00058",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00059",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00059",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00059",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00060",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00060",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00060",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00061",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00061",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00061",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00062",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00062",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00062",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00063",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00063",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00063",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00064",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00064",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00064",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00065",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00065",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00065",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00066",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00066",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00066",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00067",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00067",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00067",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00068",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00068",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00068",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00069",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00069",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00069",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00070",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00070",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00070",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00071",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00071",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00071",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00072",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00072",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00072",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00073",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00073",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00073",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00074",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00074",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00074",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00075",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00075",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00075",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00076",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00076",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00076",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00077",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00077",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00077",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00078",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00078",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00078",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00079",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00079",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00079",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00080",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00080",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00080",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00081",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00081",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00081",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00082",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00082",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00082",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00083",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00083",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00083",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00084",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00084",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00084",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00085",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00085",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00085",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00086",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00086",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00086",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00087",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00087",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00087",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00088",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00088",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00088",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00089",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00089",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00089",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00090",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00090",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00090",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00091",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00091",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00091",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00092",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00092",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00092",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00093",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00093",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00093",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00094",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00094",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00094",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00095",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00095",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00095",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00096",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00096",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00096",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00097",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00097",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00097",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00098",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00098",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00098",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00099",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00099",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00099",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00100",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00100",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00100",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00101",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00101",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00101",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00102",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00102",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00102",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00103",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00103",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00103",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00104",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00104",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00104",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00105",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00105",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00105",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00106",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00106",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00106",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00107",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00107",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00107",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00108",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00108",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00108",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00109",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00109",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00109",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00110",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00110",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00110",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00111",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00111",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00111",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00112",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00112",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00112",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00113",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00113",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00113",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00114",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00114",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00114",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00115",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00115",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00115",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00116",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00116",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00116",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00117",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00117",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00117",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00118",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00118",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00118",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00119",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00119",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00119",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00120",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00120",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00120",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00121",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00121",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00121",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00122",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00122",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00122",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00123",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00123",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00123",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00124",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00124",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00124",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00125",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00125",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00125",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00126",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00126",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00126",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00127",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00127",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "fuzz-lite-6469642d776562706c75732d746573742d766563746f722d7631-00127",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "incremental-range-fetch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "incremental-range-fetch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "incremental-range-fetch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jcs-extra-whitespace",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jcs-extra-whitespace",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jcs-extra-whitespace",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jcs-non-minimal-number",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jcs-non-minimal-number",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jcs-non-minimal-number",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jcs-reordered-fields",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jcs-reordered-fields",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jcs-reordered-fields",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-blank-lines",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-blank-lines",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-blank-lines",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-crlf-line-endings",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-crlf-line-endings",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-crlf-line-endings",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-duplicate-line",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-duplicate-line",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-duplicate-line",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "n==0: resolve failed as expected",
+      "name": "jsonl-empty-file",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "n==0: resolve failed as expected",
+      "name": "jsonl-empty-file",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "n==0: resolve failed as expected",
+      "name": "jsonl-empty-file",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-non-json-trailing-line",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-non-json-trailing-line",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-non-json-trailing-line",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-valid-prefix-then-invalid-doc",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-valid-prefix-then-invalid-doc",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "jsonl-valid-prefix-then-invalid-doc",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "local-only-matrix",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "local-only-matrix",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "local-only-matrix",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-blake3",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-blake3",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-blake3",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha224",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha224",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha224",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha256",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha256",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha256",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha3-224",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha3-224",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha3-224",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha3-256",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha3-256",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha3-256",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha3-384",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha3-384",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha3-384",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha3-512",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha3-512",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha3-512",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha384",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha384",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha384",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha512",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha512",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed25519-sha512",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-blake3",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-blake3",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-blake3",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha224",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha224",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha224",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha256",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha256",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha256",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha3-224",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha3-224",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha3-224",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha3-256",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha3-256",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha3-256",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha3-384",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha3-384",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha3-384",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha3-512",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha3-512",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha3-512",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha384",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha384",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha384",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha512",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha512",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-ed448-sha512",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-blake3",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-blake3",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-blake3",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha224",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha224",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha224",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha256",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha256",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha256",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha3-224",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha3-224",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha3-224",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha3-256",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha3-256",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha3-256",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha3-384",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha3-384",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha3-384",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha3-512",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha3-512",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha3-512",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha384",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha384",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha384",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha512",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha512",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p256-sha512",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-blake3",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-blake3",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-blake3",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha224",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha224",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha224",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha256",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha256",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha256",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha3-224",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha3-224",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha3-224",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha3-256",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha3-256",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha3-256",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha3-384",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha3-384",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha3-384",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha3-512",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha3-512",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha3-512",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha384",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha384",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha384",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha512",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha512",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p384-sha512",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-blake3",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-blake3",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-blake3",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha224",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha224",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha224",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha256",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha256",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha256",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha3-224",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha3-224",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha3-224",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha3-256",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha3-256",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha3-256",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha3-384",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha3-384",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha3-384",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha3-512",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha3-512",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha3-512",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha384",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha384",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha384",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha512",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha512",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-p521-sha512",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-blake3",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-blake3",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-blake3",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha224",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha224",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha224",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha256",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha256",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha256",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha3-224",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha3-224",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha3-224",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha3-256",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha3-256",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha3-256",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha3-384",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha3-384",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha3-384",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha3-512",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha3-512",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha3-512",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha384",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha384",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha384",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha512",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha512",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "matrix-secp256k1-sha512",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=2",
+      "name": "mixed-base-history",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=2",
+      "name": "mixed-base-history",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=2",
+      "name": "mixed-base-history",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=2",
+      "name": "mixed-hash-history",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=2",
+      "name": "mixed-hash-history",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=2",
+      "name": "mixed-hash-history",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "mixed-key-types-one-document",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "mixed-key-types-one-document",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "mixed-key-types-one-document",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-id-mismatch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-id-mismatch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-id-mismatch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-prev-self-hash-mismatch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-prev-self-hash-mismatch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-prev-self-hash-mismatch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-prev-self-hash-not-mbhash",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-prev-self-hash-not-mbhash",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-prev-self-hash-not-mbhash",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-prev-self-hash-null",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-prev-self-hash-null",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-prev-self-hash-null",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-prev-self-hash-omitted",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-prev-self-hash-omitted",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-prev-self-hash-omitted",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-proofs-empty-array",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-proofs-empty-array",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-proofs-empty-array",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-proofs-null",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-proofs-null",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-proofs-null",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-self-hash-inconsistent-slots",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-self-hash-inconsistent-slots",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve must fail, but succeeded with versionId=1",
+      "name": "non-root-self-hash-inconsistent-slots",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-valid-from-earlier",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-valid-from-earlier",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-valid-from-earlier",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-valid-from-equal",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-valid-from-equal",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-valid-from-equal",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-version-id-decrease",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-version-id-decrease",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-version-id-decrease",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-version-id-gap",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-version-id-gap",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-version-id-gap",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-version-id-repeat",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-version-id-repeat",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-version-id-repeat",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-missing-fragment",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-missing-fragment",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-missing-fragment",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-missing-self-hash-param",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-missing-self-hash-param",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-missing-self-hash-param",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-missing-version-id-param",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-missing-version-id-param",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-missing-version-id-param",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-query-param-order",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-query-param-order",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-query-param-order",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-self-hash-mismatch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-self-hash-mismatch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve must fail, but succeeded with versionId=1",
+      "name": "non-root-vm-id-self-hash-mismatch",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-self-hash-mismatch-one-of-many",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-self-hash-mismatch-one-of-many",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve must fail, but succeeded with versionId=1",
+      "name": "non-root-vm-id-self-hash-mismatch-one-of-many",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-version-id-mismatch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-version-id-mismatch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-id-version-id-mismatch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-kid-not-fully-qualified",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-kid-not-fully-qualified",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-kid-not-fully-qualified",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-kid-self-hash-mismatch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "non-root-vm-kid-self-hash-mismatch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve must fail, but succeeded with versionId=1",
+      "name": "non-root-vm-kid-self-hash-mismatch",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "plain-did-always-fetches",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "plain-did-always-fetches",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "plain-did-always-fetches",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proof-invalid-signature",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proof-invalid-signature",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proof-invalid-signature",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proof-malformed-kid",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proof-malformed-kid",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proof-malformed-kid",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proofs-array-contains-null",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proofs-array-contains-null",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proofs-array-contains-null",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "proofs-extraneous-ignored",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "proofs-extraneous-ignored",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "proofs-extraneous-ignored",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proofs-missing",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proofs-missing",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proofs-missing",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proofs-mixed-valid-invalid-any",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proofs-mixed-valid-invalid-any",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proofs-mixed-valid-invalid-any",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proofs-mixed-valid-invalid-key",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proofs-mixed-valid-invalid-key",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "proofs-mixed-valid-invalid-key",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "purpose-dangling-authentication-ref",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "purpose-dangling-authentication-ref",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "purpose-dangling-authentication-ref",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-creation-cold",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-creation-cold",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-creation-cold",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-creation-warm",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-creation-warm",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-creation-warm",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-deactivated-forces-fetch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-deactivated-forces-fetch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-deactivated-forces-fetch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-latest-forces-fetch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-latest-forces-fetch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-latest-forces-fetch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-next-at-latest",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-next-at-latest",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-next-at-latest",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-next-with-local-next",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-next-with-local-next",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "request-next-with-local-next",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-host-mismatch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-host-mismatch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-host-mismatch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-path-content-has-extra",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-path-content-has-extra",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-path-content-has-extra",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-path-url-has-extra",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-path-url-has-extra",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-path-url-has-extra",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-port-mismatch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-port-mismatch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-port-mismatch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-root-self-hash-mismatch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-root-self-hash-mismatch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "resolution-root-self-hash-mismatch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-prev-self-hash-null",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-prev-self-hash-null",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-prev-self-hash-null",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-prev-self-hash-present",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-prev-self-hash-present",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-prev-self-hash-present",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-prev-self-hash-wrong-type",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-prev-self-hash-wrong-type",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-prev-self-hash-wrong-type",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "root-proofs-empty-array",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "root-proofs-empty-array",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "root-proofs-empty-array",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-proofs-null",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-proofs-null",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-proofs-null",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-proofs-wrong-type",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-proofs-wrong-type",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-proofs-wrong-type",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-version-id-nonzero",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-version-id-nonzero",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-version-id-nonzero",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-with-invalid-proof",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-with-invalid-proof",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "root-with-invalid-proof",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "root-with-proofs",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "root-with-proofs",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "root-with-proofs",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "self-hash-inconsistent-slots",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "self-hash-inconsistent-slots",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "self-hash-inconsistent-slots",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "self-hash-wrong-field",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "self-hash-wrong-field",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "self-hash-wrong-field",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "self-hash-wrong-root-did-suffix",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "self-hash-wrong-root-did-suffix",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "self-hash-wrong-root-did-suffix",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "stress-deeply-nested-update-rules",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "stress-deeply-nested-update-rules",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "stress-deeply-nested-update-rules",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "stress-large-document",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "stress-large-document",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "stress-large-document",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "stress-long-did-path",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "stress-long-did-path",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "stress-long-did-path",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "stress-many-proofs",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "stress-many-proofs",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "stress-many-proofs",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=99",
+      "name": "stress-many-versions-100",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=99",
+      "name": "stress-many-versions-100",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=99",
+      "name": "stress-many-versions-100",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=999",
+      "name": "stress-many-versions-1000",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=999",
+      "name": "stress-many-versions-1000",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=999",
+      "name": "stress-many-versions-1000",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-after-tombstone",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-after-tombstone",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-after-tombstone",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-all-missing-proof",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-all-missing-proof",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-all-missing-proof",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-all-valid",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-all-valid",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-all-valid",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-any-unsatisfied",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-any-unsatisfied",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-any-unsatisfied",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-any-valid",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-any-valid",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-any-valid",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-at-least-weighted-at-threshold",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-at-least-weighted-at-threshold",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-at-least-weighted-at-threshold",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-at-least-weighted-below-threshold",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-at-least-weighted-below-threshold",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-at-least-weighted-below-threshold",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-hashed-key-unauthorized",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-hashed-key-unauthorized",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-hashed-key-unauthorized",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-hashed-key-valid",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-hashed-key-valid",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-hashed-key-valid",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-key-unauthorized",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-key-unauthorized",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "update-rules-key-unauthorized",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-key-valid",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-key-valid",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=1",
+      "name": "update-rules-key-valid",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "valid-from-equivalent-hundred-milliseconds",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "valid-from-equivalent-hundred-milliseconds",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "valid-from-equivalent-hundred-milliseconds",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "valid-from-equivalent-no-fraction",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "valid-from-equivalent-no-fraction",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "valid-from-equivalent-no-fraction",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "valid-from-equivalent-tenth",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "valid-from-equivalent-tenth",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=0",
+      "name": "valid-from-equivalent-tenth",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "valid-from-lowercase-t-z",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "valid-from-lowercase-t-z",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "valid-from-lowercase-t-z",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "valid-from-microsecond-precision",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "valid-from-microsecond-precision",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "valid-from-microsecond-precision",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "valid-from-pre-epoch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "valid-from-pre-epoch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "valid-from-pre-epoch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "valid-from-unparseable-calendar",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "valid-from-unparseable-calendar",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "valid-from-unparseable-calendar",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "version-beyond-served",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "version-beyond-served",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "version-beyond-served",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-controller-mismatch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-controller-mismatch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-controller-mismatch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-missing-fragment",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-missing-fragment",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-missing-fragment",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-missing-self-hash-param",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-missing-self-hash-param",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-missing-self-hash-param",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-missing-version-id-param",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-missing-version-id-param",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-missing-version-id-param",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-query-param-order",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-query-param-order",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-query-param-order",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-self-hash-mismatch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-self-hash-mismatch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-self-hash-mismatch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-self-hash-mismatch-one-of-many",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-self-hash-mismatch-one-of-many",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-self-hash-mismatch-one-of-many",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-version-id-mismatch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-version-id-mismatch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-id-version-id-mismatch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-kid-not-fully-qualified",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-kid-not-fully-qualified",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-kid-not-fully-qualified",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-kid-self-hash-mismatch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-kid-self-hash-mismatch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-kid-self-hash-mismatch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-missing-jwk-kid",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-missing-jwk-kid",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==false: resolve failed as expected",
+      "name": "vm-missing-jwk-kid",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "warm-both-params",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "warm-both-params",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "warm-both-params",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "warm-self-hash",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "warm-self-hash",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "warm-self-hash",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "warm-version-id",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "warm-version-id",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass"
+    },
+    {
+      "detail": "valid==true: versionId=3",
+      "name": "warm-version-id",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass"
+    }
+  ],
+  "config": {
+    "catalog_url": "http://ledgerdomain.github.io/did-webplus-spec/test-vector",
+    "group": [],
+    "jobs": 8,
+    "name": [],
+    "resolver": "all",
+    "timeout": 60.0
+  },
+  "durationSeconds": 121.289,
+  "executed": 897,
+  "expected": 897,
+  "expectedByResolver": {
+    "python": 299,
+    "rust": 299,
+    "zkred": 299
+  },
+  "kind": "vectors",
+  "runnerExitCode": 1,
+  "suite": "vectors"
+}

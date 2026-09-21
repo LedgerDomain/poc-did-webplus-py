@@ -42,7 +42,7 @@ services:
       retries: 10
 
   rust-vdr:
-    image: ghcr.io/ledgerdomain/did-webplus-vdr:v0.1.3
+    image: ghcr.io/ledgerdomain/did-webplus-vdr:v0.1.4
     platform: linux/amd64
     networks: [interop-net]
     environment:
@@ -60,7 +60,7 @@ services:
         condition: service_healthy
 
   rust-vdg:
-    image: ghcr.io/ledgerdomain/did-webplus-vdg:v0.1.3
+    image: ghcr.io/ledgerdomain/did-webplus-vdg:v0.1.4
     platform: linux/amd64
     networks: [interop-net]
     environment:

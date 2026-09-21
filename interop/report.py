@@ -34,8 +34,8 @@ ENV_REPRO_KEYS = (
 COMPOSE_PATH = INTEROP_DIR / "docker-compose.yml"
 PACKAGE_LOCK_PATH = INTEROP_DIR / "package-lock.json"
 
-RUST_VDR_IMAGE = "ghcr.io/ledgerdomain/did-webplus-vdr:v0.1.3"
-RUST_VDG_IMAGE = "ghcr.io/ledgerdomain/did-webplus-vdg:v0.1.3"
+RUST_VDR_IMAGE = "ghcr.io/ledgerdomain/did-webplus-vdr:v0.1.4"
+RUST_VDG_IMAGE = "ghcr.io/ledgerdomain/did-webplus-vdg:v0.1.4"
 
 COMPOSE_IMAGE_LINE_RE = re.compile(r"^\s+image:\s+(\S+)\s*$", re.MULTILINE)
 

@@ -1,0 +1,26 @@
+{
+  "cases": [
+    {
+      "axes": {
+        "controller": "zkred",
+        "resolver": "both",
+        "vdg": false,
+        "vdr": "rust"
+      },
+      "detail": "",
+      "name": "scenario-22",
+      "ok": true,
+      "status": "pass"
+    }
+  ],
+  "config": {
+    "scenario": 22
+  },
+  "durationSeconds": 8.761,
+  "executed": 1,
+  "expected": 1,
+  "kind": "matrix",
+  "runnerExitCode": 0,
+  "scenario": 22,
+  "suite": "matrix-22"
+}

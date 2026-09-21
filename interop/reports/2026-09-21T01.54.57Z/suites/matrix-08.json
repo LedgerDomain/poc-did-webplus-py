@@ -1,0 +1,26 @@
+{
+  "cases": [
+    {
+      "axes": {
+        "controller": "python",
+        "resolver": "rust",
+        "vdg": true,
+        "vdr": "rust"
+      },
+      "detail": "",
+      "name": "scenario-8",
+      "ok": true,
+      "status": "pass"
+    }
+  ],
+  "config": {
+    "scenario": 8
+  },
+  "durationSeconds": 6.433,
+  "executed": 1,
+  "expected": 1,
+  "kind": "matrix",
+  "runnerExitCode": 0,
+  "scenario": 8,
+  "suite": "matrix-08"
+}

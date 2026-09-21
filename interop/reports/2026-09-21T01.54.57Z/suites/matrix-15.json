@@ -1,0 +1,26 @@
+{
+  "cases": [
+    {
+      "axes": {
+        "controller": "rust",
+        "resolver": "rust",
+        "vdg": false,
+        "vdr": "rust"
+      },
+      "detail": "",
+      "name": "scenario-15",
+      "ok": true,
+      "status": "pass"
+    }
+  ],
+  "config": {
+    "scenario": 15
+  },
+  "durationSeconds": 4.644,
+  "executed": 1,
+  "expected": 1,
+  "kind": "matrix",
+  "runnerExitCode": 0,
+  "scenario": 15,
+  "suite": "matrix-15"
+}

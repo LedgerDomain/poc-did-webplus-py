@@ -68,10 +68,35 @@ Quick TS version card: [`ZKRED_VERSION.md`](ZKRED_VERSION.md).
 
 ### Test-vector / resolver conformance suite
 
-See **[resolver-conformance-testing.md](resolver-conformance-testing.md)** for catalog layout, submodule setup, the catalog server control API, resolution scenarios, and adapter architecture.
+The test-vector catalog is the git submodule
+`interop/ledgerdomain.github.io/did-webplus-spec`
+([LedgerDomain/did-webplus-spec](https://github.com/LedgerDomain/did-webplus-spec)).
+This repo pins a specific commit of that submodule.
+
+**Initialize / sync to the pinned commit** — use after a fresh clone (or whenever
+you want the working tree to match the SHA recorded in this repo). This does
+**not** fetch newer upstream commits; it only checks out the already-recorded pin:
 
 ```bash
-# After submodule init — see doc above
+git submodule update --init interop/ledgerdomain.github.io/did-webplus-spec
+```
+
+**Pull newer catalog from upstream** — use when
+[did-webplus-spec](https://github.com/LedgerDomain/did-webplus-spec) has moved
+ahead and you want those updates locally. `--remote` fetches and checks out the
+tracked remote branch tip (typically `main`). The parent repo’s pin does not
+change until you stage and commit the new submodule SHA:
+
+```bash
+git submodule update --remote interop/ledgerdomain.github.io/did-webplus-spec
+git add interop/ledgerdomain.github.io/did-webplus-spec
+# commit when ready, after verifying the suite
+```
+
+See **[resolver-conformance-testing.md](resolver-conformance-testing.md)** for catalog layout, more submodule detail, the catalog server control API, resolution scenarios, and adapter architecture.
+
+```bash
+# After submodule is present (init or update --remote as above)
 ./run.sh vectors
 ./run.sh vectors --group positive --resolver python
 ./run.sh scenarios --resolver rust
@@ -229,8 +254,12 @@ Log out and back in to have usermod take effect.
 
     cd ~ && git clone https://github.com/LedgerDomain/poc-did-webplus-py.git
     cd ~/poc-did-webplus-py
+    # Checkout the catalog commit pinned by this repo (not latest upstream)
     git submodule update --init interop/ledgerdomain.github.io/did-webplus-spec
     cd interop
     ./run.sh matrix
 
 `./run.sh matrix` runs all 22 scenarios. No `/etc/hosts` edits are needed — service hostnames resolve via Docker network DNS (`interop-net`). Scenarios 17–22 require building the zkred runner image (`did-webplus-zkred`); that build happens automatically. The TS package version is determined by the committed `interop/package-lock.json` at clone time (unless you set `INTEROP_ZKRED_DID_WEBPLUS_VERSION` for a one-off override). See [TypeScript implementation](#typescript-implementation-zkreddid-webplus--version-management) and [`ZKRED_VERSION.md`](ZKRED_VERSION.md).
+
+To refresh the catalog beyond the pin recorded in this repo, use
+`git submodule update --remote …` (see [Test-vector / resolver conformance suite](#test-vector--resolver-conformance-suite)), then commit the new submodule SHA if you intend to keep it.

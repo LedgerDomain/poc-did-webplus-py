@@ -1,0 +1,26 @@
+{
+  "cases": [
+    {
+      "axes": {
+        "controller": "rust",
+        "resolver": "zkred",
+        "vdg": true,
+        "vdr": "rust"
+      },
+      "detail": "",
+      "name": "scenario-20",
+      "ok": true,
+      "status": "pass"
+    }
+  ],
+  "config": {
+    "scenario": 20
+  },
+  "durationSeconds": 6.524,
+  "executed": 1,
+  "expected": 1,
+  "kind": "matrix",
+  "runnerExitCode": 0,
+  "scenario": 20,
+  "suite": "matrix-20"
+}

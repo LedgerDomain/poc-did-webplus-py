@@ -1,0 +1,485 @@
+{
+  "cases": [
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"deactivated\": false, \"updated\": \"2025-01-01T00:00:03.875Z\", \"versionId\": 3}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got False",
+      "failedStep": 0,
+      "name": "cold-plain-did-no-metadata",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "cold-plain-did-no-metadata",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"latestVersionId\": \"3\", \"mode\": \"full\", \"selfHash\": \"uHiBSAfVnPOWQxnPE-BDuwdZM-OqAKr_71YRhq2Db-ChdOQ\", \"updated\": \"2025-01-01T00:00:03.875Z\", \"verified\": true, \"versionId\": \"3\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentResolvedLocally: expected False, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got None",
+      "failedStep": 0,
+      "name": "cold-plain-did-no-metadata",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"deactivated\": false, \"updated\": \"2025-01-01T00:00:03.875Z\", \"versionId\": 3}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got False",
+      "failedStep": 0,
+      "name": "conflicting-query-params",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "conflicting-query-params",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"latestVersionId\": \"3\", \"mode\": \"full\", \"selfHash\": \"uHiAtY7yTlaqdAG-cxSdVRpDQyPaH8NY8_24M-hjy2dlICg\", \"updated\": \"2025-01-01T00:00:03.875Z\", \"verified\": true, \"versionId\": \"3\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentResolvedLocally: expected False, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got None",
+      "failedStep": 0,
+      "name": "conflicting-query-params",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"deactivated\": true, \"updated\": \"2025-01-01T00:00:03.875Z\", \"versionId\": 3}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got False",
+      "failedStep": 0,
+      "name": "deactivated-all-local",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "deactivated-all-local",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"latestVersionId\": \"3\", \"mode\": \"full\", \"selfHash\": \"uHiChpeZKxCwBuvsjmkMhwBWJwU43hLiW8cyU98eQrKs13w\", \"updated\": \"2025-01-01T00:00:03.875Z\", \"verified\": true, \"versionId\": \"3\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentResolvedLocally: expected False, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got None",
+      "failedStep": 0,
+      "name": "deactivated-all-local",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"deactivated\": false, \"updated\": \"2025-01-01T00:00:00.001Z\", \"versionId\": 0}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got False",
+      "failedStep": 0,
+      "name": "incremental-range-fetch",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "incremental-range-fetch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"latestVersionId\": \"0\", \"mode\": \"full\", \"selfHash\": \"uHiAT8HhB7HW8-R-OwKgMZ0jUe-g3TiCzNQbdvpetnfVP6w\", \"updated\": \"2025-01-01T00:00:00.001Z\", \"verified\": true, \"versionId\": \"0\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentResolvedLocally: expected False, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got None",
+      "failedStep": 0,
+      "name": "incremental-range-fetch",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"deactivated\": false, \"updated\": \"2025-01-01T00:00:03.875Z\", \"versionId\": 3}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got False",
+      "failedStep": 1,
+      "name": "local-only-matrix",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 2,
+      "steps_expected": 5
+    },
+    {
+      "detail": "ok",
+      "name": "local-only-matrix",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 5,
+      "steps_expected": 5
+    },
+    {
+      "detail": "unsupported options: localResolutionOnly; success: expected False, resolution succeeded; expected failure but didResolutionMetadata.error is missing",
+      "failedStep": 0,
+      "name": "local-only-matrix",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 5
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"deactivated\": false, \"updated\": \"2025-01-01T00:00:03.875Z\", \"versionId\": 3}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got False",
+      "failedStep": 0,
+      "name": "plain-did-always-fetches",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "plain-did-always-fetches",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"latestVersionId\": \"3\", \"mode\": \"full\", \"selfHash\": \"uHiBbG8tKz6-fO5kzpnu7qEeyeEjq6TimadS_CDm4tYoMfA\", \"updated\": \"2025-01-01T00:00:03.875Z\", \"verified\": true, \"versionId\": \"3\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentResolvedLocally: expected False, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got None",
+      "failedStep": 0,
+      "name": "plain-did-always-fetches",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "unsupported options: requestCreate; didDocumentMetadata mismatch: expected {\"created\": \"2025-01-01T00:00:00Z\", \"createdMilliseconds\": \"2025-01-01T00:00:00.001Z\"}, got {\"deactivated\": false, \"updated\": \"2025-01-01T00:00:03.875Z\", \"versionId\": 3}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None",
+      "failedStep": 0,
+      "name": "request-creation-cold",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "request-creation-cold",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "unsupported options: requestCreate; didDocumentMetadata mismatch: expected {\"created\": \"2025-01-01T00:00:00Z\", \"createdMilliseconds\": \"2025-01-01T00:00:00.001Z\"}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"latestVersionId\": \"3\", \"mode\": \"full\", \"selfHash\": \"uHiBFKILcsHMOnH57wsTqfSjREOzhOQWlpA2hXdR0Kb3ZAg\", \"updated\": \"2025-01-01T00:00:03.875Z\", \"verified\": true, \"versionId\": \"3\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentResolvedLocally: expected False, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected False, got None",
+      "failedStep": 0,
+      "name": "request-creation-cold",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"deactivated\": false, \"updated\": \"2025-01-01T00:00:03.875Z\", \"versionId\": 3}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got False",
+      "failedStep": 0,
+      "name": "request-creation-warm",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-creation-warm",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"latestVersionId\": \"3\", \"mode\": \"full\", \"selfHash\": \"uHiBjhQyz0cpuB-c_k7gEfRGPwMtolNaGYDIASCIWx0Z2zQ\", \"updated\": \"2025-01-01T00:00:03.875Z\", \"verified\": true, \"versionId\": \"3\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentResolvedLocally: expected False, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got None",
+      "failedStep": 0,
+      "name": "request-creation-warm",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"deactivated\": false, \"updated\": \"2025-01-01T00:00:03.875Z\", \"versionId\": 3}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got False",
+      "failedStep": 0,
+      "name": "request-deactivated-forces-fetch",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-deactivated-forces-fetch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"latestVersionId\": \"3\", \"mode\": \"full\", \"selfHash\": \"uHiAhZR6sehNix5k19HgiOUN1HCt4cPtOs3y_DJVcGK8FPw\", \"updated\": \"2025-01-01T00:00:03.875Z\", \"verified\": true, \"versionId\": \"3\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentResolvedLocally: expected False, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got None",
+      "failedStep": 0,
+      "name": "request-deactivated-forces-fetch",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"deactivated\": false, \"updated\": \"2025-01-01T00:00:03.875Z\", \"versionId\": 3}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got False",
+      "failedStep": 0,
+      "name": "request-latest-forces-fetch",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-latest-forces-fetch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"latestVersionId\": \"3\", \"mode\": \"full\", \"selfHash\": \"uHiBo_WJEi99s5efASS5_E0sEysqpqaCEEeRT_Ugdb9QdYA\", \"updated\": \"2025-01-01T00:00:03.875Z\", \"verified\": true, \"versionId\": \"3\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentResolvedLocally: expected False, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got None",
+      "failedStep": 0,
+      "name": "request-latest-forces-fetch",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"deactivated\": false, \"updated\": \"2025-01-01T00:00:03.875Z\", \"versionId\": 3}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got False",
+      "failedStep": 0,
+      "name": "request-next-at-latest",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-next-at-latest",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"latestVersionId\": \"3\", \"mode\": \"full\", \"selfHash\": \"uHiDyoAqgpXe8spMW2UYMthKv_ojbHrBMSleuRiErla-UpA\", \"updated\": \"2025-01-01T00:00:03.875Z\", \"verified\": true, \"versionId\": \"3\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentResolvedLocally: expected False, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got None",
+      "failedStep": 0,
+      "name": "request-next-at-latest",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"deactivated\": false, \"updated\": \"2025-01-01T00:00:03.875Z\", \"versionId\": 3}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got False",
+      "failedStep": 0,
+      "name": "request-next-with-local-next",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-next-with-local-next",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"latestVersionId\": \"3\", \"mode\": \"full\", \"selfHash\": \"uHiAF0n2Az49xijqcjNNoytaZlXjsI_eQUE2YRxHJiCmJag\", \"updated\": \"2025-01-01T00:00:03.875Z\", \"verified\": true, \"versionId\": \"3\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentResolvedLocally: expected False, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got None",
+      "failedStep": 0,
+      "name": "request-next-with-local-next",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "version-beyond-served",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "version-beyond-served",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "expected failure but didResolutionMetadata.error is missing",
+      "failedStep": 0,
+      "name": "version-beyond-served",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"deactivated\": false, \"updated\": \"2025-01-01T00:00:03.875Z\", \"versionId\": 3}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got False",
+      "failedStep": 0,
+      "name": "warm-both-params",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-both-params",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"latestVersionId\": \"3\", \"mode\": \"full\", \"selfHash\": \"uHiC37T-TgoY3xR-eM601-r5hv4_nqWFYOJWuaW8suQzSZQ\", \"updated\": \"2025-01-01T00:00:03.875Z\", \"verified\": true, \"versionId\": \"3\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentResolvedLocally: expected False, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got None",
+      "failedStep": 0,
+      "name": "warm-both-params",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"deactivated\": false, \"updated\": \"2025-01-01T00:00:03.875Z\", \"versionId\": 3}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got False",
+      "failedStep": 0,
+      "name": "warm-self-hash",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-self-hash",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"latestVersionId\": \"3\", \"mode\": \"full\", \"selfHash\": \"uHiA-UJsuj75sKJE3QlTm5Ze9JEzDqPqIKlrjYZij3vB55Q\", \"updated\": \"2025-01-01T00:00:03.875Z\", \"verified\": true, \"versionId\": \"3\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentResolvedLocally: expected False, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got None",
+      "failedStep": 0,
+      "name": "warm-self-hash",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"deactivated\": false, \"updated\": \"2025-01-01T00:00:03.875Z\", \"versionId\": 3}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got False",
+      "failedStep": 0,
+      "name": "warm-version-id",
+      "ok": false,
+      "resolver": "python",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-version-id",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "didDocumentMetadata mismatch: expected {}, got {\"created\": \"2025-01-01T00:00:00.001Z\", \"latestVersionId\": \"3\", \"mode\": \"full\", \"selfHash\": \"uHiCrjkeINJOXd_RLb0WyZZYtgE4dO6ZphcjnmYNndr6FEQ\", \"updated\": \"2025-01-01T00:00:03.875Z\", \"verified\": true, \"versionId\": \"3\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got None; didResolutionMetadata.didDocumentResolvedLocally: expected False, got None; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected True, got None",
+      "failedStep": 0,
+      "name": "warm-version-id",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 2
+    }
+  ],
+  "config": {
+    "catalog_url": "http://ledgerdomain.github.io/did-webplus-spec/test-vector",
+    "group": [],
+    "name": [],
+    "resolver": "all",
+    "timeout": 60.0
+  },
+  "durationSeconds": 35.682,
+  "executed": 48,
+  "expected": 48,
+  "expectedByResolver": {
+    "python": 16,
+    "rust": 16,
+    "zkred": 16
+  },
+  "kind": "scenarios",
+  "runnerExitCode": 1,
+  "suite": "scenarios"
+}

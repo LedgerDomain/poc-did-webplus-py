@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 
 INTEROP_DIR = Path(__file__).resolve().parent
 
-RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.1.5"
+RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.1.6"
 PYTHON_CLI_IMAGE = "did-webplus-python-cli"
 # Third-party Zkred TS runner image (not a poc-* tag).
 ZKRED_IMAGE = "did-webplus-zkred"
@@ -33,7 +33,7 @@ ResolverKind = Literal["python", "rust", "zkred"]
 logger = logging.getLogger("interop")
 
 # ---------------------------------------------------------------------------
-# Pinned Rust CLI `did resolve --help` (ghcr.io/ledgerdomain/did-webplus-cli:v0.1.5)
+# Pinned Rust CLI `did resolve --help` (ghcr.io/ledgerdomain/did-webplus-cli:v0.1.6)
 # ---------------------------------------------------------------------------
 # Options mapping for resolution wire options:
 #   requestCreate        -> -C, --creation

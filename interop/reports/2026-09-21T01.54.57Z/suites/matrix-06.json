@@ -1,0 +1,26 @@
+{
+  "cases": [
+    {
+      "axes": {
+        "controller": "python",
+        "resolver": "python",
+        "vdg": true,
+        "vdr": "rust"
+      },
+      "detail": "",
+      "name": "scenario-6",
+      "ok": true,
+      "status": "pass"
+    }
+  ],
+  "config": {
+    "scenario": 6
+  },
+  "durationSeconds": 9.354,
+  "executed": 1,
+  "expected": 1,
+  "kind": "matrix",
+  "runnerExitCode": 0,
+  "scenario": 6,
+  "suite": "matrix-06"
+}

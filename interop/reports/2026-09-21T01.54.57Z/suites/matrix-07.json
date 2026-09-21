@@ -1,0 +1,26 @@
+{
+  "cases": [
+    {
+      "axes": {
+        "controller": "python",
+        "resolver": "rust",
+        "vdg": false,
+        "vdr": "rust"
+      },
+      "detail": "",
+      "name": "scenario-7",
+      "ok": true,
+      "status": "pass"
+    }
+  ],
+  "config": {
+    "scenario": 7
+  },
+  "durationSeconds": 5.031,
+  "executed": 1,
+  "expected": 1,
+  "kind": "matrix",
+  "runnerExitCode": 0,
+  "scenario": 7,
+  "suite": "matrix-07"
+}

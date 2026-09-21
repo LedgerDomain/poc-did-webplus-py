@@ -1,0 +1,26 @@
+{
+  "cases": [
+    {
+      "axes": {
+        "controller": "rust",
+        "resolver": "rust",
+        "vdg": true,
+        "vdr": "rust"
+      },
+      "detail": "",
+      "name": "scenario-16",
+      "ok": true,
+      "status": "pass"
+    }
+  ],
+  "config": {
+    "scenario": 16
+  },
+  "durationSeconds": 5.975,
+  "executed": 1,
+  "expected": 1,
+  "kind": "matrix",
+  "runnerExitCode": 0,
+  "scenario": 16,
+  "suite": "matrix-16"
+}

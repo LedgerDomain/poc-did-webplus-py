@@ -1,0 +1,26 @@
+{
+  "cases": [
+    {
+      "axes": {
+        "controller": "zkred",
+        "resolver": "both",
+        "vdg": false,
+        "vdr": "python"
+      },
+      "detail": "",
+      "name": "scenario-21",
+      "ok": true,
+      "status": "pass"
+    }
+  ],
+  "config": {
+    "scenario": 21
+  },
+  "durationSeconds": 8.965,
+  "executed": 1,
+  "expected": 1,
+  "kind": "matrix",
+  "runnerExitCode": 0,
+  "scenario": 21,
+  "suite": "matrix-21"
+}
