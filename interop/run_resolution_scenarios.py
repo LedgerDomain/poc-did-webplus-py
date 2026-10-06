@@ -3,7 +3,8 @@
 Run did:webplus resolution-scenario catalog vectors against interop resolvers.
 
 Fetches index.json and per-vector resolution-scenario.json, drives the catalog
-server control API (serve-count truncation and request counters) per step,
+server control API (serve-count truncation, VDR failure injection, and request
+counters) per step,
 resolves with persistent per-scenario store, and asserts normative expectations.
 """
 
@@ -204,6 +205,20 @@ def _control_set_serve_count(
             {"path": path, "servedDidDocumentCount": served_did_document_count},
             timeout,
         )
+
+    _with_control_retries(f"PUT {url}", _call)
+
+
+def _control_set_vdr_failure(
+    server_base: str,
+    path: str,
+    fail: bool,
+    timeout: float,
+) -> None:
+    url = f"{server_base.rstrip('/')}/control/vdr-failure"
+
+    def _call() -> None:
+        _http_put_json(url, {"path": path, "fail": fail}, timeout)
 
     _with_control_retries(f"PUT {url}", _call)
 
@@ -487,6 +502,10 @@ def _run_scenario(
                         step["servedDidDocumentCount"],
                         timeout,
                     )
+                    if step.get("vdrFails"):
+                        _control_set_vdr_failure(
+                            server_base, meta.path, True, timeout
+                        )
                     options = ResolutionOptions.from_wire(step["resolutionOptions"])
                     result = resolve(
                         resolver,
@@ -559,6 +578,7 @@ def _write_suite_artifact(
     expected: int,
     executed: int,
     expected_by_resolver_m: dict[str, int],
+    duration_by_resolver_m: dict[str, float],
     duration_seconds: float,
     runner_exit_code: int,
 ) -> None:
@@ -571,6 +591,10 @@ def _write_suite_artifact(
         "executed": executed,
         "expectedByResolver": expected_by_resolver_m,
         "cases": [_case_to_json(c) for c in cases],
+        "durationByResolver": {
+            name: round(seconds, 3)
+            for name, seconds in duration_by_resolver_m.items()
+        },
         "durationSeconds": round(duration_seconds, 3),
         "runnerExitCode": runner_exit_code,
     }
@@ -666,6 +690,7 @@ def main(argv: list[str] | None = None) -> int:
     expected = 0
     executed = 0
     expected_by_resolver_m: dict[str, int] = {}
+    duration_by_resolver_m: dict[str, float] = {}
 
     try:
         logging.basicConfig(
@@ -696,9 +721,9 @@ def main(argv: list[str] | None = None) -> int:
             print(f"ERROR: {e}", file=sys.stderr)
             return runner_exit
 
-        jobs = [(meta, resolver) for meta in meta_v for resolver in resolver_v]
-        expected = len(jobs)
+        expected = len(meta_v) * len(resolver_v)
         expected_by_resolver_m = {r: len(meta_v) for r in resolver_v}
+        duration_by_resolver_m = {r: 0.0 for r in resolver_v}
 
         print(
             f"Running {len(meta_v)} resolution scenario(s) × {len(resolver_v)} resolver(s) "
@@ -709,15 +734,25 @@ def main(argv: list[str] | None = None) -> int:
         for meta in meta_v:
             for resolver in resolver_v:
                 print(f"\n--- {meta.name} / {resolver} ---", flush=True)
-                run = _run_scenario(
-                    meta,
-                    resolver,
-                    server_base=server_base,
-                    timeout=args.timeout,
-                )
-                status = "PASS" if run.ok else "FAIL"
-                print(f"{status} {resolver} {meta.name}", flush=True)
-                result_v.append(run)
+                t_res = time.monotonic()
+                try:
+                    run = _run_scenario(
+                        meta,
+                        resolver,
+                        server_base=server_base,
+                        timeout=args.timeout,
+                    )
+                    status = "PASS" if run.ok else "FAIL"
+                    print(f"{status} {resolver} {meta.name}", flush=True)
+                    result_v.append(run)
+                finally:
+                    duration_by_resolver_m[resolver] += time.monotonic() - t_res
+
+        for resolver in resolver_v:
+            print(
+                f"=== {resolver} done in {duration_by_resolver_m[resolver]:.3f}s ===",
+                flush=True,
+            )
 
         executed = len(result_v)
         result_v.sort(key=lambda c: (c.name, c.resolver))
@@ -738,6 +773,7 @@ def main(argv: list[str] | None = None) -> int:
                 expected=expected,
                 executed=executed,
                 expected_by_resolver_m=expected_by_resolver_m,
+                duration_by_resolver_m=duration_by_resolver_m,
                 duration_seconds=time.monotonic() - t0,
                 runner_exit_code=runner_exit,
             )

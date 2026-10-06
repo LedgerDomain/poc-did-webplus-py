@@ -361,6 +361,31 @@ def _case_to_json(case: CaseResult) -> dict[str, Any]:
     return payload
 
 
+def _run_resolver_cases(
+    meta_v: list[VectorMeta],
+    resolver: str,
+    *,
+    jobs: int,
+    timeout: float,
+) -> list[CaseResult]:
+    """Resolve every selected vector with one resolver, up to `jobs` at a time."""
+    result_v: list[CaseResult] = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
+        future_m = {
+            pool.submit(_run_case, meta, resolver, timeout): meta.name
+            for meta in meta_v
+        }
+        for future in concurrent.futures.as_completed(future_m):
+            case = future.result()
+            status = "PASS" if case.ok else "FAIL"
+            line = f"{status} {case.resolver} {case.name}"
+            if not case.ok:
+                line = f"{line}: {case.detail}"
+            print(line, flush=True)
+            result_v.append(case)
+    return result_v
+
+
 def _write_suite_artifact(
     path: Path,
     *,
@@ -369,6 +394,7 @@ def _write_suite_artifact(
     expected: int,
     executed: int,
     expected_by_resolver_m: dict[str, int],
+    duration_by_resolver_m: dict[str, float],
     duration_seconds: float,
     runner_exit_code: int,
 ) -> None:
@@ -381,6 +407,10 @@ def _write_suite_artifact(
         "executed": executed,
         "expectedByResolver": expected_by_resolver_m,
         "cases": [_case_to_json(c) for c in cases],
+        "durationByResolver": {
+            name: round(seconds, 3)
+            for name, seconds in duration_by_resolver_m.items()
+        },
         "durationSeconds": round(duration_seconds, 3),
         "runnerExitCode": runner_exit_code,
     }
@@ -485,6 +515,7 @@ def main(argv: list[str] | None = None) -> int:
     expected = 0
     executed = 0
     expected_by_resolver_m: dict[str, int] = {}
+    duration_by_resolver_m: dict[str, float] = {}
 
     try:
         if args.jobs < 1:
@@ -519,31 +550,35 @@ def main(argv: list[str] | None = None) -> int:
             print(f"ERROR: {e}", file=sys.stderr)
             return runner_exit
 
-        jobs = [(meta, resolver) for meta in meta_v for resolver in resolver_v]
-        expected = len(jobs)
+        expected = len(meta_v) * len(resolver_v)
         expected_by_resolver_m = {r: len(meta_v) for r in resolver_v}
 
         print(
             f"Running {len(meta_v)} vector(s) × {len(resolver_v)} resolver(s) "
-            f"with jobs={args.jobs}, timeout={args.timeout}s"
+            f"one resolver at a time, jobs={args.jobs}, timeout={args.timeout}s"
         )
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
-            future_m = {
-                pool.submit(_run_case, meta, resolver, args.timeout): (
-                    meta.name,
-                    resolver,
+        for resolver in resolver_v:
+            print(
+                f"\n=== {resolver}: {len(meta_v)} vector(s), jobs={args.jobs} ===",
+                flush=True,
+            )
+            t_res = time.monotonic()
+            try:
+                result_v.extend(
+                    _run_resolver_cases(
+                        meta_v,
+                        resolver,
+                        jobs=args.jobs,
+                        timeout=args.timeout,
+                    )
                 )
-                for meta, resolver in jobs
-            }
-            for future in concurrent.futures.as_completed(future_m):
-                case = future.result()
-                status = "PASS" if case.ok else "FAIL"
-                line = f"{status} {case.resolver} {case.name}"
-                if not case.ok:
-                    line = f"{line}: {case.detail}"
-                print(line, flush=True)
-                result_v.append(case)
+            finally:
+                duration_by_resolver_m[resolver] = time.monotonic() - t_res
+            print(
+                f"=== {resolver} done in {duration_by_resolver_m[resolver]:.3f}s ===",
+                flush=True,
+            )
 
         executed = len(result_v)
         result_v.sort(key=lambda c: (c.name, c.resolver))
@@ -564,6 +599,7 @@ def main(argv: list[str] | None = None) -> int:
                 expected=expected,
                 executed=executed,
                 expected_by_resolver_m=expected_by_resolver_m,
+                duration_by_resolver_m=duration_by_resolver_m,
                 duration_seconds=time.monotonic() - t0,
                 runner_exit_code=runner_exit,
             )

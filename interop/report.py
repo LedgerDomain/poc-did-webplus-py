@@ -34,8 +34,8 @@ ENV_REPRO_KEYS = (
 COMPOSE_PATH = INTEROP_DIR / "docker-compose.yml"
 PACKAGE_LOCK_PATH = INTEROP_DIR / "package-lock.json"
 
-RUST_VDR_IMAGE = "ghcr.io/ledgerdomain/did-webplus-vdr:v0.1.4"
-RUST_VDG_IMAGE = "ghcr.io/ledgerdomain/did-webplus-vdg:v0.1.4"
+RUST_VDR_IMAGE = "ghcr.io/ledgerdomain/did-webplus-vdr:v0.6.0"
+RUST_VDG_IMAGE = "ghcr.io/ledgerdomain/did-webplus-vdg:v0.6.0"
 
 COMPOSE_IMAGE_LINE_RE = re.compile(r"^\s+image:\s+(\S+)\s*$", re.MULTILINE)
 
@@ -552,6 +552,30 @@ def _catalog_case_repro(
     return _repro_run_sh(env_m, tail_v)
 
 
+def _catalog_unit_duration_seconds(
+    suite_data: dict[str, Any],
+    resolver: str,
+    resolvers_v: list[str],
+) -> float | None:
+    """Wall time for one resolver.
+
+    Catalog suites record ``durationByResolver`` so each verdict row is that
+    resolver's own clock. ``durationSeconds`` is the whole suite. Older
+    artifacts only have the suite clock; use it only when a single resolver
+    ran, otherwise every row would show the same combined time.
+    """
+    by_resolver = suite_data.get("durationByResolver")
+    if isinstance(by_resolver, dict) and resolver in by_resolver:
+        raw = by_resolver[resolver]
+        if isinstance(raw, (int, float)) and not isinstance(raw, bool):
+            return float(raw)
+    if len(resolvers_v) == 1:
+        raw = suite_data.get("durationSeconds")
+        if isinstance(raw, (int, float)) and not isinstance(raw, bool):
+            return float(raw)
+    return None
+
+
 def _resolver_expected_count(
     suite_data: dict[str, Any],
     resolver: str,
@@ -719,7 +743,9 @@ def _build_units_and_failures(
                 expected = _resolver_expected_count(
                     suite_data, resolver, resolvers_v, case_v
                 )
-                duration = suite_data.get("durationSeconds")
+                duration = _catalog_unit_duration_seconds(
+                    suite_data, resolver, resolvers_v
+                )
                 executed = len(case_v)
                 if (
                     expected > 0

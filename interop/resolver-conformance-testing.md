@@ -107,8 +107,9 @@ Zkred runs need the `did-webplus-zkred` image (built on demand by `./run.sh`, sa
 | `GET /health` | JSON `{"ok": true, "controlApi": true, …}` — compose healthcheck and `./run.sh` preflight (detects stale static-only images) |
 | Static files under `did-webplus-spec/test-vector/` | `index.json`, vectors, `did-documents.jsonl` |
 | `PUT /control/serve-count` | Truncate served `did-documents.jsonl` to first N lines (per vector `path`) |
+| `PUT /control/vdr-failure` | `{path, fail}`: when `fail` is true, that vector’s `did-documents.jsonl` GETs return HTTP 503 and still increment the request counter |
 | `GET /control/request-count?path=…` | Count GETs of that vector’s `did-documents.jsonl` |
-| `POST /control/reset` | Reset all serve-counts (full file) and request counters |
+| `POST /control/reset` | Reset all serve-counts (full file), VDR-failure flags, and request counters |
 
 HTTP **Range** requests are honored against the *effective* (truncated) body length so incremental fetches behave like a live VDR. With default serve-count (all lines), the server is a drop-in for the old static Range server used by `./run.sh vectors`.
 
@@ -131,7 +132,7 @@ For each selected vector and resolver:
 Vectors in index group `resolution-scenario` ship `resolution-scenario.json` (format `did-webplus-resolution-scenario/1`). For each scenario the runner:
 
 1. Creates a fresh persistent doc-store directory (kept across steps within the scenario).
-2. For each step: reset control state, set `servedDidDocumentCount`, resolve `didQuery` with `resolutionOptions`, assert normative expectations, assert `vdrRequestCount` matches the server counter.
+2. For each step: reset control state, set `servedDidDocumentCount`, set VDR failure when the step’s `vdrFails` is true, resolve `didQuery` with `resolutionOptions`, assert normative expectations, assert `vdrRequestCount` matches the server counter.
 
 **Normative assertions:**
 

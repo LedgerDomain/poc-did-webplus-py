@@ -61,16 +61,19 @@ class VectorRuntime:
         "default_served_did_document_count",
         "served_did_document_count",
         "jsonl_request_count",
+        "vdr_fails",
     )
 
     def __init__(self, default_served_did_document_count: int) -> None:
         self.default_served_did_document_count = default_served_did_document_count
         self.served_did_document_count = default_served_did_document_count
         self.jsonl_request_count = 0
+        self.vdr_fails = False
 
     def reset(self) -> None:
         self.served_did_document_count = self.default_served_did_document_count
         self.jsonl_request_count = 0
+        self.vdr_fails = False
 
 
 class CatalogState:
@@ -110,6 +113,14 @@ class CatalogState:
             octet_length = bodies.served_octet_length(served_did_document_count)
             return served_did_document_count, octet_length
 
+    def set_vdr_failure(self, path_key: str, fail: bool) -> bool:
+        with self._lock:
+            runtime = self.runtime_m.get(path_key)
+            if runtime is None:
+                raise KeyError(path_key)
+            runtime.vdr_fails = fail
+            return fail
+
     def request_count(self, path_key: str) -> int | None:
         with self._lock:
             runtime = self.runtime_m.get(path_key)
@@ -122,14 +133,21 @@ class CatalogState:
             for runtime in self.runtime_m.values():
                 runtime.reset()
 
-    def take_served_body_for_request(self, path_key: str) -> bytes | None:
+    def take_served_body_for_request(self, path_key: str) -> tuple[bytes, bool] | None:
+        """Record a jsonl GET.
+
+        Returns ``(body, vdr_failure)``. ``vdr_failure`` is true when failure
+        injection is active; the request is still counted and ``body`` is empty.
+        """
         with self._lock:
             bodies = self.bodies_m.get(path_key)
             runtime = self.runtime_m.get(path_key)
             if bodies is None or runtime is None:
                 return None
             runtime.jsonl_request_count += 1
-            return bodies.served_body_bytes(runtime.served_did_document_count)
+            if runtime.vdr_fails:
+                return b"", True
+            return bodies.served_body_bytes(runtime.served_did_document_count), False
 
 
 def normalize_control_path(path: str) -> str:
@@ -322,11 +340,19 @@ class TestVectorHTTPRequestHandler(BaseHTTPRequestHandler):
         if rel is not None and rel.endswith(f"/{DID_DOCUMENTS_JSONL}"):
             path_key = rel[: -len(DID_DOCUMENTS_JSONL) - 1]
             range_header = self.headers.get("Range")
-            body_o = self.catalog_state.take_served_body_for_request(path_key)
-            if body_o is None:
+            served_o = self.catalog_state.take_served_body_for_request(path_key)
+            if served_o is None:
                 send_text(self, HTTPStatus.NOT_FOUND, "vector not found")
                 return
-            serve_did_documents_jsonl(self, body_o, range_header)
+            body_bytes, vdr_failure = served_o
+            if vdr_failure:
+                send_text(
+                    self,
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "VDR failure injection active",
+                )
+                return
+            serve_did_documents_jsonl(self, body_bytes, range_header)
             return
 
         file_path = (DOCUMENT_ROOT / url_path).resolve()
@@ -368,24 +394,43 @@ class TestVectorHTTPRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(content)
 
-    def do_PUT(self) -> None:
-        parsed = urlparse(self.path)
-        url_path = unquote(parsed.path.lstrip("/"))
-        if url_path != "control/serve-count":
-            send_text(self, HTTPStatus.NOT_FOUND, "not found")
-            return
-
+    def _read_json_object(self) -> dict[str, Any] | None:
         length = int(self.headers.get("Content-Length", "0"))
         raw = self.rfile.read(length)
         try:
             payload = json.loads(raw.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError):
             send_text(self, HTTPStatus.BAD_REQUEST, "invalid JSON body")
+            return None
+        if not isinstance(payload, dict):
+            send_text(self, HTTPStatus.BAD_REQUEST, "JSON body must be an object")
+            return None
+        return payload
+
+    def do_PUT(self) -> None:
+        parsed = urlparse(self.path)
+        url_path = unquote(parsed.path.lstrip("/"))
+        if url_path == "control/serve-count":
+            self._put_serve_count()
+            return
+        if url_path == "control/vdr-failure":
+            self._put_vdr_failure()
+            return
+        send_text(self, HTTPStatus.NOT_FOUND, "not found")
+
+    def _put_serve_count(self) -> None:
+        payload = self._read_json_object()
+        if payload is None:
             return
 
         path_raw = payload.get("path")
         count_raw = payload.get("servedDidDocumentCount")
-        if not isinstance(path_raw, str) or not isinstance(count_raw, int):
+        # bool is a subclass of int; reject it so true/false are not counts.
+        if (
+            not isinstance(path_raw, str)
+            or isinstance(count_raw, bool)
+            or not isinstance(count_raw, int)
+        ):
             send_text(
                 self,
                 HTTPStatus.BAD_REQUEST,
@@ -417,6 +462,38 @@ class TestVectorHTTPRequestHandler(BaseHTTPRequestHandler):
                 "servedDidDocumentCount": served_count,
                 "servedOctetLength": octet_length,
             },
+        )
+
+    def _put_vdr_failure(self) -> None:
+        payload = self._read_json_object()
+        if payload is None:
+            return
+
+        path_raw = payload.get("path")
+        fail_raw = payload.get("fail")
+        if not isinstance(path_raw, str) or not isinstance(fail_raw, bool):
+            send_text(
+                self,
+                HTTPStatus.BAD_REQUEST,
+                "body requires path (string) and fail (boolean)",
+            )
+            return
+
+        path_key = normalize_control_path(path_raw)
+        try:
+            fail = self.catalog_state.set_vdr_failure(path_key, fail_raw)
+        except KeyError:
+            send_text(
+                self,
+                HTTPStatus.NOT_FOUND,
+                f"vector path not found: {path_key}",
+            )
+            return
+
+        send_json(
+            self,
+            HTTPStatus.OK,
+            {"path": path_key, "fail": fail},
         )
 
     def do_POST(self) -> None:
