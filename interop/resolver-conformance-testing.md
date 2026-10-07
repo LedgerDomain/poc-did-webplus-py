@@ -151,7 +151,7 @@ Vectors in index group `resolution-scenario` ship `resolution-scenario.json` (fo
 |----------|-------------------|
 | Python | `did-webplus-python-cli` sibling container (`resolve … -o json --base-dir <store>`) |
 | Rust | Pinned `ghcr.io/ledgerdomain/did-webplus-cli` with doc-store mount and `-C/-N/-L/-D/-l` flags |
-| Zkred | `did-webplus-zkred` → `ts_runner.mjs resolve` |
+| Zkred | `did-webplus-zkred` → `ts_runner.mjs resolve --store-dir /data` (`FileMicroledgerStore`). Resolution options are not sent; see [ZKRED_RESOLUTION_CONFORMANCE.md](ZKRED_RESOLUTION_CONFORMANCE.md). |
 
 ## Layout / pointers
 

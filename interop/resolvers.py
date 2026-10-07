@@ -66,6 +66,10 @@ RUST_OPTION_SUPPORT: dict[str, bool] = {
     "localResolutionOnly": True,
 }
 
+# @zkred/did-webplus 0.10.0 WebplusResolverOptions has no requestCreate,
+# requestNext, requestLatest, requestDeactivated, or localResolutionOnly.
+# Keep these false until that package accepts the options. Do not send flags
+# the library would ignore. See ZKRED_RESOLUTION_CONFORMANCE.md.
 ZKRED_OPTION_SUPPORT: dict[str, bool] = {
     "requestCreate": False,
     "requestNext": False,
@@ -73,6 +77,9 @@ ZKRED_OPTION_SUPPORT: dict[str, bool] = {
     "requestDeactivated": False,
     "localResolutionOnly": False,
 }
+
+# Host store_dir is mounted here. Distinct from the controller wallet mount.
+ZKRED_DOC_STORE_CONTAINER_PATH = "/data"
 
 
 @dataclass(frozen=True)
@@ -353,10 +360,25 @@ def _build_zkred_cmd(
     store_host_path: Path,
     vdg_url: str | None,
 ) -> list[str]:
-    resolve_args = ["resolve", did_query, "-o", "json"]
+    """
+    Resolve via ts_runner with a FileMicroledgerStore directory.
+
+    Resolution options are not appended. 0.10.0 has no API for them; sending
+    flags the runner would drop would look like support the package lacks.
+    """
+    local = bool(os.environ.get("INTEROP_ZKRED_LOCAL"))
+    store_arg = str(store_host_path) if local else ZKRED_DOC_STORE_CONTAINER_PATH
+    resolve_args = [
+        "resolve",
+        did_query,
+        "--store-dir",
+        store_arg,
+        "-o",
+        "json",
+    ]
     if vdg_url:
         resolve_args.extend(["--vdg-url", vdg_url.rstrip("/")])
-    if os.environ.get("INTEROP_ZKRED_LOCAL"):
+    if local:
         return ["node", str(INTEROP_DIR / "ts_runner.mjs"), *resolve_args]
     return [
         "docker",
@@ -365,7 +387,7 @@ def _build_zkred_cmd(
         "--network",
         DOCKER_NETWORK,
         "-v",
-        f"{store_host_path}:/wallet",
+        f"{store_host_path}:{ZKRED_DOC_STORE_CONTAINER_PATH}",
         ZKRED_IMAGE,
         *resolve_args,
     ]
@@ -385,7 +407,8 @@ def resolve(
 
     ``store_dir`` is a host directory mounted into the resolver container for
     persistent per-scenario DID doc storage (Python ``/data``, Rust ``/data``,
-    Zkred ``/wallet`` — Zkred does not persist resolve state across runs today).
+    Zkred ``/data`` via ``FileMicroledgerStore``). The same directory is reused
+    across steps of one resolution scenario and discarded between scenarios.
     """
     opts = options or ResolutionOptions()
     store_path = _store_mount_path(store_dir)

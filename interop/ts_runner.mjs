@@ -6,7 +6,7 @@
  *   node ts_runner.mjs controller create     --vdr-url <url> --wallet-dir <dir>
  *   node ts_runner.mjs controller update     --did <base-did> --wallet-dir <dir>
  *   node ts_runner.mjs controller deactivate --did <base-did> --wallet-dir <dir>
- *   node ts_runner.mjs resolve <did> [--vdg-url <url>] -o json
+ *   node ts_runner.mjs resolve <did> --store-dir <dir> [--vdg-url <url>] -o json
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -20,6 +20,7 @@ import {
   submitDidUpdate,
   updateDidDocument,
 } from "@zkred/did-webplus";
+import { FileMicroledgerStore } from "@zkred/did-webplus/node";
 
 const STATE_FILENAME = "zkred_state.json";
 const HTTP_SCHEME = { scheme: "http" };
@@ -29,7 +30,7 @@ function usage() {
   node ts_runner.mjs controller create     --vdr-url <url> --wallet-dir <dir>
   node ts_runner.mjs controller update     --did <base-did> --wallet-dir <dir>
   node ts_runner.mjs controller deactivate --did <base-did> --wallet-dir <dir>
-  node ts_runner.mjs resolve <did> [--vdg-url <url>] -o json`;
+  node ts_runner.mjs resolve <did> --store-dir <dir> [--vdg-url <url>] -o json`;
 }
 
 function fail(message, code = 1) {
@@ -156,11 +157,20 @@ function parseArgv(argv) {
   }
   if (argv[0] === "resolve") {
     const rest = argv.slice(1);
-    const out = { command: "resolve", did: null, vdgUrl: null, output: null };
+    const out = {
+      command: "resolve",
+      did: null,
+      vdgUrl: null,
+      storeDir: null,
+      output: null,
+    };
     for (let i = 0; i < rest.length; i++) {
       const a = rest[i];
       if (a === "--vdg-url") {
         out.vdgUrl = takeFlagValue(rest, i, a);
+        i++;
+      } else if (a === "--store-dir") {
+        out.storeDir = takeFlagValue(rest, i, a);
         i++;
       } else if (a === "-o" || a === "--output") {
         out.output = takeFlagValue(rest, i, a);
@@ -175,6 +185,9 @@ function parseArgv(argv) {
     }
     if (!out.did) {
       fail(`resolve requires a DID\n${usage()}`);
+    }
+    if (!out.storeDir) {
+      fail(`--store-dir is required for resolve\n${usage()}`);
     }
     if (out.output !== "json") {
       fail(`resolve requires -o json\n${usage()}`);
@@ -250,8 +263,11 @@ async function controllerDeactivate({ did, walletDir }) {
 }
 
 /**
- * Normalize TS resolve() output to match Python/Rust CLI JSON shape used by
- * the interop harness: didDocument as a JSON string, not an object.
+ * Normalize TS resolve() output to the JSON shape the interop harness parses:
+ * didDocument as a JSON string, plus both metadata objects.
+ *
+ * Resolution failures are included. The caller prints this on stdout and sets
+ * a non-zero exit code; the harness reads stdout for both outcomes.
  */
 function normalizeResolveResult(result) {
   const didDocument =
@@ -260,27 +276,32 @@ function normalizeResolveResult(result) {
       : typeof result.didDocument === "string"
         ? result.didDocument
         : JSON.stringify(result.didDocument);
+  const resMeta = result.didResolutionMetadata;
   return {
     didDocument,
     didDocumentMetadata: result.didDocumentMetadata ?? {},
+    didResolutionMetadata:
+      resMeta && typeof resMeta === "object" ? resMeta : {},
   };
 }
 
-async function resolveDid({ did, vdgUrl }) {
+async function resolveDid({ did, vdgUrl, storeDir }) {
+  // Full mode is the package default and always verifies. Persistence must be
+  // the file store: each interop resolve is a new process, so the in-memory
+  // default would forget the verified prefix before the next scenario step.
   const options = {
     ...HTTP_SCHEME,
-    verify: true,
+    store: new FileMicroledgerStore(storeDir),
   };
   if (vdgUrl) {
     options.vdg = vdgUrl;
   }
   const result = await resolve(did, options);
   const normalized = normalizeResolveResult(result);
+  process.stdout.write(`${JSON.stringify(normalized)}\n`);
   if (result.didResolutionMetadata?.error || !normalized.didDocument) {
-    console.error(JSON.stringify({ ...normalized, didResolutionMetadata: result.didResolutionMetadata }, null, 2));
-    process.exit(1);
+    process.exitCode = 1;
   }
-  console.log(JSON.stringify(normalized));
 }
 
 async function main() {
