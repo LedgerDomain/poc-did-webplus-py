@@ -131,6 +131,35 @@ def test_split_jsonl_allows_trailing_newline() -> None:
     assert _split_jsonl_records('{"a":1}\n{"b":2}\n') == ['{"a":1}', '{"b":2}']
 
 
+def test_split_jsonl_allows_without_trailing_newline() -> None:
+    assert _split_jsonl_records('{"a":1}\n{"b":2}') == ['{"a":1}', '{"b":2}']
+
+
+def test_split_jsonl_incremental_consumes_boundary_separator() -> None:
+    assert _split_jsonl_records(
+        '\n{"b":2}\n',
+        after_archived_boundary=True,
+    ) == ['{"b":2}']
+    assert _split_jsonl_records(
+        '\n{"b":2}',
+        after_archived_boundary=True,
+    ) == ['{"b":2}']
+
+
+def test_split_jsonl_incremental_trailing_newline_only_is_empty() -> None:
+    assert _split_jsonl_records("\n", after_archived_boundary=True) == []
+
+
+def test_split_jsonl_incremental_rejects_missing_separator() -> None:
+    with pytest.raises(ResolutionError, match="separator newline"):
+        _split_jsonl_records('{"b":2}', after_archived_boundary=True)
+
+
+def test_split_jsonl_incremental_rejects_double_separator() -> None:
+    with pytest.raises(ResolutionError, match="blank line"):
+        _split_jsonl_records('\n\n{"b":2}', after_archived_boundary=True)
+
+
 def test_verify_proofs_hard_fails_invalid_proof() -> None:
     doc = {
         "id": "did:webplus:example.com:abc",
@@ -178,12 +207,12 @@ def test_inconsistent_self_hash_slots_rejected() -> None:
         "capabilityDelegation": [],
     }
     compute_self_hash(doc, algorithm="blake3")
-    # Tamper VM selfHash query after hashing (slots no longer consistent)
+    # Tamper only the VM selfHash query param (path suffix stays correct).
     bad = "uHiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     vm = doc["verificationMethod"][0]
-    vm["id"] = vm["id"].replace(doc["selfHash"], bad, 1)
+    vm["id"] = f"{doc['id']}?selfHash={bad}&versionId=0#0"
     jcs = rfc8785.dumps(doc).decode("utf-8")
-    with pytest.raises(SelfHashError, match="self-hash-slot-mismatch"):
+    with pytest.raises(SelfHashError, match="selfHash followed by versionId"):
         verify_self_hash(jcs)
 
 

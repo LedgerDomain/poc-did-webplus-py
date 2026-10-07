@@ -109,7 +109,13 @@ class SQLiteDIDDocStore:
             did = doc["id"]
             version_id = doc["versionId"]
             valid_from = doc["validFrom"]
-            prev_octet_length += len(jcs.encode("utf-8")) + 1
+            # Archived offset is the byte immediately after the final '}' of this
+            # document. A separator newline sits between documents, but is not
+            # assumed after the last verified document.
+            jcs_len = len(jcs.encode("utf-8"))
+            if prev_octet_length > 0:
+                prev_octet_length += 1
+            prev_octet_length += jcs_len
             cursor.execute(
                 """
                 INSERT INTO did_document_records

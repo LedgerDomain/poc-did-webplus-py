@@ -119,17 +119,67 @@ def _query_self_hash(url: str) -> str | None:
     return values[0]
 
 
+def _assert_fully_qualified_resource_url(
+    url: str,
+    *,
+    expected_did: str,
+    expected_self_hash: str,
+    expected_version_id: int,
+    slot_name: str,
+) -> None:
+    """
+    Require a fully-qualified DID resource URL:
+
+    ``{did}?selfHash={doc.selfHash}&versionId={doc.versionId}#{fragment}``
+
+    ``selfHash`` must precede ``versionId``; both values must match the document.
+    """
+    if "#" not in url:
+        raise SelfHashError(f"{slot_name} missing fragment")
+    before_frag, frag = url.split("#", 1)
+    if not frag:
+        raise SelfHashError(f"{slot_name} blank fragment")
+    if "?" not in before_frag:
+        raise SelfHashError(f"{slot_name} not fully-qualified (missing query)")
+    did_part, query = before_frag.split("?", 1)
+    if did_part != expected_did:
+        raise SelfHashError(
+            f"{slot_name} DID mismatch: {did_part!r}, expected {expected_did!r}"
+        )
+    expected_query = (
+        f"selfHash={expected_self_hash}&versionId={expected_version_id}"
+    )
+    if query != expected_query:
+        raise SelfHashError(
+            f"{slot_name} query must be selfHash followed by versionId "
+            f"matching the containing document: got {query!r}, "
+            f"expected {expected_query!r}"
+        )
+
+
 def _assert_self_hash_slots_consistent(doc: dict[str, Any]) -> None:
     """
-    Assert every self-hash slot already equals doc["selfHash"].
+    Assert every self-hash slot already equals doc["selfHash"], and that every
+    verification-method ``id`` / JWK ``kid`` is a fully-qualified resource URL.
 
-    Root: DID id path suffix; selfHash; each verificationMethod id/kid selfHash
-    query param and path suffix (and controller path suffix).
-    Non-root: selfHash field + VM/kid query selfHash params only.
+    Root: DID id path suffix; selfHash; each verificationMethod id/kid (FQ URL
+    plus path suffix) and controller path suffix.
+    Non-root: selfHash field + each verificationMethod id/kid as FQ URL.
     """
     claimed = doc.get("selfHash")
     if not claimed:
         raise SelfHashError("Document has no selfHash field")
+
+    expected_did = doc.get("id")
+    if not expected_did:
+        raise SelfHashError("Document has no id field")
+
+    version_id = doc.get("versionId")
+    if type(version_id) is not int:
+        raise SelfHashError(
+            f"versionId must be a JSON integer for resource URL checks, "
+            f"got {type(version_id).__name__}"
+        )
 
     is_root = (
         "prevDIDDocumentSelfHash" not in doc
@@ -144,51 +194,44 @@ def _assert_self_hash_slots_consistent(doc: dict[str, Any]) -> None:
             )
 
     if is_root:
-        if "id" in doc and doc["id"]:
-            check_equal("id.pathSuffix", _did_path_suffix(doc["id"]))
-            q = _query_self_hash(doc["id"])
-            if q is not None:
-                check_equal("id.selfHash", q)
+        check_equal("id.pathSuffix", _did_path_suffix(expected_did))
+        q = _query_self_hash(expected_did)
+        if q is not None:
+            check_equal("id.selfHash", q)
 
-        for i, vm in enumerate(doc.get("verificationMethod", [])):
-            if "id" in vm and vm["id"]:
-                check_equal(f"verificationMethod[{i}].id.pathSuffix", _did_path_suffix(vm["id"]))
-                q = _query_self_hash(vm["id"])
-                if q is None:
-                    raise SelfHashError(
-                        f"vm-id-selfhash-mismatch: verificationMethod[{i}].id "
-                        "missing selfHash query param"
-                    )
-                check_equal(f"verificationMethod[{i}].id.selfHash", q)
-            if "controller" in vm and vm["controller"]:
+    for i, vm in enumerate(doc.get("verificationMethod", [])):
+        if "id" in vm and vm["id"]:
+            _assert_fully_qualified_resource_url(
+                vm["id"],
+                expected_did=expected_did,
+                expected_self_hash=claimed,
+                expected_version_id=version_id,
+                slot_name=f"verificationMethod[{i}].id",
+            )
+            if is_root:
                 check_equal(
-                    f"verificationMethod[{i}].controller.pathSuffix",
-                    _did_path_suffix(vm["controller"]),
+                    f"verificationMethod[{i}].id.pathSuffix",
+                    _did_path_suffix(vm["id"]),
                 )
-            jwk = vm.get("publicKeyJwk")
-            if isinstance(jwk, dict) and jwk.get("kid"):
+        if is_root and "controller" in vm and vm["controller"]:
+            check_equal(
+                f"verificationMethod[{i}].controller.pathSuffix",
+                _did_path_suffix(vm["controller"]),
+            )
+        jwk = vm.get("publicKeyJwk")
+        if isinstance(jwk, dict) and jwk.get("kid"):
+            _assert_fully_qualified_resource_url(
+                jwk["kid"],
+                expected_did=expected_did,
+                expected_self_hash=claimed,
+                expected_version_id=version_id,
+                slot_name=f"verificationMethod[{i}].kid",
+            )
+            if is_root:
                 check_equal(
                     f"verificationMethod[{i}].kid.pathSuffix",
                     _did_path_suffix(jwk["kid"]),
                 )
-                q = _query_self_hash(jwk["kid"])
-                if q is None:
-                    raise SelfHashError(
-                        f"vm-id-selfhash-mismatch: verificationMethod[{i}].kid "
-                        "missing selfHash query param"
-                    )
-                check_equal(f"verificationMethod[{i}].kid.selfHash", q)
-    else:
-        for i, vm in enumerate(doc.get("verificationMethod", [])):
-            if "id" in vm and vm["id"]:
-                q = _query_self_hash(vm["id"])
-                if q is not None:
-                    check_equal(f"verificationMethod[{i}].id.selfHash", q)
-            jwk = vm.get("publicKeyJwk")
-            if isinstance(jwk, dict) and jwk.get("kid"):
-                q = _query_self_hash(jwk["kid"])
-                if q is not None:
-                    check_equal(f"verificationMethod[{i}].kid.selfHash", q)
 
 
 def _replace_self_hash_slots_in_place(doc: dict[str, Any], placeholder: str) -> None:

@@ -63,12 +63,16 @@ def test_reject_fragment() -> None:
         parse_did_with_query("did:webplus:example.com:abc#frag")
 
 
+# Well-formed blake3-style self-hash used for query parsing tests.
+_VALID_SELF_HASH = "uEiC9wGOLc7j0fWE3D-0rH5hQooYOWpDdmBBcCI_aKEvlnw"
+
+
 def test_parse_did_with_query_params() -> None:
     parsed = parse_did_with_query(
-        "did:webplus:example.com:abc?selfHash=xyz&versionId=1"
+        f"did:webplus:example.com:abc?selfHash={_VALID_SELF_HASH}&versionId=1"
     )
     assert parsed.did == "did:webplus:example.com:abc"
-    assert parsed.query_self_hash == "xyz"
+    assert parsed.query_self_hash == _VALID_SELF_HASH
     assert parsed.query_version_id == 1
 
 
@@ -76,6 +80,54 @@ def test_parse_did_without_query() -> None:
     parsed = parse_did_with_query("did:webplus:example.com:abc")
     assert parsed.query_self_hash is None
     assert parsed.query_version_id is None
+
+
+def test_reject_duplicate_self_hash_query_param() -> None:
+    with pytest.raises(MalformedDIDError, match="Duplicate selfHash"):
+        parse_did_with_query(
+            f"did:webplus:example.com:abc?selfHash={_VALID_SELF_HASH}"
+            f"&selfHash={_VALID_SELF_HASH}"
+        )
+
+
+def test_reject_duplicate_version_id_query_param() -> None:
+    with pytest.raises(MalformedDIDError, match="Duplicate versionId"):
+        parse_did_with_query("did:webplus:example.com:abc?versionId=1&versionId=2")
+
+
+def test_reject_blank_self_hash_query_param() -> None:
+    with pytest.raises(MalformedDIDError, match="Blank selfHash"):
+        parse_did_with_query("did:webplus:example.com:abc?selfHash=")
+
+
+def test_reject_blank_version_id_query_param() -> None:
+    with pytest.raises(MalformedDIDError, match="Blank versionId"):
+        parse_did_with_query("did:webplus:example.com:abc?versionId=")
+
+
+def test_reject_negative_version_id_query_param() -> None:
+    with pytest.raises(MalformedDIDError, match="Negative versionId"):
+        parse_did_with_query("did:webplus:example.com:abc?versionId=-1")
+
+
+def test_reject_invalid_version_id_query_param() -> None:
+    with pytest.raises(MalformedDIDError, match="Invalid versionId"):
+        parse_did_with_query("did:webplus:example.com:abc?versionId=1.5")
+
+
+def test_reject_malformed_self_hash_query_param() -> None:
+    with pytest.raises(MalformedDIDError, match="Malformed selfHash"):
+        parse_did_with_query("did:webplus:example.com:abc?selfHash=not-a-hash")
+
+
+def test_reject_unsupported_query_param() -> None:
+    with pytest.raises(MalformedDIDError, match="Unsupported"):
+        parse_did_with_query("did:webplus:example.com:abc?versionTime=2024-01-01T00:00:00Z")
+
+
+def test_reject_empty_resolution_query() -> None:
+    with pytest.raises(MalformedDIDError, match="Empty DID resolution query"):
+        parse_did_with_query("did:webplus:example.com:abc?")
 
 
 def test_resolution_url_example_com() -> None:

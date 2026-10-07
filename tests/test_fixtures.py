@@ -196,11 +196,16 @@ async def test_resolve_both_dids(
         lines = [ln.strip() for ln in entry["jsonl_path"].read_text().strip().split("\n") if ln.strip()]
         await store.add_did_documents(lines, 0)
 
-        result = await resolver.resolve(entry["did"], no_fetch=True)
+        # Plain DID requires a fetch unless the tip is deactivated; address the
+        # latest local version so local-only resolution works for both fixtures.
+        latest_vid = entry["document_count"] - 1
+        result = await resolver.resolve(
+            f"{entry['did']}?versionId={latest_vid}", no_fetch=True
+        )
         assert result.did_document
         doc = json.loads(result.did_document)
         assert doc["id"] == entry["did"]
-        assert result.did_document_metadata.version_id == entry["document_count"] - 1
+        assert result.did_document_metadata["versionId"] == str(latest_vid)
 
 
 @pytest.mark.asyncio
@@ -219,7 +224,7 @@ async def test_resolve_by_version_id_all(
         docs = _load_microledger(entry["jsonl_path"])
         for i, expected_doc in enumerate(docs):
             result = await resolver.resolve(f"{entry['did']}?versionId={i}")
-            assert result.did_document_metadata.version_id == i
+            assert result.did_document_metadata["versionId"] == str(i)
             resolved_doc = json.loads(result.did_document)
             assert resolved_doc["selfHash"] == expected_doc["selfHash"]
 
@@ -278,12 +283,13 @@ async def test_resolve_ledgerdomain_did_with_full_verification(
 
     await store.add_did_documents(lines, 0)
     resolver = FullDIDResolver(store)
-    result = await resolver.resolve(did, no_fetch=True)
+    latest_vid = entry["document_count"] - 1
+    result = await resolver.resolve(f"{did}?versionId={latest_vid}", no_fetch=True)
 
     assert result.did_document
     doc = json.loads(result.did_document)
     assert doc["id"] == did
-    assert result.did_document_metadata.version_id == entry["document_count"] - 1
+    assert result.did_document_metadata["versionId"] == str(latest_vid)
 
 
 # --- Expected resolution output regression ---
@@ -316,12 +322,21 @@ async def test_resolution_matches_expected(
         await store.add_did_documents(lines, 0)
 
         resolver = FullDIDResolver(store)
-        result = await resolver.resolve(entry["did"], no_fetch=True)
+        # Prefer version-addressed local resolve so active-tip fixtures still work
+        # under localResolutionOnly (plain DID requires fetch when tip is active).
+        expected_vid = expected["didDocumentMetadata"]["versionId"]
+        result = await resolver.resolve(
+            f"{entry['did']}?versionId={expected_vid}", no_fetch=True
+        )
 
         assert result.did_document == expected["didDocument"], f"Mismatch for {entry['root_self_hash'][:20]}"
-        assert result.did_document_metadata.version_id == expected["didDocumentMetadata"]["versionId"]
-        assert result.did_document_metadata.deactivated == expected["didDocumentMetadata"].get("deactivated", False)
-        assert result.did_resolution_metadata.did_document_resolved_locally == expected["didResolutionMetadata"]["didDocumentResolvedLocally"]
+        assert result.did_document_metadata["versionId"] == str(expected_vid)
+        assert result.did_document_metadata.get("deactivated", False) == expected[
+            "didDocumentMetadata"
+        ].get("deactivated", False)
+        assert result.did_resolution_metadata[
+            "didDocumentResolvedLocally"
+        ] == expected["didResolutionMetadata"]["didDocumentResolvedLocally"]
 
 
 # --- Update rules variants ---

@@ -123,11 +123,12 @@ def test_get_with_range(vdr_client: TestClient) -> None:
     path_part = doc["selfHash"] + "/did-documents.jsonl"
 
     vdr_client.post(f"/{path_part}", content=jcs)
-    total = len(jcs.encode("utf-8")) + 1
+    total = len(jcs.encode("utf-8"))
 
     resp = vdr_client.get(f"/{path_part}", headers={"Range": f"bytes={total}-"})
     assert resp.status_code == 416
     assert "Content-Range" in resp.headers
+    assert resp.headers["Content-Range"] == f"bytes */{total}"
 
     resp = vdr_client.get(f"/{path_part}", headers={"Range": "bytes=0-"})
     assert resp.status_code == 206

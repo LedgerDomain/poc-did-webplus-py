@@ -91,7 +91,7 @@ def test_verify_chain_non_root_ok() -> None:
         "selfHash": "Eroot",
         "validFrom": "2024-01-01T00:00:00.000Z",
         "versionId": 0,
-        "updateRules": {},
+        "updateRules": {"key": "dummy"},
         "proofs": [],
         "verificationMethod": [],
         "authentication": [],
@@ -126,7 +126,7 @@ def test_verify_chain_rejects_wrong_prev_hash() -> None:
         "selfHash": "Eroot",
         "validFrom": "2024-01-01T00:00:00.000Z",
         "versionId": 0,
-        "updateRules": {},
+        "updateRules": {"key": "dummy"},
         "proofs": [],
         "verificationMethod": [],
         "authentication": [], "assertionMethod": [], "keyAgreement": [],
@@ -154,7 +154,7 @@ def test_verify_chain_rejects_wrong_version_id() -> None:
         "selfHash": "Eroot",
         "validFrom": "2024-01-01T00:00:00.000Z",
         "versionId": 0,
-        "updateRules": {},
+        "updateRules": {"key": "dummy"},
         "proofs": [],
         "verificationMethod": [],
         "authentication": [], "assertionMethod": [], "keyAgreement": [],
@@ -174,6 +174,63 @@ def test_verify_chain_rejects_wrong_version_id() -> None:
     }''')
     with pytest.raises(ValueError, match="versionId"):
         non_root.verify_chain_constraints(root)
+
+
+def test_verify_chain_rejects_id_mismatch() -> None:
+    root = parse_did_document('''{
+        "id": "did:webplus:example.com:abc",
+        "selfHash": "Eroot",
+        "validFrom": "2024-01-01T00:00:00.000Z",
+        "versionId": 0,
+        "updateRules": {"key": "dummy"},
+        "proofs": [],
+        "verificationMethod": [],
+        "authentication": [], "assertionMethod": [], "keyAgreement": [],
+        "capabilityInvocation": [], "capabilityDelegation": []
+    }''')
+    non_root = parse_did_document('''{
+        "id": "did:webplus:example.com:other",
+        "selfHash": "E2",
+        "prevDIDDocumentSelfHash": "Eroot",
+        "validFrom": "2024-01-02T00:00:00.000Z",
+        "versionId": 1,
+        "updateRules": {},
+        "proofs": [],
+        "verificationMethod": [],
+        "authentication": [], "assertionMethod": [], "keyAgreement": [],
+        "capabilityInvocation": [], "capabilityDelegation": []
+    }''')
+    with pytest.raises(ValueError, match="must equal predecessor id"):
+        non_root.verify_chain_constraints(root)
+
+
+def test_verify_chain_rejects_update_after_deactivation() -> None:
+    tombstone = parse_did_document('''{
+        "id": "did:webplus:example.com:abc",
+        "selfHash": "Eroot",
+        "validFrom": "2024-01-01T00:00:00.000Z",
+        "versionId": 0,
+        "updateRules": {},
+        "proofs": [],
+        "verificationMethod": [],
+        "authentication": [], "assertionMethod": [], "keyAgreement": [],
+        "capabilityInvocation": [], "capabilityDelegation": []
+    }''')
+    assert tombstone.is_deactivated()
+    successor = parse_did_document('''{
+        "id": "did:webplus:example.com:abc",
+        "selfHash": "E2",
+        "prevDIDDocumentSelfHash": "Eroot",
+        "validFrom": "2024-01-02T00:00:00.000Z",
+        "versionId": 1,
+        "updateRules": {"key": "dummy"},
+        "proofs": [],
+        "verificationMethod": [],
+        "authentication": [], "assertionMethod": [], "keyAgreement": [],
+        "capabilityInvocation": [], "capabilityDelegation": []
+    }''')
+    with pytest.raises(ValueError, match="deactivation tombstone"):
+        successor.verify_chain_constraints(tombstone)
 
 
 def test_is_deactivated() -> None:

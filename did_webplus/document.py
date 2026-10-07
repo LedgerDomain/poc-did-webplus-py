@@ -87,6 +87,15 @@ class DIDDocument(BaseModel):
                 raise ValueError(
                     "Non-root DID document must have a previous document"
                 )
+            if self.id != prev_document.id:
+                raise ValueError(
+                    f"Non-root DID document id {self.id!r} must equal "
+                    f"predecessor id {prev_document.id!r}"
+                )
+            if prev_document.is_deactivated():
+                raise ValueError(
+                    "Cannot update DID document after deactivation tombstone"
+                )
             if self.prevDIDDocumentSelfHash != prev_document.selfHash:
                 raise ValueError(
                     f"prevDIDDocumentSelfHash {self.prevDIDDocumentSelfHash!r} "

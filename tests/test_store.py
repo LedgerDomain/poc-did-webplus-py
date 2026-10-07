@@ -29,7 +29,7 @@ async def test_add_and_get_by_self_hash(store: SQLiteDIDDocStore) -> None:
     assert record is not None
     assert record.self_hash == "Ehash1"
     assert record.version_id == 0
-    assert record.did_documents_jsonl_octet_length == len(jcs) + 1
+    assert record.did_documents_jsonl_octet_length == len(jcs)
 
 
 @pytest.mark.asyncio
@@ -176,7 +176,7 @@ async def test_get_microledger_octet_length(store: SQLiteDIDDocStore) -> None:
     jcs = json.dumps(doc, sort_keys=True)
     await store.add_did_documents([jcs], 0)
     length = await store.get_microledger_octet_length("did:webplus:example.com:abc")
-    assert length == len(jcs) + 1
+    assert length == len(jcs)
     assert await store.get_microledger_octet_length("did:webplus:example.com:nonexistent") == 0
 
 
@@ -188,8 +188,20 @@ async def test_get_microledger_from_byte_offset(store: SQLiteDIDDocStore) -> Non
     jcs1 = json.dumps(doc1, sort_keys=True)
     await store.add_did_documents([jcs0, jcs1], 0)
     full = f"{jcs0}\n{jcs1}"
-    offset = len(jcs0) + 1
-    from_offset = await store.get_microledger_from_byte_offset("did:webplus:example.com:x", offset)
-    assert from_offset == jcs1
+    latest = await store.get_latest("did:webplus:example.com:x")
+    assert latest is not None
+    # Offset is after final '}' of each document (separator newline between docs only).
+    assert latest.did_documents_jsonl_octet_length == len(jcs0) + 1 + len(jcs1)
+    assert len(full.encode("utf-8")) == latest.did_documents_jsonl_octet_length
+
+    after_doc0 = len(jcs0)
+    from_boundary = await store.get_microledger_from_byte_offset(
+        "did:webplus:example.com:x", after_doc0
+    )
+    assert from_boundary == f"\n{jcs1}"
+    from_after_sep = await store.get_microledger_from_byte_offset(
+        "did:webplus:example.com:x", after_doc0 + 1
+    )
+    assert from_after_sep == jcs1
     assert await store.get_microledger_from_byte_offset("did:webplus:example.com:x", 0) == full
     assert await store.get_microledger_from_byte_offset("did:webplus:example.com:x", 9999) == ""

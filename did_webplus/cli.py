@@ -10,6 +10,7 @@ import typer
 from did_webplus.controller import ControllerError, create_did, deactivate_did, update_did
 from did_webplus.did import parse_http_scheme_overrides
 from did_webplus.logging_config import configure_logging
+from did_webplus.resolution import ResolutionOptions
 from did_webplus.resolver import FullDIDResolver
 from did_webplus.store import SQLiteDIDDocStore
 from did_webplus.vdr import VDRConfig, create_vdr_app
@@ -34,12 +35,19 @@ def _default_base_dir() -> Path:
 
 
 def _parse_bool_env(val: str | None) -> bool:
-    """Parse env var as boolean for --no-fetch."""
+    """Parse env var as boolean for flag options."""
     if val is None:
         return False
     return val.lower() in ("1", "true", "yes", "on")
 
 
+def _coerce_bool_flag(val: bool | str | None) -> bool:
+    """Normalize Typer/env bool flags (env may arrive as str)."""
+    if isinstance(val, str):
+        return _parse_bool_env(val)
+    if val is None:
+        return False
+    return bool(val)
 
 
 @app.command("resolve")
@@ -63,11 +71,36 @@ def resolve_cmd(
         envvar="DID_WEBPLUS_OUTPUT",
         help="Output format: json or pretty (or set DID_WEBPLUS_OUTPUT)",
     ),
+    request_create: bool = typer.Option(
+        False,
+        "--creation",
+        help="Request creation (created / createdMilliseconds) metadata",
+    ),
+    request_next: bool = typer.Option(
+        False,
+        "--next",
+        help="Request next-update metadata when a successor exists",
+    ),
+    request_latest: bool = typer.Option(
+        False,
+        "--latest",
+        help="Request latest-update metadata",
+    ),
+    request_deactivated: bool = typer.Option(
+        False,
+        "--deactivated",
+        help="Request deactivated metadata (emit false when not deactivated)",
+    ),
+    local_resolution_only: bool = typer.Option(
+        False,
+        "--local-resolution-only",
+        help="Resolve only from local store; fail if a fetch would be required",
+    ),
     no_fetch: bool = typer.Option(
         False,
         "--no-fetch",
         envvar="DID_WEBPLUS_NO_FETCH",
-        help="Resolve only from local store; fail if not cached (or set DID_WEBPLUS_NO_FETCH=1)",
+        help="Alias for --local-resolution-only (or set DID_WEBPLUS_NO_FETCH=1)",
     ),
     http_scheme_override: str | None = typer.Option(
         None,
@@ -78,11 +111,12 @@ def resolve_cmd(
     ),
 ) -> None:
     """Resolve a did:webplus DID and print the result."""
-    # Handle boolean from env (Typer may pass string for envvar)
-    if isinstance(no_fetch, str):
-        no_fetch = _parse_bool_env(no_fetch)
-    elif no_fetch is None:
-        no_fetch = False
+    request_create = _coerce_bool_flag(request_create)
+    request_next = _coerce_bool_flag(request_next)
+    request_latest = _coerce_bool_flag(request_latest)
+    request_deactivated = _coerce_bool_flag(request_deactivated)
+    local_resolution_only = _coerce_bool_flag(local_resolution_only)
+    no_fetch = _coerce_bool_flag(no_fetch)
 
     base_path = base_dir.expanduser().resolve()
     store_path = base_path / "did_documents.db"
@@ -100,13 +134,31 @@ def resolve_cmd(
         http_scheme_overrides=http_scheme_overrides or None,
     )
 
-    result = resolver.resolve_or_result_sync(did, no_fetch=no_fetch)
+    options = ResolutionOptions.coalesce(
+        ResolutionOptions(
+            request_create=request_create,
+            request_next=request_next,
+            request_latest=request_latest,
+            request_deactivated=request_deactivated,
+            local_resolution_only=local_resolution_only,
+        ),
+        no_fetch=no_fetch,
+    )
+    result = resolver.resolve_or_result_sync(did, options=options)
+    res_meta = result.did_resolution_metadata
+    error = res_meta.get("error")
 
-    if result.did_resolution_metadata.error:
+    if error:
         if output == "json":
             typer.echo(json.dumps(result.to_dict(), indent=2))
         else:
-            typer.echo(result.did_resolution_metadata.error, err=True)
+            if isinstance(error, dict):
+                typer.echo(
+                    f"{error.get('title', 'Error')}: {error.get('detail', error)}",
+                    err=True,
+                )
+            else:
+                typer.echo(str(error), err=True)
         raise typer.Exit(1)
 
     if output == "json":
@@ -117,15 +169,20 @@ def resolve_cmd(
         typer.echo(result.did_document)
         typer.echo("\n=== DID Document Metadata ===")
         meta = result.did_document_metadata
-        typer.echo(f"  created: {meta.created}")
-        typer.echo(f"  updated: {meta.updated}")
-        typer.echo(f"  versionId: {meta.version_id}")
-        typer.echo(f"  nextUpdate: {meta.next_update}")
-        typer.echo(f"  deactivated: {meta.deactivated}")
+        for key, value in meta.items():
+            typer.echo(f"  {key}: {value}")
         typer.echo("\n=== DID Resolution Metadata ===")
-        res_meta = result.did_resolution_metadata
-        typer.echo(f"  fetchedUpdatesFromVdr: {res_meta.fetched_updates_from_vdr}")
-        typer.echo(f"  didDocumentResolvedLocally: {res_meta.did_document_resolved_locally}")
+        typer.echo(
+            f"  fetchedUpdatesFromVDR: {res_meta.get('fetchedUpdatesFromVDR')}"
+        )
+        typer.echo(
+            "  didDocumentResolvedLocally: "
+            f"{res_meta.get('didDocumentResolvedLocally')}"
+        )
+        typer.echo(
+            "  didDocumentMetadataResolvedLocally: "
+            f"{res_meta.get('didDocumentMetadataResolvedLocally')}"
+        )
 
 
 @app.command("listen")

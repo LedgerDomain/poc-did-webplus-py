@@ -201,29 +201,80 @@ def parse_did(did_str: str) -> DIDComponents:
     return DIDComponents(host=host, port=port, path=path, root_self_hash=root_self_hash)
 
 
+_SUPPORTED_RESOLUTION_QUERY_PARAMS = frozenset({"selfHash", "versionId"})
+
+
+def _validate_query_self_hash(value: str) -> str:
+    """Validate a resolution ``selfHash`` query value; return it unchanged."""
+    if not value:
+        raise MalformedDIDError("Blank selfHash query parameter")
+    # Lazy import: keep did.py importable without pulling crypto deps eagerly.
+    from did_webplus.selfhash import SelfHashError, _parse_hash
+
+    try:
+        _parse_hash(value)
+    except SelfHashError as e:
+        raise MalformedDIDError(f"Malformed selfHash in query: {value!r}") from e
+    return value
+
+
+def _parse_query_version_id(value: str) -> int:
+    """Parse a resolution ``versionId`` query value (non-negative decimal integer)."""
+    if not value:
+        raise MalformedDIDError("Blank versionId query parameter")
+    if value.startswith("-"):
+        raise MalformedDIDError(f"Negative versionId in query: {value!r}")
+    if not value.isdigit():
+        raise MalformedDIDError(f"Invalid versionId in query: {value!r}")
+    return int(value)
+
+
 def parse_did_with_query(did_query: str) -> DIDWithQuery:
     """
     Parse a DID URL that may include query parameters (?selfHash=...&versionId=...).
 
+    Supported resolution query parameters are only ``selfHash`` and ``versionId``.
+    Fragments, duplicates, blank values, negative/non-integer ``versionId``,
+    malformed ``selfHash``, unknown parameters, and empty ``?`` queries are rejected.
+
     Raises:
-        MalformedDIDError: If the DID is invalid.
+        MalformedDIDError: If the DID or resolution query is invalid.
     """
     if "#" in did_query:
         raise MalformedDIDError("DID query must not contain a fragment")
     if "?" not in did_query:
         return DIDWithQuery(did=did_query, query_self_hash=None, query_version_id=None)
     did, query_string = did_query.split("?", 1)
+    if not query_string:
+        raise MalformedDIDError("Empty DID resolution query")
     parse_did(did)
-    params = parse_qs(query_string, strict_parsing=False)
+    try:
+        params = parse_qs(query_string, keep_blank_values=True, strict_parsing=True)
+    except ValueError as e:
+        raise MalformedDIDError(f"Malformed DID resolution query: {query_string!r}") from e
+
+    unsupported = sorted(set(params) - _SUPPORTED_RESOLUTION_QUERY_PARAMS)
+    if unsupported:
+        raise MalformedDIDError(
+            f"Unsupported DID resolution query parameter(s): {unsupported}"
+        )
+    if not params:
+        raise MalformedDIDError("Empty DID resolution query")
+
     query_self_hash = None
-    if "selfHash" in params and params["selfHash"]:
-        query_self_hash = params["selfHash"][0]
+    if "selfHash" in params:
+        values = params["selfHash"]
+        if len(values) != 1:
+            raise MalformedDIDError("Duplicate selfHash query parameter")
+        query_self_hash = _validate_query_self_hash(values[0])
+
     query_version_id = None
-    if "versionId" in params and params["versionId"]:
-        try:
-            query_version_id = int(params["versionId"][0])
-        except ValueError:
-            raise MalformedDIDError(f"Invalid versionId in query: {params['versionId'][0]!r}")
+    if "versionId" in params:
+        values = params["versionId"]
+        if len(values) != 1:
+            raise MalformedDIDError("Duplicate versionId query parameter")
+        query_version_id = _parse_query_version_id(values[0])
+
     return DIDWithQuery(
         did=did,
         query_self_hash=query_self_hash,

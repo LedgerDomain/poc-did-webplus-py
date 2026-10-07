@@ -51,11 +51,11 @@ RUST_DOC_STORE_CONTAINER_PATH = "/data/did-doc-store.db"
 RUST_DOC_STORE_URL = f"sqlite://{RUST_DOC_STORE_CONTAINER_PATH}?mode=rwc"
 
 PYTHON_OPTION_SUPPORT: dict[str, bool] = {
-    "requestCreate": False,
-    "requestNext": False,
-    "requestLatest": False,
-    "requestDeactivated": False,
-    "localResolutionOnly": True,  # --no-fetch
+    "requestCreate": True,
+    "requestNext": True,
+    "requestLatest": True,
+    "requestDeactivated": True,
+    "localResolutionOnly": True,
 }
 
 RUST_OPTION_SUPPORT: dict[str, bool] = {
@@ -290,8 +290,16 @@ def _build_python_cmd(
         "-o",
         "json",
     ]
+    if options.request_create:
+        cmd.append("--creation")
+    if options.request_next:
+        cmd.append("--next")
+    if options.request_latest:
+        cmd.append("--latest")
+    if options.request_deactivated:
+        cmd.append("--deactivated")
     if options.local_resolution_only:
-        cmd.append("--no-fetch")
+        cmd.append("--local-resolution-only")
     if vdg_url:
         cmd.extend(["--vdg-url", vdg_url.rstrip("/")])
     return cmd
