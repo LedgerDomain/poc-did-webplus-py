@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 
 INTEROP_DIR = Path(__file__).resolve().parent
 
-RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.6.0"
+RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.7.0"
 PYTHON_CLI_IMAGE = "did-webplus-python-cli"
 # Third-party Zkred TS runner image (not a poc-* tag).
 ZKRED_IMAGE = "did-webplus-zkred"

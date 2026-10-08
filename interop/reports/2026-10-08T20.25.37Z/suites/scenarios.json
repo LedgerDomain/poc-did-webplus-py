@@ -1,0 +1,549 @@
+{
+  "cases": [
+    {
+      "detail": "ok",
+      "name": "cold-plain-did-no-metadata",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "cold-plain-did-no-metadata",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "cold-plain-did-no-metadata",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "conflict-via-local-self-hash",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "conflict-via-local-self-hash",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "conflict-via-local-self-hash",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "conflicting-query-params",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "conflicting-query-params",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "conflicting-query-params",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "deactivated-all-local",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "deactivated-all-local",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "unsupported options: requestCreate, requestNext, requestLatest, requestDeactivated, localResolutionOnly; didDocumentMetadata mismatch: expected {\"created\": \"2025-01-01T00:00:00Z\", \"createdMilliseconds\": \"2025-01-01T00:00:00.001Z\", \"deactivated\": true, \"latestUpdate\": \"2025-01-01T00:00:03Z\", \"latestUpdateMilliseconds\": \"2025-01-01T00:00:03.875Z\", \"latestVersionId\": \"3\", \"updated\": \"2025-01-01T00:00:03Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:03.875Z\", \"versionId\": \"3\"}, got {\"deactivated\": true, \"updated\": \"2025-01-01T00:00:03Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:03.875Z\", \"versionId\": \"3\"}",
+      "failedStep": 1,
+      "name": "deactivated-all-local",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "deactivated-known-absence",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "deactivated-known-absence",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "deactivated-known-absence",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "fetch-failed-with-local-document",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "fetch-failed-with-local-document",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "unsupported options: requestLatest; success: expected False, resolution succeeded; expected failure but didResolutionMetadata.error is missing",
+      "failedStep": 1,
+      "name": "fetch-failed-with-local-document",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "incremental-range-fetch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "incremental-range-fetch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "incremental-range-fetch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "local-only-matrix",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 5,
+      "steps_expected": 5
+    },
+    {
+      "detail": "ok",
+      "name": "local-only-matrix",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 5,
+      "steps_expected": 5
+    },
+    {
+      "detail": "unsupported options: localResolutionOnly; success: expected False, resolution succeeded; expected failure but didResolutionMetadata.error is missing",
+      "failedStep": 0,
+      "name": "local-only-matrix",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 5
+    },
+    {
+      "detail": "ok",
+      "name": "plain-did-always-fetches",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "plain-did-always-fetches",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "plain-did-always-fetches",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-creation-cold",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "request-creation-cold",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "unsupported options: requestCreate; didDocumentMetadata mismatch: expected {\"created\": \"2025-01-01T00:00:00Z\", \"createdMilliseconds\": \"2025-01-01T00:00:00.001Z\", \"updated\": \"2025-01-01T00:00:03Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:03.875Z\", \"versionId\": \"3\"}, got {\"updated\": \"2025-01-01T00:00:03Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:03.875Z\", \"versionId\": \"3\"}; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected False, got True",
+      "failedStep": 0,
+      "name": "request-creation-cold",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "request-creation-warm",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-creation-warm",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "unsupported options: requestCreate; didDocumentMetadata mismatch: expected {\"created\": \"2025-01-01T00:00:00Z\", \"createdMilliseconds\": \"2025-01-01T00:00:00.001Z\", \"updated\": \"2025-01-01T00:00:02Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:02.242Z\", \"versionId\": \"2\"}, got {\"updated\": \"2025-01-01T00:00:02Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:02.242Z\", \"versionId\": \"2\"}",
+      "failedStep": 1,
+      "name": "request-creation-warm",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-deactivated-forces-fetch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-deactivated-forces-fetch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "unsupported options: requestDeactivated; didDocumentMetadata mismatch: expected {\"deactivated\": false, \"versionId\": \"0\"}, got {\"versionId\": \"0\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got False; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected False, got True",
+      "failedStep": 1,
+      "name": "request-deactivated-forces-fetch",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-latest-forces-fetch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-latest-forces-fetch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "unsupported options: requestLatest; didDocumentMetadata mismatch: expected {\"latestUpdate\": \"2025-01-01T00:00:03Z\", \"latestUpdateMilliseconds\": \"2025-01-01T00:00:03.875Z\", \"latestVersionId\": \"3\", \"updated\": \"2025-01-01T00:00:01Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:01.633Z\", \"versionId\": \"1\"}, got {\"updated\": \"2025-01-01T00:00:01Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:01.633Z\", \"versionId\": \"1\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got False; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected False, got True",
+      "failedStep": 1,
+      "name": "request-latest-forces-fetch",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-next-at-latest",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-next-at-latest",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "unsupported options: requestNext; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got False; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected False, got True",
+      "failedStep": 1,
+      "name": "request-next-at-latest",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-next-with-local-next",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-next-with-local-next",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "unsupported options: requestNext; didDocumentMetadata mismatch: expected {\"nextUpdate\": \"2025-01-01T00:00:02Z\", \"nextUpdateMilliseconds\": \"2025-01-01T00:00:02.242Z\", \"nextVersionId\": \"2\", \"updated\": \"2025-01-01T00:00:01Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:01.633Z\", \"versionId\": \"1\"}, got {\"updated\": \"2025-01-01T00:00:01Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:01.633Z\", \"versionId\": \"1\"}",
+      "failedStep": 1,
+      "name": "request-next-with-local-next",
+      "ok": false,
+      "resolver": "zkred",
+      "status": "fail",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "version-beyond-served",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "version-beyond-served",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "version-beyond-served",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "warm-both-params",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-both-params",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-both-params",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-self-hash",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-self-hash",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-self-hash",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-version-id",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-version-id",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-version-id",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    }
+  ],
+  "config": {
+    "catalog_url": "http://ledgerdomain.github.io/did-webplus-spec/test-vector",
+    "group": [],
+    "name": [],
+    "resolver": "all",
+    "timeout": 60.0
+  },
+  "durationByResolver": {
+    "python": 60.199,
+    "rust": 11.934,
+    "zkred": 17.056
+  },
+  "durationSeconds": 89.228,
+  "executed": 57,
+  "expected": 57,
+  "expectedByResolver": {
+    "python": 19,
+    "rust": 19,
+    "zkred": 19
+  },
+  "kind": "scenarios",
+  "runnerExitCode": 1,
+  "suite": "scenarios"
+}
