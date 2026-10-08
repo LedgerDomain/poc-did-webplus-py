@@ -1,0 +1,975 @@
+{
+  "argv": [
+    "./run.sh",
+    "all"
+  ],
+  "components": {
+    "controller/python": {
+      "builtFromThisRepo": true,
+      "imageId": "sha256:48dfd71df9ec9526e452002bcbc8c66245e7ff50a309c906627434430eaadc62",
+      "imageRef": "did-webplus-python-cli",
+      "implementation": "python",
+      "role": "controller"
+    },
+    "controller/rust": {
+      "imageId": "sha256:85dd882311482731d592fabbc06d36120ed892f5448853e085271ab775f31fdf",
+      "imageRef": "ghcr.io/ledgerdomain/did-webplus-cli:v0.6.0",
+      "implementation": "rust",
+      "repoDigests": [
+        "ghcr.io/ledgerdomain/did-webplus-cli@sha256:3ea75ece0cd94ea3442ee25450d8f85746396c6466f06cd3429c8307b4e69bed"
+      ],
+      "role": "controller"
+    },
+    "controller/zkred": {
+      "builtFromThisRepo": true,
+      "imageId": "sha256:f297b272d6dcd7d1d0bea136a979385f1286176c0ae173637fa3e798bc2dbc5a",
+      "imageRef": "did-webplus-zkred",
+      "implementation": "zkred",
+      "role": "controller",
+      "zkredPackageVersion": "1.0.1"
+    },
+    "resolver/python": {
+      "builtFromThisRepo": true,
+      "imageId": "sha256:48dfd71df9ec9526e452002bcbc8c66245e7ff50a309c906627434430eaadc62",
+      "imageRef": "did-webplus-python-cli",
+      "implementation": "python",
+      "role": "resolver"
+    },
+    "resolver/rust": {
+      "imageId": "sha256:85dd882311482731d592fabbc06d36120ed892f5448853e085271ab775f31fdf",
+      "imageRef": "ghcr.io/ledgerdomain/did-webplus-cli:v0.6.0",
+      "implementation": "rust",
+      "repoDigests": [
+        "ghcr.io/ledgerdomain/did-webplus-cli@sha256:3ea75ece0cd94ea3442ee25450d8f85746396c6466f06cd3429c8307b4e69bed"
+      ],
+      "role": "resolver"
+    },
+    "resolver/zkred": {
+      "builtFromThisRepo": true,
+      "imageId": "sha256:f297b272d6dcd7d1d0bea136a979385f1286176c0ae173637fa3e798bc2dbc5a",
+      "imageRef": "did-webplus-zkred",
+      "implementation": "zkred",
+      "role": "resolver",
+      "zkredPackageVersion": "1.0.1"
+    },
+    "vdg/rust": {
+      "imageId": "sha256:d86a35e97202ccd225469c1ec64a4d3ecb16dce6bb4a238a50f42ce17e9c5fa4",
+      "imageRef": "ghcr.io/ledgerdomain/did-webplus-vdg:v0.6.0",
+      "implementation": "rust",
+      "listenPort": 8086,
+      "repoDigests": [
+        "ghcr.io/ledgerdomain/did-webplus-vdg@sha256:a6491601920ac892f093015ccf3131133d4e4917dd3a76637b7ef0040d1fffd9"
+      ],
+      "role": "vdg"
+    },
+    "vdr/python": {
+      "builtFromThisRepo": true,
+      "imageId": "sha256:fb13e9fcfdd3b7521ea4969c52333fa54ec329cf5e6a296d748c689f56f33839",
+      "imageRef": "interop-python-vdr",
+      "implementation": "python",
+      "listenPort": 8087,
+      "role": "vdr"
+    },
+    "vdr/rust": {
+      "imageId": "sha256:907b3b46b7afcca74d569e67670d17b2f026e689678f70a07dec012dda70badd",
+      "imageRef": "ghcr.io/ledgerdomain/did-webplus-vdr:v0.6.0",
+      "implementation": "rust",
+      "listenPort": 8085,
+      "repoDigests": [
+        "ghcr.io/ledgerdomain/did-webplus-vdr@sha256:e124405bc79a911481dd5c7238a088026d61a47ed6f2c64b8c0a58f2a9fed4e1"
+      ],
+      "role": "vdr"
+    },
+    "vdr/test-vector-server": {
+      "builtFromThisRepo": true,
+      "catalogSubmoduleSha": "98946046d332885bf9d4444b3fa0cd048456579d",
+      "catalogUrl": "ledgerdomain.github.io/did-webplus-spec/test-vector",
+      "displayLabel": "Built for interop testing; serves the test-vector catalog at ledgerdomain.github.io/did-webplus-spec/test-vector",
+      "imageId": "sha256:e20ac991342d919691f94229a26acb730cd85d014759ab3629e8a4f489f98a1b",
+      "imageRef": "interop-ledgerdomain.github.io",
+      "implementation": "test-vector-server",
+      "listenPort": 80,
+      "role": "vdr",
+      "source": "interop/test_vector_server.py"
+    }
+  },
+  "durationSeconds": 765.0,
+  "endedAt": "2026-10-08T18:38:40Z",
+  "env": {},
+  "failures": [
+    {
+      "caseName": "deactivated-all-local",
+      "caseRepro": "./run.sh scenarios --resolver zkred --name deactivated-all-local --catalog-url http://ledgerdomain.github.io/did-webplus-spec/test-vector --timeout 60.0",
+      "detail": "unsupported options: requestCreate, requestNext, requestLatest, requestDeactivated, localResolutionOnly; didDocumentMetadata mismatch: expected {\"created\": \"2025-01-01T00:00:00Z\", \"createdMilliseconds\": \"2025-01-01T00:00:00.001Z\", \"deactivated\": true, \"latestUpdate\": \"2025-01-01T00:00:03Z\", \"latestUpdateMilliseconds\": \"2025-01-01T00:00:03.875Z\", \"latestVersionId\": \"3\", \"updated\": \"2025-01-01T00:00:03Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:03.875Z\", \"versionId\": \"3\"}, got {\"deactivated\": true, \"updated\": \"2025-01-01T00:00:03Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:03.875Z\", \"versionId\": \"3\"}",
+      "failedStep": 1,
+      "unitId": "scenarios:zkred"
+    },
+    {
+      "caseName": "fetch-failed-with-local-document",
+      "caseRepro": "./run.sh scenarios --resolver zkred --name fetch-failed-with-local-document --catalog-url http://ledgerdomain.github.io/did-webplus-spec/test-vector --timeout 60.0",
+      "detail": "unsupported options: requestLatest; success: expected False, resolution succeeded; expected failure but didResolutionMetadata.error is missing",
+      "failedStep": 1,
+      "unitId": "scenarios:zkred"
+    },
+    {
+      "caseName": "local-only-matrix",
+      "caseRepro": "./run.sh scenarios --resolver zkred --name local-only-matrix --catalog-url http://ledgerdomain.github.io/did-webplus-spec/test-vector --timeout 60.0",
+      "detail": "unsupported options: localResolutionOnly; success: expected False, resolution succeeded; expected failure but didResolutionMetadata.error is missing",
+      "failedStep": 0,
+      "unitId": "scenarios:zkred"
+    },
+    {
+      "caseName": "request-creation-cold",
+      "caseRepro": "./run.sh scenarios --resolver zkred --name request-creation-cold --catalog-url http://ledgerdomain.github.io/did-webplus-spec/test-vector --timeout 60.0",
+      "detail": "unsupported options: requestCreate; didDocumentMetadata mismatch: expected {\"created\": \"2025-01-01T00:00:00Z\", \"createdMilliseconds\": \"2025-01-01T00:00:00.001Z\", \"updated\": \"2025-01-01T00:00:03Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:03.875Z\", \"versionId\": \"3\"}, got {\"updated\": \"2025-01-01T00:00:03Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:03.875Z\", \"versionId\": \"3\"}; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected False, got True",
+      "failedStep": 0,
+      "unitId": "scenarios:zkred"
+    },
+    {
+      "caseName": "request-creation-warm",
+      "caseRepro": "./run.sh scenarios --resolver zkred --name request-creation-warm --catalog-url http://ledgerdomain.github.io/did-webplus-spec/test-vector --timeout 60.0",
+      "detail": "unsupported options: requestCreate; didDocumentMetadata mismatch: expected {\"created\": \"2025-01-01T00:00:00Z\", \"createdMilliseconds\": \"2025-01-01T00:00:00.001Z\", \"updated\": \"2025-01-01T00:00:02Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:02.242Z\", \"versionId\": \"2\"}, got {\"updated\": \"2025-01-01T00:00:02Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:02.242Z\", \"versionId\": \"2\"}",
+      "failedStep": 1,
+      "unitId": "scenarios:zkred"
+    },
+    {
+      "caseName": "request-deactivated-forces-fetch",
+      "caseRepro": "./run.sh scenarios --resolver zkred --name request-deactivated-forces-fetch --catalog-url http://ledgerdomain.github.io/did-webplus-spec/test-vector --timeout 60.0",
+      "detail": "unsupported options: requestDeactivated; didDocumentMetadata mismatch: expected {\"deactivated\": false, \"versionId\": \"0\"}, got {\"versionId\": \"0\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got False; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected False, got True",
+      "failedStep": 1,
+      "unitId": "scenarios:zkred"
+    },
+    {
+      "caseName": "request-latest-forces-fetch",
+      "caseRepro": "./run.sh scenarios --resolver zkred --name request-latest-forces-fetch --catalog-url http://ledgerdomain.github.io/did-webplus-spec/test-vector --timeout 60.0",
+      "detail": "unsupported options: requestLatest; didDocumentMetadata mismatch: expected {\"latestUpdate\": \"2025-01-01T00:00:03Z\", \"latestUpdateMilliseconds\": \"2025-01-01T00:00:03.875Z\", \"latestVersionId\": \"3\", \"updated\": \"2025-01-01T00:00:01Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:01.633Z\", \"versionId\": \"1\"}, got {\"updated\": \"2025-01-01T00:00:01Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:01.633Z\", \"versionId\": \"1\"}; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got False; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected False, got True",
+      "failedStep": 1,
+      "unitId": "scenarios:zkred"
+    },
+    {
+      "caseName": "request-next-at-latest",
+      "caseRepro": "./run.sh scenarios --resolver zkred --name request-next-at-latest --catalog-url http://ledgerdomain.github.io/did-webplus-spec/test-vector --timeout 60.0",
+      "detail": "unsupported options: requestNext; didResolutionMetadata.fetchedUpdatesFromVDR: expected True, got False; didResolutionMetadata.didDocumentMetadataResolvedLocally: expected False, got True",
+      "failedStep": 1,
+      "unitId": "scenarios:zkred"
+    },
+    {
+      "caseName": "request-next-with-local-next",
+      "caseRepro": "./run.sh scenarios --resolver zkred --name request-next-with-local-next --catalog-url http://ledgerdomain.github.io/did-webplus-spec/test-vector --timeout 60.0",
+      "detail": "unsupported options: requestNext; didDocumentMetadata mismatch: expected {\"nextUpdate\": \"2025-01-01T00:00:02Z\", \"nextUpdateMilliseconds\": \"2025-01-01T00:00:02.242Z\", \"nextVersionId\": \"2\", \"updated\": \"2025-01-01T00:00:01Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:01.633Z\", \"versionId\": \"1\"}, got {\"updated\": \"2025-01-01T00:00:01Z\", \"updatedMilliseconds\": \"2025-01-01T00:00:01.633Z\", \"versionId\": \"1\"}",
+      "failedStep": 1,
+      "unitId": "scenarios:zkred"
+    }
+  ],
+  "generatedAt": "2026-10-08T18:38:40Z",
+  "git": {
+    "branch": "main",
+    "catalogSubmoduleSha": "98946046d332885bf9d4444b3fa0cd048456579d",
+    "dirty": true,
+    "sha": "2a0d1b367025f21f5cc7b61d54739483c4301eae"
+  },
+  "host": {
+    "arch": "x86_64",
+    "composeVersion": "Docker Compose version 2.40.3+ds1-0ubuntu1~24.04.1",
+    "cpuCount": 22,
+    "dockerVersion": "Docker version 29.1.3, build 29.1.3-0ubuntu3~24.04.2",
+    "kernel": "Linux 7.0.0-34-generic",
+    "machine": "x86_64",
+    "memTotalBytes": 66823372800
+  },
+  "invocation": "all",
+  "logsDir": "logs",
+  "runId": "2026-10-08T18.25.55Z",
+  "schemaVersion": 1,
+  "startedAt": "2026-10-08T18:25:55Z",
+  "suitesDir": "suites",
+  "units": [
+    {
+      "axes": {
+        "controller": "python",
+        "resolver": "python",
+        "vdg": false,
+        "vdr": "python"
+      },
+      "componentKeys": [
+        "controller/python",
+        "vdr/python",
+        "resolver/python"
+      ],
+      "durationSeconds": 8.552,
+      "expected": 1,
+      "id": "matrix:1",
+      "kind": "matrix",
+      "log": "logs/matrix-01.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 1",
+      "roles": {
+        "controller": "python",
+        "resolver": "python",
+        "vdg": "none",
+        "vdr": "python"
+      },
+      "scenario": 1,
+      "suiteArtifact": "suites/matrix-01.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "python",
+        "resolver": "python",
+        "vdg": true,
+        "vdr": "python"
+      },
+      "componentKeys": [
+        "controller/python",
+        "vdr/python",
+        "resolver/python",
+        "vdg/rust"
+      ],
+      "durationSeconds": 10.108,
+      "expected": 1,
+      "id": "matrix:2",
+      "kind": "matrix",
+      "log": "logs/matrix-02.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 2",
+      "roles": {
+        "controller": "python",
+        "resolver": "python",
+        "vdg": "rust",
+        "vdr": "python"
+      },
+      "scenario": 2,
+      "suiteArtifact": "suites/matrix-02.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "python",
+        "resolver": "rust",
+        "vdg": false,
+        "vdr": "python"
+      },
+      "componentKeys": [
+        "controller/python",
+        "vdr/python",
+        "resolver/rust"
+      ],
+      "durationSeconds": 5.372,
+      "expected": 1,
+      "id": "matrix:3",
+      "kind": "matrix",
+      "log": "logs/matrix-03.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 3",
+      "roles": {
+        "controller": "python",
+        "resolver": "rust",
+        "vdg": "none",
+        "vdr": "python"
+      },
+      "scenario": 3,
+      "suiteArtifact": "suites/matrix-03.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "python",
+        "resolver": "rust",
+        "vdg": true,
+        "vdr": "python"
+      },
+      "componentKeys": [
+        "controller/python",
+        "vdr/python",
+        "resolver/rust",
+        "vdg/rust"
+      ],
+      "durationSeconds": 6.797,
+      "expected": 1,
+      "id": "matrix:4",
+      "kind": "matrix",
+      "log": "logs/matrix-04.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 4",
+      "roles": {
+        "controller": "python",
+        "resolver": "rust",
+        "vdg": "rust",
+        "vdr": "python"
+      },
+      "scenario": 4,
+      "suiteArtifact": "suites/matrix-04.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "python",
+        "resolver": "python",
+        "vdg": false,
+        "vdr": "rust"
+      },
+      "componentKeys": [
+        "controller/python",
+        "vdr/rust",
+        "resolver/python"
+      ],
+      "durationSeconds": 8.693,
+      "expected": 1,
+      "id": "matrix:5",
+      "kind": "matrix",
+      "log": "logs/matrix-05.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 5",
+      "roles": {
+        "controller": "python",
+        "resolver": "python",
+        "vdg": "none",
+        "vdr": "rust"
+      },
+      "scenario": 5,
+      "suiteArtifact": "suites/matrix-05.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "python",
+        "resolver": "python",
+        "vdg": true,
+        "vdr": "rust"
+      },
+      "componentKeys": [
+        "controller/python",
+        "vdr/rust",
+        "resolver/python",
+        "vdg/rust"
+      ],
+      "durationSeconds": 10.017,
+      "expected": 1,
+      "id": "matrix:6",
+      "kind": "matrix",
+      "log": "logs/matrix-06.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 6",
+      "roles": {
+        "controller": "python",
+        "resolver": "python",
+        "vdg": "rust",
+        "vdr": "rust"
+      },
+      "scenario": 6,
+      "suiteArtifact": "suites/matrix-06.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "python",
+        "resolver": "rust",
+        "vdg": false,
+        "vdr": "rust"
+      },
+      "componentKeys": [
+        "controller/python",
+        "vdr/rust",
+        "resolver/rust"
+      ],
+      "durationSeconds": 5.34,
+      "expected": 1,
+      "id": "matrix:7",
+      "kind": "matrix",
+      "log": "logs/matrix-07.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 7",
+      "roles": {
+        "controller": "python",
+        "resolver": "rust",
+        "vdg": "none",
+        "vdr": "rust"
+      },
+      "scenario": 7,
+      "suiteArtifact": "suites/matrix-07.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "python",
+        "resolver": "rust",
+        "vdg": true,
+        "vdr": "rust"
+      },
+      "componentKeys": [
+        "controller/python",
+        "vdr/rust",
+        "resolver/rust",
+        "vdg/rust"
+      ],
+      "durationSeconds": 6.582,
+      "expected": 1,
+      "id": "matrix:8",
+      "kind": "matrix",
+      "log": "logs/matrix-08.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 8",
+      "roles": {
+        "controller": "python",
+        "resolver": "rust",
+        "vdg": "rust",
+        "vdr": "rust"
+      },
+      "scenario": 8,
+      "suiteArtifact": "suites/matrix-08.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "rust",
+        "resolver": "python",
+        "vdg": false,
+        "vdr": "python"
+      },
+      "componentKeys": [
+        "controller/rust",
+        "vdr/python",
+        "resolver/python"
+      ],
+      "durationSeconds": 8.98,
+      "expected": 1,
+      "id": "matrix:9",
+      "kind": "matrix",
+      "log": "logs/matrix-09.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 9",
+      "roles": {
+        "controller": "rust",
+        "resolver": "python",
+        "vdg": "none",
+        "vdr": "python"
+      },
+      "scenario": 9,
+      "suiteArtifact": "suites/matrix-09.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "rust",
+        "resolver": "python",
+        "vdg": true,
+        "vdr": "python"
+      },
+      "componentKeys": [
+        "controller/rust",
+        "vdr/python",
+        "resolver/python",
+        "vdg/rust"
+      ],
+      "durationSeconds": 9.903,
+      "expected": 1,
+      "id": "matrix:10",
+      "kind": "matrix",
+      "log": "logs/matrix-10.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 10",
+      "roles": {
+        "controller": "rust",
+        "resolver": "python",
+        "vdg": "rust",
+        "vdr": "python"
+      },
+      "scenario": 10,
+      "suiteArtifact": "suites/matrix-10.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "rust",
+        "resolver": "rust",
+        "vdg": false,
+        "vdr": "python"
+      },
+      "componentKeys": [
+        "controller/rust",
+        "vdr/python",
+        "resolver/rust"
+      ],
+      "durationSeconds": 4.878,
+      "expected": 1,
+      "id": "matrix:11",
+      "kind": "matrix",
+      "log": "logs/matrix-11.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 11",
+      "roles": {
+        "controller": "rust",
+        "resolver": "rust",
+        "vdg": "none",
+        "vdr": "python"
+      },
+      "scenario": 11,
+      "suiteArtifact": "suites/matrix-11.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "rust",
+        "resolver": "rust",
+        "vdg": true,
+        "vdr": "python"
+      },
+      "componentKeys": [
+        "controller/rust",
+        "vdr/python",
+        "resolver/rust",
+        "vdg/rust"
+      ],
+      "durationSeconds": 6.166,
+      "expected": 1,
+      "id": "matrix:12",
+      "kind": "matrix",
+      "log": "logs/matrix-12.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 12",
+      "roles": {
+        "controller": "rust",
+        "resolver": "rust",
+        "vdg": "rust",
+        "vdr": "python"
+      },
+      "scenario": 12,
+      "suiteArtifact": "suites/matrix-12.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "rust",
+        "resolver": "python",
+        "vdg": false,
+        "vdr": "rust"
+      },
+      "componentKeys": [
+        "controller/rust",
+        "vdr/rust",
+        "resolver/python"
+      ],
+      "durationSeconds": 7.903,
+      "expected": 1,
+      "id": "matrix:13",
+      "kind": "matrix",
+      "log": "logs/matrix-13.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 13",
+      "roles": {
+        "controller": "rust",
+        "resolver": "python",
+        "vdg": "none",
+        "vdr": "rust"
+      },
+      "scenario": 13,
+      "suiteArtifact": "suites/matrix-13.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "rust",
+        "resolver": "python",
+        "vdg": true,
+        "vdr": "rust"
+      },
+      "componentKeys": [
+        "controller/rust",
+        "vdr/rust",
+        "resolver/python",
+        "vdg/rust"
+      ],
+      "durationSeconds": 9.473,
+      "expected": 1,
+      "id": "matrix:14",
+      "kind": "matrix",
+      "log": "logs/matrix-14.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 14",
+      "roles": {
+        "controller": "rust",
+        "resolver": "python",
+        "vdg": "rust",
+        "vdr": "rust"
+      },
+      "scenario": 14,
+      "suiteArtifact": "suites/matrix-14.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "rust",
+        "resolver": "rust",
+        "vdg": false,
+        "vdr": "rust"
+      },
+      "componentKeys": [
+        "controller/rust",
+        "vdr/rust",
+        "resolver/rust"
+      ],
+      "durationSeconds": 4.785,
+      "expected": 1,
+      "id": "matrix:15",
+      "kind": "matrix",
+      "log": "logs/matrix-15.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 15",
+      "roles": {
+        "controller": "rust",
+        "resolver": "rust",
+        "vdg": "none",
+        "vdr": "rust"
+      },
+      "scenario": 15,
+      "suiteArtifact": "suites/matrix-15.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "rust",
+        "resolver": "rust",
+        "vdg": true,
+        "vdr": "rust"
+      },
+      "componentKeys": [
+        "controller/rust",
+        "vdr/rust",
+        "resolver/rust",
+        "vdg/rust"
+      ],
+      "durationSeconds": 6.116,
+      "expected": 1,
+      "id": "matrix:16",
+      "kind": "matrix",
+      "log": "logs/matrix-16.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 16",
+      "roles": {
+        "controller": "rust",
+        "resolver": "rust",
+        "vdg": "rust",
+        "vdr": "rust"
+      },
+      "scenario": 16,
+      "suiteArtifact": "suites/matrix-16.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "python",
+        "resolver": "zkred",
+        "vdg": false,
+        "vdr": "python"
+      },
+      "componentKeys": [
+        "controller/python",
+        "vdr/python",
+        "resolver/zkred"
+      ],
+      "durationSeconds": 6.042,
+      "expected": 1,
+      "id": "matrix:17",
+      "kind": "matrix",
+      "log": "logs/matrix-17.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 17",
+      "roles": {
+        "controller": "python",
+        "resolver": "zkred",
+        "vdg": "none",
+        "vdr": "python"
+      },
+      "scenario": 17,
+      "suiteArtifact": "suites/matrix-17.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "python",
+        "resolver": "zkred",
+        "vdg": true,
+        "vdr": "python"
+      },
+      "componentKeys": [
+        "controller/python",
+        "vdr/python",
+        "resolver/zkred",
+        "vdg/rust"
+      ],
+      "durationSeconds": 7.348,
+      "expected": 1,
+      "id": "matrix:18",
+      "kind": "matrix",
+      "log": "logs/matrix-18.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 18",
+      "roles": {
+        "controller": "python",
+        "resolver": "zkred",
+        "vdg": "rust",
+        "vdr": "python"
+      },
+      "scenario": 18,
+      "suiteArtifact": "suites/matrix-18.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "rust",
+        "resolver": "zkred",
+        "vdg": false,
+        "vdr": "rust"
+      },
+      "componentKeys": [
+        "controller/rust",
+        "vdr/rust",
+        "resolver/zkred"
+      ],
+      "durationSeconds": 5.315,
+      "expected": 1,
+      "id": "matrix:19",
+      "kind": "matrix",
+      "log": "logs/matrix-19.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 19",
+      "roles": {
+        "controller": "rust",
+        "resolver": "zkred",
+        "vdg": "none",
+        "vdr": "rust"
+      },
+      "scenario": 19,
+      "suiteArtifact": "suites/matrix-19.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "rust",
+        "resolver": "zkred",
+        "vdg": true,
+        "vdr": "rust"
+      },
+      "componentKeys": [
+        "controller/rust",
+        "vdr/rust",
+        "resolver/zkred",
+        "vdg/rust"
+      ],
+      "durationSeconds": 6.702,
+      "expected": 1,
+      "id": "matrix:20",
+      "kind": "matrix",
+      "log": "logs/matrix-20.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 20",
+      "roles": {
+        "controller": "rust",
+        "resolver": "zkred",
+        "vdg": "rust",
+        "vdr": "rust"
+      },
+      "scenario": 20,
+      "suiteArtifact": "suites/matrix-20.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "zkred",
+        "resolver": "both",
+        "vdg": false,
+        "vdr": "python"
+      },
+      "componentKeys": [
+        "controller/zkred",
+        "vdr/python",
+        "resolver/python",
+        "resolver/rust"
+      ],
+      "durationSeconds": 10.144,
+      "expected": 1,
+      "id": "matrix:21",
+      "kind": "matrix",
+      "log": "logs/matrix-21.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 21",
+      "roles": {
+        "controller": "zkred",
+        "resolver": "python, rust",
+        "vdg": "none",
+        "vdr": "python"
+      },
+      "scenario": 21,
+      "suiteArtifact": "suites/matrix-21.json",
+      "verdict": "PASS"
+    },
+    {
+      "axes": {
+        "controller": "zkred",
+        "resolver": "both",
+        "vdg": false,
+        "vdr": "rust"
+      },
+      "componentKeys": [
+        "controller/zkred",
+        "vdr/rust",
+        "resolver/python",
+        "resolver/rust"
+      ],
+      "durationSeconds": 9.579,
+      "expected": 1,
+      "id": "matrix:22",
+      "kind": "matrix",
+      "log": "logs/matrix-22.log",
+      "notRun": false,
+      "passed": 1,
+      "repro": "./run.sh matrix 22",
+      "roles": {
+        "controller": "zkred",
+        "resolver": "python, rust",
+        "vdg": "none",
+        "vdr": "rust"
+      },
+      "scenario": 22,
+      "suiteArtifact": "suites/matrix-22.json",
+      "verdict": "PASS"
+    },
+    {
+      "durationSeconds": 83.55,
+      "expected": 302,
+      "id": "vectors:python",
+      "kind": "vectors",
+      "log": "logs/vectors.log",
+      "notRun": false,
+      "passed": 302,
+      "repro": "./run.sh vectors --resolver python",
+      "resolver": "python",
+      "roles": {
+        "controller": "none",
+        "resolver": "python",
+        "vdg": "none",
+        "vdr": "test-vector-server"
+      },
+      "suiteArtifact": "suites/vectors.json",
+      "verdict": "PASS"
+    },
+    {
+      "durationSeconds": 21.786,
+      "expected": 302,
+      "id": "vectors:rust",
+      "kind": "vectors",
+      "log": "logs/vectors.log",
+      "notRun": false,
+      "passed": 302,
+      "repro": "./run.sh vectors --resolver rust",
+      "resolver": "rust",
+      "roles": {
+        "controller": "none",
+        "resolver": "rust",
+        "vdg": "none",
+        "vdr": "test-vector-server"
+      },
+      "suiteArtifact": "suites/vectors.json",
+      "verdict": "PASS"
+    },
+    {
+      "durationSeconds": 34.738,
+      "expected": 302,
+      "id": "vectors:zkred",
+      "kind": "vectors",
+      "log": "logs/vectors.log",
+      "notRun": false,
+      "passed": 302,
+      "repro": "./run.sh vectors --resolver zkred",
+      "resolver": "zkred",
+      "roles": {
+        "controller": "none",
+        "resolver": "zkred",
+        "vdg": "none",
+        "vdr": "test-vector-server"
+      },
+      "suiteArtifact": "suites/vectors.json",
+      "verdict": "PASS"
+    },
+    {
+      "durationSeconds": 60.336,
+      "expected": 19,
+      "id": "scenarios:python",
+      "kind": "scenarios",
+      "log": "logs/scenarios.log",
+      "notRun": false,
+      "passed": 19,
+      "repro": "./run.sh scenarios --resolver python",
+      "resolver": "python",
+      "roles": {
+        "controller": "none",
+        "resolver": "python",
+        "vdg": "none",
+        "vdr": "test-vector-server"
+      },
+      "suiteArtifact": "suites/scenarios.json",
+      "verdict": "PASS"
+    },
+    {
+      "durationSeconds": 11.687,
+      "expected": 19,
+      "id": "scenarios:rust",
+      "kind": "scenarios",
+      "log": "logs/scenarios.log",
+      "notRun": false,
+      "passed": 19,
+      "repro": "./run.sh scenarios --resolver rust",
+      "resolver": "rust",
+      "roles": {
+        "controller": "none",
+        "resolver": "rust",
+        "vdg": "none",
+        "vdr": "test-vector-server"
+      },
+      "suiteArtifact": "suites/scenarios.json",
+      "verdict": "PASS"
+    },
+    {
+      "durationSeconds": 16.746,
+      "expected": 19,
+      "id": "scenarios:zkred",
+      "kind": "scenarios",
+      "log": "logs/scenarios.log",
+      "notRun": false,
+      "passed": 10,
+      "repro": "./run.sh scenarios --resolver zkred",
+      "resolver": "zkred",
+      "roles": {
+        "controller": "none",
+        "resolver": "zkred",
+        "vdg": "none",
+        "vdr": "test-vector-server"
+      },
+      "suiteArtifact": "suites/scenarios.json",
+      "verdict": "FAIL"
+    }
+  ],
+  "zkredPin": "1.0.1"
+}
