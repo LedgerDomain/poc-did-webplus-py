@@ -42,6 +42,7 @@ from resolvers import (
     DOCKER_NETWORK,
     HTTP_SCHEME_OVERRIDE,
     RUST_CLI_IMAGE,
+    RUST_CLI_PLATFORM,
     ResolutionOptions,
     ResolveResult,
     ResolverKind,
@@ -181,6 +182,7 @@ def _run_rust_controller_create(vdr_create_endpoint: str, wallet_dir: Path) -> s
         "--network", DOCKER_NETWORK,
         "-e", f"DID_WEBPLUS_HTTP_SCHEME_OVERRIDE={HTTP_SCHEME_OVERRIDE}",
         "-v", f"{_host_visible_wallet_dir(wallet_dir)}:/root/.did-webplus",
+        "--platform", RUST_CLI_PLATFORM,
         RUST_CLI_IMAGE,
         "wallet", "did", "create", "--vdr", vdr_create_endpoint,
     ]
@@ -212,6 +214,7 @@ def _run_rust_controller_update(wallet_dir: Path, did: str) -> None:
         "--network", DOCKER_NETWORK,
         "-e", f"DID_WEBPLUS_HTTP_SCHEME_OVERRIDE={HTTP_SCHEME_OVERRIDE}",
         "-v", f"{_host_visible_wallet_dir(wallet_dir)}:/root/.did-webplus",
+        "--platform", RUST_CLI_PLATFORM,
         RUST_CLI_IMAGE,
         "wallet", "did", "update", "--did", base_did,
     ]
@@ -236,6 +239,7 @@ def _run_rust_controller_deactivate(wallet_dir: Path, did: str) -> None:
         "--network", DOCKER_NETWORK,
         "-e", f"DID_WEBPLUS_HTTP_SCHEME_OVERRIDE={HTTP_SCHEME_OVERRIDE}",
         "-v", f"{_host_visible_wallet_dir(wallet_dir)}:/root/.did-webplus",
+        "--platform", RUST_CLI_PLATFORM,
         RUST_CLI_IMAGE,
         "wallet", "did", "deactivate", "--did", base_did, "--confirm", DEACTIVATE_CONFIRM,
     ]
