@@ -1,0 +1,540 @@
+{
+  "cases": [
+    {
+      "detail": "ok",
+      "name": "cold-plain-did-no-metadata",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "cold-plain-did-no-metadata",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "cold-plain-did-no-metadata",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "conflict-via-local-self-hash",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "conflict-via-local-self-hash",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "conflict-via-local-self-hash",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "conflicting-query-params",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "conflicting-query-params",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "conflicting-query-params",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "deactivated-all-local",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "deactivated-all-local",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "deactivated-all-local",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "deactivated-known-absence",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "deactivated-known-absence",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "deactivated-known-absence",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "fetch-failed-with-local-document",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "fetch-failed-with-local-document",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "fetch-failed-with-local-document",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "incremental-range-fetch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "incremental-range-fetch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "incremental-range-fetch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "local-only-matrix",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 5,
+      "steps_expected": 5
+    },
+    {
+      "detail": "ok",
+      "name": "local-only-matrix",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 5,
+      "steps_expected": 5
+    },
+    {
+      "detail": "ok",
+      "name": "local-only-matrix",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 5,
+      "steps_expected": 5
+    },
+    {
+      "detail": "ok",
+      "name": "plain-did-always-fetches",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "plain-did-always-fetches",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "plain-did-always-fetches",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-creation-cold",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "request-creation-cold",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "request-creation-cold",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "request-creation-warm",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-creation-warm",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-creation-warm",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-deactivated-forces-fetch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-deactivated-forces-fetch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-deactivated-forces-fetch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-latest-forces-fetch",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-latest-forces-fetch",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-latest-forces-fetch",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-next-at-latest",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-next-at-latest",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-next-at-latest",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-next-with-local-next",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-next-with-local-next",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "request-next-with-local-next",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "version-beyond-served",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "version-beyond-served",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "version-beyond-served",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 1,
+      "steps_expected": 1
+    },
+    {
+      "detail": "ok",
+      "name": "warm-both-params",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-both-params",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-both-params",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-self-hash",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-self-hash",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-self-hash",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-version-id",
+      "ok": true,
+      "resolver": "python",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-version-id",
+      "ok": true,
+      "resolver": "rust",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    },
+    {
+      "detail": "ok",
+      "name": "warm-version-id",
+      "ok": true,
+      "resolver": "zkred",
+      "status": "pass",
+      "steps_executed": 2,
+      "steps_expected": 2
+    }
+  ],
+  "config": {
+    "catalog_url": "http://ledgerdomain.github.io/did-webplus-spec/test-vector",
+    "group": [],
+    "name": [],
+    "resolver": "all",
+    "timeout": 60.0
+  },
+  "durationByResolver": {
+    "python": 48.727,
+    "rust": 9.851,
+    "zkred": 15.321
+  },
+  "durationSeconds": 73.93,
+  "executed": 57,
+  "expected": 57,
+  "expectedByResolver": {
+    "python": 19,
+    "rust": 19,
+    "zkred": 19
+  },
+  "kind": "scenarios",
+  "runnerExitCode": 0,
+  "suite": "scenarios"
+}
