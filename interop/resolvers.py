@@ -16,6 +16,10 @@ from urllib.parse import urlparse
 INTEROP_DIR = Path(__file__).resolve().parent
 
 RUST_CLI_IMAGE = "ghcr.io/ledgerdomain/did-webplus-cli:v0.7.0"
+# The Rust images are published for linux/amd64 only. Pinning the platform lets
+# arm64 hosts (e.g. Apple Silicon) run them under emulation instead of failing
+# with "no matching manifest". docker-compose.yml does the same for the VDR/VDG.
+RUST_CLI_PLATFORM = "linux/amd64"
 PYTHON_CLI_IMAGE = "did-webplus-python-cli"
 # Third-party Zkred TS runner image (not a poc-* tag).
 ZKRED_IMAGE = "did-webplus-zkred"
@@ -66,16 +70,16 @@ RUST_OPTION_SUPPORT: dict[str, bool] = {
     "localResolutionOnly": True,
 }
 
-# @zkred/did-webplus 0.10.0 WebplusResolverOptions has no requestCreate,
-# requestNext, requestLatest, requestDeactivated, or localResolutionOnly.
-# Keep these false until that package accepts the options. Do not send flags
-# the library would ignore. See ZKRED_RESOLUTION_CONFORMANCE.md.
+# @zkred/did-webplus accepts requestCreate, requestNext, requestLatest,
+# requestDeactivated, and localResolutionOnly on resolve() since 1.0.0
+# (0.10.0 had none of them). _build_zkred_cmd forwards them to ts_runner.mjs.
+# See ZKRED_RESOLUTION_CONFORMANCE.md.
 ZKRED_OPTION_SUPPORT: dict[str, bool] = {
-    "requestCreate": False,
-    "requestNext": False,
-    "requestLatest": False,
-    "requestDeactivated": False,
-    "localResolutionOnly": False,
+    "requestCreate": True,
+    "requestNext": True,
+    "requestLatest": True,
+    "requestDeactivated": True,
+    "localResolutionOnly": True,
 }
 
 # Host store_dir is mounted here. Distinct from the controller wallet mount.
@@ -330,6 +334,8 @@ def _build_rust_cmd(
         f"DID_WEBPLUS_HTTP_SCHEME_OVERRIDE={HTTP_SCHEME_OVERRIDE}",
         "-e",
         "RUST_LOG=debug",
+        "--platform",
+        RUST_CLI_PLATFORM,
         RUST_CLI_IMAGE,
         "did",
         "resolve",
@@ -358,13 +364,15 @@ def _build_rust_cmd(
 def _build_zkred_cmd(
     did_query: str,
     store_host_path: Path,
+    opts: ResolutionOptions,
     vdg_url: str | None,
 ) -> list[str]:
     """
     Resolve via ts_runner with a FileMicroledgerStore directory.
 
-    Resolution options are not appended. 0.10.0 has no API for them; sending
-    flags the runner would drop would look like support the package lacks.
+    Resolution options are passed as ``--option <name>`` flags, which the
+    runner spreads into the ``resolve()`` options (supported since
+    @zkred/did-webplus 1.0.0).
     """
     local = bool(os.environ.get("INTEROP_ZKRED_LOCAL"))
     store_arg = str(store_host_path) if local else ZKRED_DOC_STORE_CONTAINER_PATH
@@ -378,6 +386,15 @@ def _build_zkred_cmd(
     ]
     if vdg_url:
         resolve_args.extend(["--vdg-url", vdg_url.rstrip("/")])
+    for name, enabled in (
+        ("requestCreate", opts.request_create),
+        ("requestNext", opts.request_next),
+        ("requestLatest", opts.request_latest),
+        ("requestDeactivated", opts.request_deactivated),
+        ("localResolutionOnly", opts.local_resolution_only),
+    ):
+        if enabled:
+            resolve_args.extend(["--option", name])
     if local:
         return ["node", str(INTEROP_DIR / "ts_runner.mjs"), *resolve_args]
     return [
@@ -423,7 +440,7 @@ def resolve(
         cwd = None
     elif resolver == "zkred":
         unsupported = _unsupported_for(opts, ZKRED_OPTION_SUPPORT)
-        cmd = _build_zkred_cmd(did_query, store_path, vdg_url)
+        cmd = _build_zkred_cmd(did_query, store_path, opts, vdg_url)
         cwd = str(INTEROP_DIR) if os.environ.get("INTEROP_ZKRED_LOCAL") else None
     else:
         raise ValueError(f"unknown resolver {resolver!r}")

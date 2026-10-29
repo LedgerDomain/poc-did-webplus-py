@@ -6,7 +6,7 @@
  *   node ts_runner.mjs controller create     --vdr-url <url> --wallet-dir <dir>
  *   node ts_runner.mjs controller update     --did <base-did> --wallet-dir <dir>
  *   node ts_runner.mjs controller deactivate --did <base-did> --wallet-dir <dir>
- *   node ts_runner.mjs resolve <did> --store-dir <dir> [--vdg-url <url>] -o json
+ *   node ts_runner.mjs resolve <did> --store-dir <dir> [--vdg-url <url>] [--option <name>]... -o json
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -30,7 +30,7 @@ function usage() {
   node ts_runner.mjs controller create     --vdr-url <url> --wallet-dir <dir>
   node ts_runner.mjs controller update     --did <base-did> --wallet-dir <dir>
   node ts_runner.mjs controller deactivate --did <base-did> --wallet-dir <dir>
-  node ts_runner.mjs resolve <did> --store-dir <dir> [--vdg-url <url>] -o json`;
+  node ts_runner.mjs resolve <did> --store-dir <dir> [--vdg-url <url>] [--option <name>]... -o json`;
 }
 
 function fail(message, code = 1) {
@@ -163,6 +163,7 @@ function parseArgv(argv) {
       vdgUrl: null,
       storeDir: null,
       output: null,
+      resolutionOptions: {},
     };
     for (let i = 0; i < rest.length; i++) {
       const a = rest[i];
@@ -171,6 +172,9 @@ function parseArgv(argv) {
         i++;
       } else if (a === "--store-dir") {
         out.storeDir = takeFlagValue(rest, i, a);
+        i++;
+      } else if (a === "--option") {
+        out.resolutionOptions[takeFlagValue(rest, i, a)] = true;
         i++;
       } else if (a === "-o" || a === "--output") {
         out.output = takeFlagValue(rest, i, a);
@@ -285,13 +289,14 @@ function normalizeResolveResult(result) {
   };
 }
 
-async function resolveDid({ did, vdgUrl, storeDir }) {
+async function resolveDid({ did, vdgUrl, storeDir, resolutionOptions }) {
   // Full mode is the package default and always verifies. Persistence must be
   // the file store: each interop resolve is a new process, so the in-memory
   // default would forget the verified prefix before the next scenario step.
   const options = {
     ...HTTP_SCHEME,
     store: new FileMicroledgerStore(storeDir),
+    ...resolutionOptions,
   };
   if (vdgUrl) {
     options.vdg = vdgUrl;

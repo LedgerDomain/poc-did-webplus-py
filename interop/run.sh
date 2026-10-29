@@ -137,7 +137,6 @@ if spec_dir.is_dir():
 
 arch = subprocess.run(["uname", "-m"], capture_output=True, text=True, check=False)
 kernel = subprocess.run(["uname", "-sr"], capture_output=True, text=True, check=False)
-nproc = subprocess.run(["nproc"], capture_output=True, text=True, check=False)
 mem_total_bytes = None
 try:
     meminfo = Path("/proc/meminfo").read_text(encoding="utf-8")
@@ -162,7 +161,7 @@ host = {
     "arch": (arch.stdout or "").strip() or None,
     "machine": (arch.stdout or "").strip() or None,
     "kernel": (kernel.stdout or "").strip() or None,
-    "cpuCount": int((nproc.stdout or "0").strip() or 0) or None,
+    "cpuCount": os.cpu_count(),
     "memTotalBytes": mem_total_bytes,
     "dockerVersion": (docker_ver.stdout or "").strip() or None,
     "composeVersion": (compose_ver.stdout or "").strip() or None,
